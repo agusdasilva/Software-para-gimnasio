@@ -3,6 +3,7 @@ package com.example.gymweb.model;
 import jakarta.persistence.*;
 import org.springframework.boot.autoconfigure.batch.BatchTransactionManager;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -22,11 +23,11 @@ public class Membresia {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    private Date fecha_inicio;
-    private Date fecha_fin;
+    private LocalDateTime fecha_inicio;
+    private LocalDateTime fecha_fin;
     private Estado estado;
 
-    public Membresia(int id, Usuario usuario, Plan plan, Date fecha_inicio, Date fecha_fin, Estado estado) {
+    public Membresia(int id, Usuario usuario, Plan plan, LocalDateTime fecha_inicio, LocalDateTime fecha_fin, Estado estado) {
         this.id = id;
         this.usuario = usuario;
         this.plan = plan;
@@ -59,19 +60,19 @@ public class Membresia {
         this.plan = plan;
     }
 
-    public Date getFecha_inicio() {
+    public LocalDateTime getFecha_inicio() {
         return fecha_inicio;
     }
 
-    public void setFecha_inicio(Date fecha_inicio) {
+    public void setFecha_inicio(LocalDateTime fecha_inicio) {
         this.fecha_inicio = fecha_inicio;
     }
 
-    public Date getFecha_fin() {
+    public LocalDateTime getFecha_fin() {
         return fecha_fin;
     }
 
-    public void setFecha_fin(Date fecha_fin) {
+    public void setFecha_fin(LocalDateTime fecha_fin) {
         this.fecha_fin = fecha_fin;
     }
 

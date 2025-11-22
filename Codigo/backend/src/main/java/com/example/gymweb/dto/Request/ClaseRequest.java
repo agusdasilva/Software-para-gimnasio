@@ -9,10 +9,22 @@ public class ClaseRequest {
     private String titulo;
     @NotBlank (message = "La descripcion no puede estar vacia")
     private String Descripcion;
+    private int cupo;
+    private Integer creadorId;
 
-    public ClaseRequest(String titulo, String descripcion) {
+    public ClaseRequest(String titulo, String descripcion, int cupo, Integer creadorId) {
         this.titulo = titulo;
         Descripcion = descripcion;
+        this.cupo = cupo;
+        this.creadorId = creadorId;
+    }
+
+    public Integer getCreadorId() {
+        return creadorId;
+    }
+
+    public void setCreadorId(Integer creadorId) {
+        this.creadorId = creadorId;
     }
 
     public ClaseRequest() {
@@ -32,5 +44,14 @@ public class ClaseRequest {
 
     public void setDescripcion(String descripcion) {
         Descripcion = descripcion;
+    }
+
+
+    public int getCupo() {
+        return cupo;
+    }
+
+    public void setCupo(int cupo) {
+        this.cupo = cupo;
     }
 }
