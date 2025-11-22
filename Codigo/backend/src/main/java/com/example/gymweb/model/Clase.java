@@ -8,21 +8,41 @@ import java.util.List;
 @Entity
 @Table(name = "Clase")
 public class Clase {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column (name = "id_clase")
+    @Column(name = "id_clase")
     private int id;
 
     private String titulo;
     private String descripcion;
+    private int cupo;
 
-    @OneToMany(mappedBy = "clase")
+    @ManyToOne
+    @JoinColumn(name = "creador_id")
+    private Usuario creador;
+
+    // UsuarioXClase maneja alumnos + entrenador
+    @OneToMany(mappedBy = "clase", cascade = CascadeType.ALL)
     private List<UsuarioXClase> usuarios;
 
-    public Clase(int id, String titulo, String descripcion) {
+    // Rutinas adjuntadas a la clase
+    @ManyToMany
+    @JoinTable(
+            name = "clasexrutina",
+            joinColumns = @JoinColumn(name = "clase_id"),
+            inverseJoinColumns = @JoinColumn(name = "rutina_id")
+    )
+    private List<Rutina> rutinas;
+
+    public Clase(int id, String titulo, String descripcion, int cupo, Usuario creador, List<UsuarioXClase> usuarios, List<Rutina> rutinas) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
+        this.cupo = cupo;
+        this.creador = creador;
+        this.usuarios = usuarios;
+        this.rutinas = rutinas;
     }
 
     public Clase() {
@@ -58,5 +78,30 @@ public class Clase {
 
     public void setUsuarios(List<UsuarioXClase> usuarios) {
         this.usuarios = usuarios;
+    }
+
+    public int getCupo() {
+        return cupo;
+    }
+
+    public void setCupo(int cupo) {
+        this.cupo = cupo;
+    }
+
+
+    public List<Rutina> getRutinas() {
+        return rutinas;
+    }
+
+    public void setRutinas(List<Rutina> rutinas) {
+        this.rutinas = rutinas;
+    }
+
+    public Usuario getCreador() {
+        return creador;
+    }
+
+    public void setCreador(Usuario creador) {
+        this.creador = creador;
     }
 }

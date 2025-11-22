@@ -3,6 +3,7 @@ package com.example.gymweb.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -21,11 +22,11 @@ public class Pago {
     @Enumerated(EnumType.STRING)
     private EstadoPago estado;
 
-    private Date fecha;
+    private LocalDateTime fecha;
     private BigDecimal monto;
     private String comprobante_url;
 
-    public Pago(int id, Membresia membresia, EstadoPago estado, Date fecha, BigDecimal monto, String comprobante_url) {
+    public Pago(int id, Membresia membresia, EstadoPago estado, LocalDateTime fecha, BigDecimal monto, String comprobante_url) {
         this.id = id;
         this.membresia = membresia;
         this.estado = estado;
@@ -61,11 +62,11 @@ public class Pago {
         this.estado = estado;
     }
 
-    public Date getFecha() {
+    public LocalDateTime getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 

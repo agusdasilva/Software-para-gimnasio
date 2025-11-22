@@ -19,11 +19,7 @@ public class UsuarioXClase {
     @JoinColumn(name = "clase_id")
     private Clase clase;
 
-    public UsuarioXClase(int id, Usuario usuario, Clase clase) {
-        this.id = id;
-        this.usuario = usuario;
-        this.clase = clase;
-    }
+    private boolean aprobado = false; // entrenador aprueba
 
     public UsuarioXClase() {
     }
@@ -50,5 +46,13 @@ public class UsuarioXClase {
 
     public void setClase(Clase clase) {
         this.clase = clase;
+    }
+
+    public boolean isAprobado() {
+        return aprobado;
+    }
+
+    public void setAprobado(boolean aprobado) {
+        this.aprobado = aprobado;
     }
 }

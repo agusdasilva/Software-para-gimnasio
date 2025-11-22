@@ -2,6 +2,8 @@ package com.example.gymweb.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -17,10 +19,10 @@ public class InvitacionClase {
     @JoinColumn(name = "usu_clase_id")
     private UsuarioXClase usuarioClase;
 
-    private Estado estado;
-    private Date fecha;
+    private EstadoInvitacion estado;
+    private LocalDateTime fecha;
 
-    public InvitacionClase(int id, UsuarioXClase usuarioClase, Estado estado, Date fecha) {
+    public InvitacionClase(int id, UsuarioXClase usuarioClase, EstadoInvitacion estado, LocalDateTime fecha) {
         this.id = id;
         this.usuarioClase = usuarioClase;
         this.estado = estado;
@@ -46,19 +48,19 @@ public class InvitacionClase {
         this.usuarioClase = usuarioClase;
     }
 
-    public Estado getEstado() {
+    public EstadoInvitacion getEstado() {
         return estado;
     }
 
-    public void setEstado(Estado estado) {
+    public void setEstado(EstadoInvitacion estado) {
         this.estado = estado;
     }
 
-    public Date getFecha() {
+    public LocalDateTime getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 }

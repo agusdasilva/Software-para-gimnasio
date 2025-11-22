@@ -6,13 +6,15 @@ public class RutinaRequest {
     private String descripcion;
     private String imagen;
     private Integer descanso_seg;
+    private Boolean esGlobal = false;
 
-    public RutinaRequest(String nombre, Integer idCreador, String descripcion, String imagen, Integer descanso_seg) {
+    public RutinaRequest(String nombre, Integer idCreador, String descripcion, String imagen, Integer descanso_seg, Boolean esGlobal) {
         this.nombre = nombre;
         this.idCreador = idCreador;
         this.descripcion = descripcion;
         this.imagen = imagen;
         this.descanso_seg = descanso_seg;
+        this.esGlobal = esGlobal;
     }
 
     public String getNombre() {
@@ -53,5 +55,13 @@ public class RutinaRequest {
 
     public void setDescanso_seg(Integer descanso_seg) {
         this.descanso_seg = descanso_seg;
+    }
+
+    public Boolean getEsGlobal() {
+        return esGlobal;
+    }
+
+    public void setEsGlobal(Boolean esGlobal) {
+        this.esGlobal = esGlobal;
     }
 }

@@ -5,7 +5,7 @@ public class RutinaResponse {
     private String nombre;
     private String creador;
     private RutinaDetalleResponse detalle;
-
+    private boolean esGlobal;
 
     public int getId() {
         return id;
@@ -37,5 +37,13 @@ public class RutinaResponse {
 
     public void setDetalle(RutinaDetalleResponse detalle) {
         this.detalle = detalle;
+    }
+
+    public boolean isEsGlobal() {
+        return esGlobal;
+    }
+
+    public void setEsGlobal(boolean esGlobal) {
+        this.esGlobal = esGlobal;
     }
 }

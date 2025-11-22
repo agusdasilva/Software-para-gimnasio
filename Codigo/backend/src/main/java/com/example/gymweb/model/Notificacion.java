@@ -3,6 +3,7 @@ package com.example.gymweb.model;
 import jakarta.persistence.*;
 import org.w3c.dom.Text;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -19,11 +20,11 @@ public class Notificacion {
     private Usuario usuario;
     @Lob
     private String mensaje;
-    private Date fecha;
+    private LocalDateTime fecha;
     @Column(name = "leida")
     private boolean leida;
 
-    public Notificacion(int id, Usuario usuario, String mensaje, Date fecha, boolean leida) {
+    public Notificacion(int id, Usuario usuario, String mensaje, LocalDateTime fecha, boolean leida) {
         this.id = id;
         this.usuario = usuario;
         this.mensaje = mensaje;
@@ -58,11 +59,11 @@ public class Notificacion {
         this.mensaje = mensaje;
     }
 
-    public Date getFecha() {
+    public LocalDateTime getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 
