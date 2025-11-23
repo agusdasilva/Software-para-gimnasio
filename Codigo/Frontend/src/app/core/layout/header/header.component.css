@@ -1,0 +1,68 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: #222;
+  color: #fff;
+  gap: 16px;
+}
+
+.logo {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logo-main {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.logo-sub {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.nav {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.nav a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.nav a.active {
+  color: #fff;
+  font-weight: bold;
+  border-bottom: 2px solid #fff;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.username {
+  font-size: 14px;
+  color: #ddd;
+}
+
+.logout-btn {
+  border: 1px solid #555;
+  background: #444;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.logout-btn:hover {
+  background: #666;
+}
