@@ -38,6 +38,12 @@ export class AuthService {
     return userJson ? JSON.parse(userJson) as AuthUser : null;
   }
 
+  setSession(token: string, user: AuthUser): void {
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
   get currentUser$(): Observable<AuthUser | null> {
     return this.currentUserSubject.asObservable();
   }

@@ -1,38 +1,37 @@
 <header class="app-header">
   <div class="logo" (click)="router.navigate(['/'])">
-    <span class="logo-main">Gimnasio</span>
-    <span class="logo-sub">Software</span>
+    <span class="logo-main">Gimnasio <span class="logo-red">F86</span></span>
   </div>
 
   <nav class="nav" *ngIf="isAuthenticated(); else publicLinks">
 
-    <!-- Links para ADMIN -->
+    <!-- ADMIN -->
     <ng-container *ngIf="isAdmin()">
       <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
       <a routerLink="/usuarios" routerLinkActive="active">Usuarios</a>
       <a routerLink="/clases" routerLinkActive="active">Clases</a>
       <a routerLink="/rutinas" routerLinkActive="active">Rutinas</a>
-      <a routerLink="/membresias" routerLinkActive="active">Membresías</a>
+      <a routerLink="/membresias" routerLinkActive="active">Membres��as</a>
       <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
       <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
       <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
     </ng-container>
 
-    <!-- Links para ENTRENADOR -->
+    <!-- ENTRENADOR -->
     <ng-container *ngIf="!isAdmin() && isTrainer()">
       <a routerLink="/dashboard" routerLinkActive="active">Inicio</a>
-      <a routerLink="/clases" routerLinkActive="active">Mis clases</a>
+      <a routerLink="/clases" routerLinkActive="active">Mis Clases</a>
       <a routerLink="/rutinas" routerLinkActive="active">Rutinas</a>
       <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
       <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
     </ng-container>
 
-    <!-- Links para SOCIO / miembro -->
+    <!-- SOCIO -->
     <ng-container *ngIf="!isAdmin() && !isTrainer() && isMember()">
       <a routerLink="/dashboard" routerLinkActive="active">Inicio</a>
-      <a routerLink="/clases" routerLinkActive="active">Mis clases</a>
-      <a routerLink="/rutinas" routerLinkActive="active">Mis rutinas</a>
-      <a routerLink="/membresias" routerLinkActive="active">Membresía</a>
+      <a routerLink="/clases" routerLinkActive="active">Mis Clases</a>
+      <a routerLink="/rutinas" routerLinkActive="active">Mis Rutinas</a>
+      <a routerLink="/membresias" routerLinkActive="active">Membres��a</a>
       <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
       <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
       <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
@@ -40,19 +39,16 @@
 
   </nav>
 
-  <!-- Vista cuando NO está autenticado -->
   <ng-template #publicLinks>
-    <nav class="nav">
-      <!-- Podrías tener cosas públicas tipo "Acerca de", "Contacto" si algún día lo hacés público -->
-      <a routerLink="/login" routerLinkActive="active">Iniciar sesión</a>
+    <nav class="nav nav-public">
+      <a routerLink="/login">Iniciar Sesion</a>
+      <a routerLink="/membresias" class="vip-link">Membresia</a>
     </nav>
   </ng-template>
 
-  <!-- Info de usuario + botón logout -->
   <div class="user-info" *ngIf="isAuthenticated()">
     <span class="username" *ngIf="(user$ | async) as user">
       {{ user.username }}
-      <span *ngIf="user.roles?.length">({{ user.roles[0] }})</span>
     </span>
     <button class="logout-btn" (click)="logout()">Salir</button>
   </div>

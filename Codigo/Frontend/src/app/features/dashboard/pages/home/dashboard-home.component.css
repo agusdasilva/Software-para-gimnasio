@@ -1,0 +1,75 @@
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 10px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard__hero {
+  background: linear-gradient(135deg, rgba(255, 26, 26, 0.2), rgba(0, 0, 0, 0.6));
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0 0 4px;
+}
+
+.dashboard__hero h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+.lede {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.dashboard__grid--wide {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.card {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+  margin: 0 0 8px;
+}
+
+.value {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.muted {
+  margin: 4px 0 0;
+  opacity: 0.75;
+}
+
+.list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0.9;
+}

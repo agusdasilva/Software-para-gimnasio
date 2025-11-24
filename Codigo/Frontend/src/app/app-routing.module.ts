@@ -4,21 +4,30 @@ import { ShellComponent } from './core/layout/shell/shell.component';
 import { AuthGuard } from './core/auth/auth.guard';
 
 const routes: Routes = [
+
+  {
+    path: '',
+    loadChildren: () =>
+      import('./features/public/public.module').then(m => m.PublicModule)
+  },
+
+  {
+    path: 'membresias',
+    loadChildren: () =>
+      import('./features/membresias/membresias.module').then(m => m.MembresiasModule)
+  },
+
   {
     path: 'login',
     loadChildren: () =>
       import('./features/auth/auth.module').then(m => m.AuthModule)
   },
+
   {
     path: '',
     component: ShellComponent,
     canActivate: [AuthGuard],
     children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
       {
         path: 'dashboard',
         loadChildren: () =>
@@ -40,11 +49,6 @@ const routes: Routes = [
           import('./features/rutinas/rutinas.module').then(m => m.RutinasModule)
       },
       {
-        path: 'membresias',
-        loadChildren: () =>
-          import('./features/membresias/membresias.module').then(m => m.MembresiasModule)
-      },
-      {
         path: 'pagos',
         loadChildren: () =>
           import('./features/pagos/pagos.module').then(m => m.PagosModule)
@@ -61,11 +65,9 @@ const routes: Routes = [
       }
     ]
   },
-  // cualquier ruta que no exista → redirige a dashboard o login
-  {
-    path: '**',
-    redirectTo: ''
-  }
+
+  { path: '**', redirectTo: '' }
+
 ];
 
 @NgModule({

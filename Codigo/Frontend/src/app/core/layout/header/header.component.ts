@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { AuthService, AuthUser } from '../../auth/auth.service';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
+import { ThemeService } from '../../services/theme.service';
+
 
 @Component({
   selector: 'app-header',
@@ -13,11 +15,13 @@ export class HeaderComponent {
   user$: Observable<AuthUser | null>;
 
   constructor(
-    private authService: AuthService,
-    public router: Router
-  ) {
-    this.user$ = this.authService.currentUser$;
-  }
+  private authService: AuthService,
+  public router: Router,
+  public themeService: ThemeService
+) {
+  this.user$ = this.authService.currentUser$;
+}
+
 
   isAuthenticated(): boolean {
     return this.authService.isAuthenticated();
@@ -45,4 +49,12 @@ export class HeaderComponent {
   isMember(): boolean {
     return this.hasRole('SOCIO') || this.hasRole('MEMBER');
   }
+  get isDarkTheme(): boolean {
+  return this.themeService.theme === 'dark';
+}
+
+toggleTheme(): void {
+  this.themeService.toggleTheme();
+}
+
 }
