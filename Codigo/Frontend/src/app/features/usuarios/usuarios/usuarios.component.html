@@ -1,0 +1,44 @@
+<section class="usuarios">
+  <div class="usuarios-card">
+    <div class="header">
+      <div>
+        <h1>Usuarios</h1>
+        <p class="subtitle">Gestiona la lista, promueve a entrenador o elimina.</p>
+      </div>
+      <div class="search">
+        <input [(ngModel)]="search" type="search" placeholder="Buscar por email...">
+      </div>
+    </div>
+
+    <div class="table">
+      <div class="table-head">
+        <span>Nombre</span>
+        <span>Email</span>
+        <span>Roles</span>
+        <span class="actions-title">Acciones</span>
+      </div>
+
+      <div class="table-row" *ngFor="let user of filteredUsers">
+        <span class="link" (click)="goToProfile(user.id)">{{ user.username }}</span>
+        <span>{{ user.email }}</span>
+        <span class="roles">
+          <span class="chip" *ngFor="let role of user.roles">{{ role }}</span>
+        </span>
+        <span class="actions">
+          <button class="btn ghost" (click)="promote(user.id)" [disabled]="user.roles.includes('ADMIN')">
+            Ascender a entrenador
+          </button>
+          <button class="btn ghost secondary" (click)="removeTrainer(user.id)" [disabled]="user.roles.includes('ADMIN') || !user.roles.includes('ENTRENADOR')">
+            Quitar entrenador
+          </button>
+          <button class="btn danger" (click)="delete(user.id)" [disabled]="user.roles.includes('ADMIN')">
+            Borrar
+          </button>
+        </span>
+      </div>
+    </div>
+
+    <div class="feedback success" *ngIf="success">{{ success }}</div>
+    <div class="feedback error" *ngIf="error">{{ error }}</div>
+  </div>
+</section>

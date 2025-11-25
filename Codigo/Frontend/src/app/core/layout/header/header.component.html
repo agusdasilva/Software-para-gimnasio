@@ -11,7 +11,7 @@
       <a routerLink="/usuarios" routerLinkActive="active">Usuarios</a>
       <a routerLink="/clases" routerLinkActive="active">Clases</a>
       <a routerLink="/rutinas" routerLinkActive="active">Rutinas</a>
-      <a routerLink="/membresias" routerLinkActive="active">Membres��as</a>
+      <a routerLink="/membresias" routerLinkActive="active">Membresias</a>
       <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
       <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
       <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
@@ -26,12 +26,12 @@
       <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
     </ng-container>
 
-    <!-- SOCIO -->
+    <!-- CLIENTE / SOCIO -->
     <ng-container *ngIf="!isAdmin() && !isTrainer() && isMember()">
       <a routerLink="/dashboard" routerLinkActive="active">Inicio</a>
       <a routerLink="/clases" routerLinkActive="active">Mis Clases</a>
       <a routerLink="/rutinas" routerLinkActive="active">Mis Rutinas</a>
-      <a routerLink="/membresias" routerLinkActive="active">Membres��a</a>
+      <a routerLink="/membresias" routerLinkActive="active">Membresia</a>
       <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
       <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
       <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
@@ -46,10 +46,11 @@
     </nav>
   </ng-template>
 
-  <div class="user-info" *ngIf="isAuthenticated()">
-    <span class="username" *ngIf="(user$ | async) as user">
-      {{ user.username }}
-    </span>
+  <div class="user-info" *ngIf="(user$ | async) as user">
+    <span class="role-badge">{{ primaryRole(user.roles) }}</span>
+    <button class="profile-btn" (click)="goToProfile()" title="Mi perfil">
+      <span class="avatar">{{ user.username.charAt(0) || 'P' }}</span>
+    </button>
     <button class="logout-btn" (click)="logout()">Salir</button>
   </div>
 </header>

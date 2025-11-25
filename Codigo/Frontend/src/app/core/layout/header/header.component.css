@@ -111,10 +111,40 @@
   gap: 15px;
 }
 
-.username {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-header-text);
+.role-badge {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #dcdcdc;
+  background: #fff;
+  color: #111827;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.profile-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+
+.avatar {
+  font-weight: 800;
+  font-size: 15px;
 }
 
 .logout-btn {

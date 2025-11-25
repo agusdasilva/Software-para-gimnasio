@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, AuthUser } from '../../../core/auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -22,12 +22,14 @@ export class LoginComponent {
       return;
     }
 
-    const mockUser: AuthUser = {
-      id: Date.now(),
+    this.authService.login({
       username: this.username.trim(),
-      roles: ['ADMIN']
-    };
-    this.authService.setSession('mock-token', mockUser);
-    this.router.navigate(['/dashboard']);
+      password: this.password
+    }).subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: (err: Error) => {
+        this.error = err?.message || 'No se pudo iniciar sesion.';
+      }
+    });
   }
 }
