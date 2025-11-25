@@ -1,0 +1,49 @@
+<section class="perfil">
+  <div class="perfil-card">
+    <div class="header">
+      <div>
+        <h1>Editar perfil</h1>
+        <p class="subtitle">Actualiza tus datos y seguridad.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" (click)="cancel()">Cancelar</button>
+        <button class="btn primary" (click)="save()">Guardar</button>
+      </div>
+    </div>
+
+    <form class="perfil-form">
+      <label>
+        Nombre
+        <input name="name" [(ngModel)]="name" type="text" placeholder="Tu nombre completo">
+      </label>
+
+      <label>
+        Correo
+        <input name="email" [(ngModel)]="email" type="email" placeholder="tuemail@correo.com">
+      </label>
+
+      <label>
+        Descripcion
+        <textarea name="description" [(ngModel)]="description" rows="3" placeholder="Contanos algo sobre vos"></textarea>
+      </label>
+
+      <label>
+        URL de foto de perfil (opcional)
+        <input name="avatarUrl" [(ngModel)]="avatarUrl" type="url" placeholder="https://ejemplo.com/foto.jpg">
+      </label>
+
+      <label>
+        Nueva contrasenia (opcional)
+        <input name="password" [(ngModel)]="password" type="password" placeholder="Deja vacio para no cambiar">
+      </label>
+
+      <label>
+        Confirmar contrasenia
+        <input name="confirmPassword" [(ngModel)]="confirmPassword" type="password" placeholder="Repite la contrasenia">
+      </label>
+    </form>
+
+    <div class="perfil-success" *ngIf="success">{{ success }}</div>
+    <div class="perfil-error" *ngIf="error">{{ error }}</div>
+  </div>
+</section>
