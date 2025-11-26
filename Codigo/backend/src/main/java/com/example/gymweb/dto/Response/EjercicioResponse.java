@@ -58,4 +58,3 @@ public class EjercicioResponse {
         this.es_global = es_global;
     }
 }
-

@@ -1,33 +1,27 @@
+### MAVEN / JAVA ###
 target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
+!.mvn/wrapper/maven-wrapper.jar
+*.log
+*.class
+*.jar
+*.war
+*.ear
 
-# IntelliJ IDEA
+### IntelliJ ###
 .idea/
 *.iml
-*.ipr
-*.iws
 out/
 
-# VS Code
+### VSCode ###
 .vscode/
 
-# Logs
-*.log
+### Spring ###
+application-dev.properties
+application-test.properties
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Lombok generated
-**/lombok.config
-
-# Environment variables
-.env
-
-# Node (por si algún día tenés frontend)
-node_modules/
+### Angular ###
 dist/
+node_modules/
+.angular/
+tmp/
+out-tsc/

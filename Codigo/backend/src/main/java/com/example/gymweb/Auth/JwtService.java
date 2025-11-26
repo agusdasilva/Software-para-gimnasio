@@ -1,24 +1,6 @@
 package com.example.gymweb.Auth;
 
 
-import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Service;
-import java.util.Date;
-import javax.crypto.SecretKey;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-
-import io.jsonwebtoken.security.Keys;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import javax.crypto.SecretKey;
-import org.springframework.stereotype.Service;
-
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -38,7 +20,6 @@ public class JwtService {
 
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
-    // GENERAR TOKEN
     public String generarToken(String subject) {
 
         Date ahora = new Date();
@@ -48,16 +29,14 @@ public class JwtService {
                 .setSubject(subject)
                 .setIssuedAt(ahora)
                 .setExpiration(expiracion)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key)
                 .compact();
     }
 
-    // EXTRAER SUBJECT
     public String extraerSubject(String token) {
         return parseClaims(token).getBody().getSubject();
     }
 
-    // VALIDAR TOKEN
     public boolean esTokenValido(String token) {
         try {
             parseClaims(token);
@@ -67,7 +46,6 @@ public class JwtService {
         }
     }
 
-    // PARSE INTERNO
     private Jws<Claims> parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

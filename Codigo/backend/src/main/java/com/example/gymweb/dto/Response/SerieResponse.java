@@ -49,4 +49,3 @@ public class SerieResponse {
         this.orden = orden;
     }
 }
-
