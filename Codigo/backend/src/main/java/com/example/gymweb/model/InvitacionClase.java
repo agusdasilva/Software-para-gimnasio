@@ -1,7 +1,10 @@
 package com.example.gymweb.model;
 
+<<<<<<< Updated upstream
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -14,15 +17,45 @@ public class InvitacionClase {
     private int id;
 
     @ManyToOne
-    @JoinColumn (name = "usu_clase_id")
-    private Usuario usuario_clase_id;
+    @JoinColumn(name = "usu_clase_id")
+    private UsuarioXClase usuarioClase;
 
-    private Estado estado;
-    private Date fecha;
+=======
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
-    public InvitacionClase(int id, Usuario usuario_clase_id, Estado estado, Date fecha) {
+@Entity
+@Table(
+        name = "invitacion_clase"
+)
+public class InvitacionClase {
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+    )
+    @Column(
+            name = "id_invitacion"
+    )
+    private int id;
+    @ManyToOne
+    @JoinColumn(
+            name = "usu_clase_id"
+    )
+    private UsuarioXClase usuarioClase;
+>>>>>>> Stashed changes
+    private EstadoInvitacion estado;
+    private LocalDateTime fecha;
+
+    public InvitacionClase(int id, UsuarioXClase usuarioClase, EstadoInvitacion estado, LocalDateTime fecha) {
         this.id = id;
-        this.usuario_clase_id = usuario_clase_id;
+        this.usuarioClase = usuarioClase;
         this.estado = estado;
         this.fecha = fecha;
     }
@@ -31,34 +64,50 @@ public class InvitacionClase {
     }
 
     public int getId() {
+<<<<<<< Updated upstream
         return id;
+=======
+        return this.id;
+>>>>>>> Stashed changes
     }
 
     public void setId(int id) {
         this.id = id;
     }
 
-    public Usuario getUsuario_clase_id() {
-        return usuario_clase_id;
+    public UsuarioXClase getUsuarioClase() {
+<<<<<<< Updated upstream
+        return usuarioClase;
+=======
+        return this.usuarioClase;
+>>>>>>> Stashed changes
     }
 
-    public void setUsuario_clase_id(Usuario usuario_clase_id) {
-        this.usuario_clase_id = usuario_clase_id;
+    public void setUsuarioClase(UsuarioXClase usuarioClase) {
+        this.usuarioClase = usuarioClase;
     }
 
-    public Estado getEstado() {
+    public EstadoInvitacion getEstado() {
+<<<<<<< Updated upstream
         return estado;
+=======
+        return this.estado;
+>>>>>>> Stashed changes
     }
 
-    public void setEstado(Estado estado) {
+    public void setEstado(EstadoInvitacion estado) {
         this.estado = estado;
     }
 
-    public Date getFecha() {
+    public LocalDateTime getFecha() {
+<<<<<<< Updated upstream
         return fecha;
+=======
+        return this.fecha;
+>>>>>>> Stashed changes
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 }

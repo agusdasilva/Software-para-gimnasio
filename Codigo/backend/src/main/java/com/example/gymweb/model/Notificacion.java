@@ -1,8 +1,10 @@
 package com.example.gymweb.model;
 
+<<<<<<< Updated upstream
 import jakarta.persistence.*;
 import org.w3c.dom.Text;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -11,30 +13,71 @@ public class Notificacion {
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "id_notificacion")
+    @Column(name = "id_notificacion")
     private int id;
 
     @ManyToOne
     @JoinColumn (name = "usuario_id")
+=======
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(
+        name = "notificacion"
+)
+public class Notificacion {
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+    )
+    @Column(
+            name = "id_notificacion"
+    )
+    private int id;
+    @ManyToOne
+    @JoinColumn(
+            name = "usuario_id"
+    )
+>>>>>>> Stashed changes
     private Usuario usuario;
+    @Lob
+    private String mensaje;
+    private LocalDateTime fecha;
+<<<<<<< Updated upstream
+    @Column(name = "leida")
+=======
+    @Column(
+            name = "leida"
+    )
+>>>>>>> Stashed changes
+    private boolean leida;
 
-    private Text mensaje;
-    private Date fecha;
-    private int leido;
-
-    public Notificacion(int id, Usuario usuario, Text mensaje, Date fecha, int leido) {
+    public Notificacion(int id, Usuario usuario, String mensaje, LocalDateTime fecha, boolean leida) {
         this.id = id;
         this.usuario = usuario;
         this.mensaje = mensaje;
         this.fecha = fecha;
-        this.leido = leido;
+        this.leida = leida;
     }
 
     public Notificacion() {
     }
 
     public int getId() {
+<<<<<<< Updated upstream
         return id;
+=======
+        return this.id;
+>>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -42,35 +85,54 @@ public class Notificacion {
     }
 
     public Usuario getUsuario() {
+<<<<<<< Updated upstream
         return usuario;
+=======
+        return this.usuario;
+>>>>>>> Stashed changes
     }
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
 
-    public Text getMensaje() {
+    public String getMensaje() {
+<<<<<<< Updated upstream
         return mensaje;
+=======
+        return this.mensaje;
+>>>>>>> Stashed changes
     }
 
-    public void setMensaje(Text mensaje) {
+    public void setMensaje(String mensaje) {
         this.mensaje = mensaje;
     }
 
-    public Date getFecha() {
+    public LocalDateTime getFecha() {
+<<<<<<< Updated upstream
         return fecha;
+=======
+        return this.fecha;
+>>>>>>> Stashed changes
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 
-    public int getLeido() {
-        return leido;
+    public boolean isLeida() {
+<<<<<<< Updated upstream
+        return leida;
+=======
+        return this.leida;
+>>>>>>> Stashed changes
     }
 
-    public void setLeido(int leido) {
-        this.leido = leido;
+    public void setLeida(boolean leida) {
+        this.leida = leida;
     }
 }
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes

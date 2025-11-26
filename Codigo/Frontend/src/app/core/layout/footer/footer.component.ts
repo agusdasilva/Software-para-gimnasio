@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./footer.component.css']
 })
 export class FooterComponent {
-  readonly year = 2025;
+  year = new Date().getFullYear();
 }

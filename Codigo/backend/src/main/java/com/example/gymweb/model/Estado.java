@@ -3,5 +3,9 @@ package com.example.gymweb.model;
 public enum Estado {
     PENDIENTE,
     ACTIVO,
-    RECHAZADO
+<<<<<<< Updated upstream
+    BLOQUEADO
+=======
+    BLOQUEADO;
+>>>>>>> Stashed changes
 }
