@@ -1,0 +1,37 @@
+<section class="auth">
+  <div class="auth-card">
+    <h1>Crea tu cuenta</h1>
+    <p class="subtitle">Completa tus datos y empieza a entrenar.</p>
+
+    <form class="auth-form">
+      <label>
+        Nombre completo
+        <input name="name" [(ngModel)]="name" type="text" placeholder="Ej: Juan Perez">
+      </label>
+
+      <label>
+        Correo
+        <input name="email" [(ngModel)]="email" type="email" placeholder="tucorreo@email.com">
+      </label>
+
+      <label>
+        Contraseña
+        <input name="password" [(ngModel)]="password" type="password" placeholder="Minimo 8 caracteres">
+      </label>
+
+      <label>
+        Confirmar contraseña
+        <input name="confirmPassword" [(ngModel)]="confirmPassword" type="password" placeholder="Repite tu contraseña">
+      </label>
+
+      <button type="button" class="btn primary" (click)="onSubmit()">Crear cuenta</button>
+    </form>
+
+    <div class="auth-error" *ngIf="error">{{ error }}</div>
+
+    <div class="auth-footer">
+      <span>¿Ya tienes cuenta?</span>
+      <a routerLink="/login" class="link">Iniciar sesion</a>
+    </div>
+  </div>
+</section>

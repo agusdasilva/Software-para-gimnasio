@@ -1,0 +1,18 @@
+<div class="public-dashboard">
+  <div class="overlay"></div>
+
+  <div class="content">
+    <h1>Bienvenido a Gimnasio <span class="red">F86</span></h1>
+    <p>Tu evolucion empieza hoy</p>
+
+    <div class="actions" *ngIf="!isAuthenticated(); else loggedInActions">
+      <a routerLink="/login" class="btn">Iniciar Sesion</a>
+    </div>
+
+    <ng-template #loggedInActions>
+      <div class="actions">
+        <a routerLink="/dashboard" class="btn">Ir al panel</a>
+      </div>
+    </ng-template>
+  </div>
+</div>
