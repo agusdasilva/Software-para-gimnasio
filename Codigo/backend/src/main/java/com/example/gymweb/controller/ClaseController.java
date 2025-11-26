@@ -1,4 +1,5 @@
-package com.example.gymweb.Controller;
+package com.example.gymweb.controller;
+
 
 
 import com.example.gymweb.Service.ClaseService;
@@ -94,3 +95,4 @@ public class ClaseController {
         return ResponseEntity.ok(this.claseService.editarClase(idClase, request));
     }
 }
+

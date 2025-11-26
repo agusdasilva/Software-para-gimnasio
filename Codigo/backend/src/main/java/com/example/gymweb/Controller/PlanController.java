@@ -1,4 +1,4 @@
-package com.example.gymweb.Controller;
+package com.example.gymweb.controller;
 
 import com.example.gymweb.Service.PlanService;
 import com.example.gymweb.dto.Request.PlanRequest;
