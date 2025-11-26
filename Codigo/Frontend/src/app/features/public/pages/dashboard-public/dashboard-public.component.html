@@ -1,18 +1,122 @@
 <div class="public-dashboard">
-  <div class="overlay"></div>
-
-  <div class="content">
-    <h1>Bienvenido a Gimnasio <span class="red">F86</span></h1>
-    <p>Tu evolucion empieza hoy</p>
-
-    <div class="actions" *ngIf="!isAuthenticated(); else loggedInActions">
-      <a routerLink="/login" class="btn">Iniciar Sesion</a>
+  <div class="hero-slider">
+    <div
+      class="slide"
+      *ngFor="let banner of banners; let i = index"
+      [class.active]="i === currentBanner"
+      [style.backgroundImage]="banner">
     </div>
-
-    <ng-template #loggedInActions>
-      <div class="actions">
-        <a routerLink="/dashboard" class="btn">Ir al panel</a>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="kicker">Gimnasio F86</p>
+      <h1>Entrena fuerte, vive mejor</h1>
+      <p class="lede">Planes personalizados, entrenadores certificados y comunidad.</p>
+      <div class="dots">
+        <button *ngFor="let banner of banners; let i = index"
+                [class.active]="i === currentBanner"
+                (click)="changeBanner(i)"></button>
       </div>
-    </ng-template>
+    </div>
+    <button class="hero-nav prev" (click)="changeBanner(currentBanner - 1)">&#10094;</button>
+    <button class="hero-nav next" (click)="changeBanner(currentBanner + 1)">&#10095;</button>
   </div>
 </div>
+
+<section class="location-section">
+  <div class="location-card">
+    <h3 class="location-title">Estamos en</h3>
+    <p class="location-address">Av. Juan B. Justo 2636, Mar del Plata, Provincia de Buenos Aires</p>
+
+    <div class="location-grid">
+      <div class="map-embed">
+        <iframe
+          title="Ubicacion Gimnasio F86"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=-57.5705%2C-38.0255%2C-57.5623%2C-38.0200&layer=mapnik&marker=-38.0228%2C-57.5664"
+          style="border:0;"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <a class="map-link" target="_blank"
+           href="https://www.openstreetmap.org/?mlat=-38.0228&mlon=-57.5664#map=17/-38.0228/-57.5664">
+          Ver en mapa
+        </a>
+      </div>
+
+      <div class="location-info">
+        <div class="stars">
+          <span class="score">4.8</span>
+          <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star half">&#9733;</span>
+          <a class="google-link muted small" target="_blank"
+             href="https://www.google.com/maps/place/F86/@-38.022888,-57.5664276,17z/data=!4m16!1m9!3m8!1s0x9584dfcac20d61b9:0x31c68a1a654bc4b5!2sF86!8m2!3d-38.022888!4d-57.5664276!9m1!1b1!16s%2Fg%2F11wqfj4xll!3m5!1s0x9584dfcac20d61b9:0x31c68a1a654bc4b5!8m2!3d-38.022888!4d-57.5664276!16s%2Fg%2F11wqfj4xll?entry=ttu&g_ep=EgoyMDI1MTEyMy4xIKXMDSoASAFQAw%3D%3D">
+            Resenas de Google
+          </a>
+        </div>
+
+        <div class="gallery">
+          <div class="photo photo-1" (click)="openLightbox(0)"></div>
+          <div class="photo photo-2" (click)="openLightbox(1)"></div>
+          <div class="photo photo-3" (click)="openLightbox(2)"></div>
+          <div class="photo photo-4" (click)="openLightbox(3)"></div>
+        </div>
+
+        <div class="schedule">
+          <p class="schedule-title">Horarios</p>
+          <div class="schedule-grid">
+            <div class="schedule-item">
+              <span class="day">Lunes a Viernes</span>
+              <span class="hour">7:00 - 21:00</span>
+            </div>
+            <div class="schedule-item">
+              <span class="day">Sabado</span>
+              <span class="hour">8:00 - 14:00</span>
+            </div>
+            <div class="schedule-item closed">
+              <span class="day">Domingo</span>
+              <span class="hour">Cerrado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="lightbox" *ngIf="lightboxOpen" (click)="closeLightbox()">
+  <div class="lightbox__content" (click)="$event.stopPropagation()">
+    <img [src]="currentPhoto" alt="Foto del gimnasio">
+    <button class="nav prev" (click)="prev()">&#10094;</button>
+    <button class="nav next" (click)="next()">&#10095;</button>
+    <button class="close" (click)="closeLightbox()">&#10005;</button>
+  </div>
+</div>
+
+<section class="reviews-section">
+  <div class="reviews-header">
+    <div>
+      <h3>Reseñas de nuestra comunidad</h3>
+      <p class="muted">Opiniones reales de quienes entrenan en F86.</p>
+    </div>
+  </div>
+
+  <div class="reviews-slider">
+    <button class="reviews-arrow left" (click)="prevReviews()">&#10094;</button>
+    <div class="reviews-track">
+      <div class="reviews-row">
+        <div class="review-card" *ngFor="let review of currentReviews">
+          <div class="review-score">
+            <span class="score-number">{{ review.score }}</span>
+            <span class="score-star">&#9733;</span>
+            <span class="score-star">&#9733;</span>
+            <span class="score-star">&#9733;</span>
+            <span class="score-star">&#9733;</span>
+            <span class="score-star half">&#9733;</span>
+            <span class="time-ago">{{ review.timeAgo }}</span>
+          </div>
+          <p class="review-text">"{{ review.text }}"</p>
+          <p class="review-user">- {{ review.user }}</p>
+        </div>
+      </div>
+    </div>
+    <button class="reviews-arrow right" (click)="nextReviews()">&#10095;</button>
+  </div>
+</section>

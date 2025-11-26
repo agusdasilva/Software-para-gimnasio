@@ -34,11 +34,32 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.plan-card::after {
+  content: '';
+  position: absolute;
+  inset: -40% -40% auto auto;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(255, 26, 26, 0.18), transparent 55%);
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+
+.plan-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  border-color: var(--color-accent);
 }
 
 .plan-card h2 {
   margin: 0;
   font-size: 20px;
+  z-index: 1;
 }
 
 .plan-card__price {
@@ -46,6 +67,7 @@
   font-size: 18px;
   font-weight: 700;
   color: var(--color-accent);
+  z-index: 1;
 }
 
 .plan-card ul {
@@ -56,6 +78,7 @@
   flex-direction: column;
   gap: 8px;
   opacity: 0.9;
+  z-index: 1;
 }
 
 .plan-card button {
@@ -78,8 +101,57 @@
 .plan-card--destacado {
   border-color: #f5c542;
   box-shadow: 0 10px 28px rgba(245, 197, 66, 0.25);
+  background: #1a1a1a;
 }
 
 .plan-card--destacado .plan-card__price {
   color: #f5c542;
+}
+
+.plan-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pill-soft {
+  background: rgba(255, 26, 26, 0.12);
+  color: var(--color-accent);
+  border-color: rgba(255, 26, 26, 0.4);
+}
+
+.pill-gold {
+  background: rgba(245, 197, 66, 0.2);
+  color: #f5c542;
+  border-color: rgba(245, 197, 66, 0.5);
+}
+
+.period {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.plan-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.plan-meta span {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
 }

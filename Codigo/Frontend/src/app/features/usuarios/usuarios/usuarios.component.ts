@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, StoredUser } from '../../../core/auth/auth.service';
+import { AuthService, UsuarioResponse } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-usuarios',
@@ -10,7 +10,7 @@ import { AuthService, StoredUser } from '../../../core/auth/auth.service';
 export class UsuariosComponent implements OnInit {
 
   search = '';
-  users: StoredUser[] = [];
+  users: UsuarioResponse[] = [];
   error = '';
   success = '';
 
@@ -25,11 +25,15 @@ export class UsuariosComponent implements OnInit {
     if (!term) {
       return this.users;
     }
-    return this.users.filter(u => u.email.toLowerCase().includes(term));
+    return this.users.filter(u => u.email.toLowerCase().includes(term) || u.nombre.toLowerCase().includes(term));
   }
 
   refresh(): void {
-    this.users = this.authService.getAllUsers();
+    this.error = '';
+    this.authService.getAllUsers().subscribe({
+      next: users => this.users = users,
+      error: () => this.error = 'No se pudo cargar usuarios.'
+    });
   }
 
   goToProfile(id: number): void {
@@ -39,13 +43,13 @@ export class UsuariosComponent implements OnInit {
   promote(id: number): void {
     this.error = '';
     this.success = '';
-    this.authService.promoteToTrainer(id).subscribe({
+    this.authService.changeRole({ idUsuario: id, nuevoRol: 'ENTRENADOR' }).subscribe({
       next: () => {
         this.success = 'Usuario ascendido a entrenador.';
         this.refresh();
       },
-      error: (err: Error) => {
-        this.error = err?.message || 'No se pudo ascender al usuario.';
+      error: () => {
+        this.error = 'No se pudo ascender al usuario.';
       }
     });
   }
@@ -53,13 +57,13 @@ export class UsuariosComponent implements OnInit {
   removeTrainer(id: number): void {
     this.error = '';
     this.success = '';
-    this.authService.removeTrainerRole(id).subscribe({
+    this.authService.changeRole({ idUsuario: id, nuevoRol: 'CLIENTE' }).subscribe({
       next: () => {
         this.success = 'Usuario removido del rol de entrenador.';
         this.refresh();
       },
-      error: (err: Error) => {
-        this.error = err?.message || 'No se pudo modificar al usuario.';
+      error: () => {
+        this.error = 'No se pudo modificar al usuario.';
       }
     });
   }
@@ -67,13 +71,13 @@ export class UsuariosComponent implements OnInit {
   delete(id: number): void {
     this.error = '';
     this.success = '';
-    this.authService.deleteUser(id).subscribe({
+    this.authService.changeEstado({ idUsuario: id, nuevoEstado: 'BLOQUEADO' }).subscribe({
       next: () => {
-        this.success = 'Usuario eliminado.';
+        this.success = 'Usuario bloqueado.';
         this.refresh();
       },
-      error: (err: Error) => {
-        this.error = err?.message || 'No se pudo eliminar al usuario.';
+      error: () => {
+        this.error = 'No se pudo bloquear al usuario.';
       }
     });
   }

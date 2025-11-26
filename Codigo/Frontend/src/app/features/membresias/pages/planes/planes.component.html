@@ -1,40 +1,63 @@
 <section class="planes">
   <div class="planes__header">
     <h1>Elige tu plan</h1>
-    <p>Flexibilidad para tu rutina: paga por dia o sumate a un plan mensual.</p>
+    <p>Flexibilidad para tu rutina: paga por dia o sumate a un plan mensual con beneficios extra.</p>
   </div>
 
   <div class="planes__grid">
     <article class="plan-card">
-      <h2>Plan por dia</h2>
-      <p class="plan-card__price">$10 / dia</p>
+      <div class="plan-card__top">
+        <h2>Plan por dia</h2>
+        <span class="pill">Pruébalo</span>
+      </div>
+      <p class="plan-card__price">$10 <span class="period">/ día</span></p>
       <ul>
-        <li>Acceso al gimnasio un dia</li>
-        <li>Uso libre de maquinas</li>
-        <li>Sin permanencia</li>
+        <li>Acceso al gimnasio 1 día</li>
+        <li>Uso libre de máquinas y cardio</li>
+        <li>Sin permanencia ni cargos extras</li>
       </ul>
+      <div class="plan-meta">
+        <span>Check-in rápido</span>
+        <span>Locker incluido</span>
+      </div>
       <button (click)="choosePlan('dia')">Elegir plan</button>
     </article>
 
     <article class="plan-card">
-      <h2>Plan mensual - 3 dias</h2>
-      <p class="plan-card__price">$80 / mes</p>
+      <div class="plan-card__top">
+        <h2>Plan mensual - 3 días</h2>
+        <span class="pill pill-soft">Popular</span>
+      </div>
+      <p class="plan-card__price">$80 <span class="period">/ mes</span></p>
       <ul>
-        <li>Acceso 3 dias a la semana</li>
+        <li>Acceso 3 días a la semana</li>
         <li>Clases grupales incluidas</li>
-        <li>Seguimiento basico</li>
+        <li>Seguimiento básico mensual</li>
+        <li>1 evaluación de composición corporal</li>
       </ul>
+      <div class="plan-meta">
+        <span>Soporte por app</span>
+        <span>Invita a 1 amigo/mes</span>
+      </div>
       <button (click)="choosePlan('mensual-3')">Elegir plan</button>
     </article>
 
     <article class="plan-card plan-card--destacado">
-      <h2>Plan mensual - Full</h2>
-      <p class="plan-card__price">$120 / mes</p>
+      <div class="plan-card__top">
+        <h2>Plan mensual - Full</h2>
+        <span class="pill pill-gold">Mejor valor</span>
+      </div>
+      <p class="plan-card__price">$120 <span class="period">/ mes</span></p>
       <ul>
-        <li>Acceso todos los dias</li>
-        <li>Clases y sala premium</li>
-        <li>Acompanamiento personalizado</li>
+        <li>Acceso todos los días y sala premium</li>
+        <li>Clases ilimitadas + entrenos personalizados</li>
+        <li>2 evaluaciones y plan de nutrición base</li>
+        <li>Invita a 2 amigos/mes</li>
       </ul>
+      <div class="plan-meta">
+        <span>Toalla + lock box</span>
+        <span>Soporte 1 a 1</span>
+      </div>
       <button (click)="choosePlan('mensual-full')">Elegir plan</button>
     </article>
   </div>

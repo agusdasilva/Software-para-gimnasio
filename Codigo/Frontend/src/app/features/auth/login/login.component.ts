@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, AuthUser } from '../../../core/auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,7 +9,7 @@ import { AuthService, AuthUser } from '../../../core/auth/auth.service';
 })
 export class LoginComponent {
 
-  username = '';
+  email = '';
   password = '';
   error = '';
 
@@ -17,17 +17,20 @@ export class LoginComponent {
 
   onSubmit(): void {
     this.error = '';
-    if (!this.username.trim() || !this.password.trim()) {
-      this.error = 'Completa usuario y contrasena.';
+    if (!this.email.trim() || !this.password.trim()) {
+      this.error = 'Completa correo y contrasena.';
       return;
     }
 
-    const mockUser: AuthUser = {
-      id: Date.now(),
-      username: this.username.trim(),
-      roles: ['ADMIN']
-    };
-    this.authService.setSession('mock-token', mockUser);
-    this.router.navigate(['/dashboard']);
+    this.authService.login({
+      email: this.email.trim(),
+      password: this.password
+    }).subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: (err) => {
+        const apiMessage = err?.error?.message;
+        this.error = apiMessage || 'Credenciales invalidas o usuario inactivo.';
+      }
+    });
   }
 }

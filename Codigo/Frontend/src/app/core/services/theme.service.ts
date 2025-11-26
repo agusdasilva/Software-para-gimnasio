@@ -12,15 +12,10 @@ export class ThemeService {
   private currentTheme: Theme = 'dark';
 
   constructor() {
-    const stored = localStorage.getItem(THEME_KEY) as Theme | null;
-
-    if (stored === 'light' || stored === 'dark') {
-      this.currentTheme = stored;
-    } else {
-      this.currentTheme = 'dark'; // tema por defecto
-    }
-
-    this.applyTheme(this.currentTheme);
+    // Fuerza tema oscuro por defecto y sobrescribe cualquier valor previo almacenado
+    this.currentTheme = 'dark';
+    localStorage.setItem(THEME_KEY, 'dark');
+    this.applyTheme('dark');
   }
 
   get theme(): Theme {

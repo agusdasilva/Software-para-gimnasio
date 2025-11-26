@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService, AuthUser } from '../../auth/auth.service';
+import { AuthService, AuthUser, UserRole } from '../../auth/auth.service';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
@@ -32,7 +32,7 @@ export class HeaderComponent {
     this.router.navigate(['/login']);
   }
 
-  hasRole(role: string): boolean {
+  hasRole(role: UserRole): boolean {
     const user = this.authService.currentUser;
     return !!user && user.roles?.includes(role);
   }
@@ -43,11 +43,11 @@ export class HeaderComponent {
   }
 
   isTrainer(): boolean {
-    return this.hasRole('TRAINER') || this.hasRole('ENTRENADOR');
+    return this.hasRole('ENTRENADOR');
   }
 
   isMember(): boolean {
-    return this.hasRole('SOCIO') || this.hasRole('MEMBER');
+    return this.hasRole('CLIENTE');
   }
   get isDarkTheme(): boolean {
   return this.themeService.theme === 'dark';
