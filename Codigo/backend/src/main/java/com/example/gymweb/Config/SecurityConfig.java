@@ -1,6 +1,5 @@
 package com.example.gymweb.Config;
 
-
 import com.example.gymweb.Auth.JwtAuthenticationFilter;
 import com.example.gymweb.Auth.JwtService;
 import com.example.gymweb.Repository.UsuarioRepository;
@@ -27,8 +26,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtService, usuarioRepository);
-        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests((auth) -> ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl)((AuthorizeHttpRequestsConfigurer.AuthorizedUrl)auth.requestMatchers(new String[]{"/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**"})).permitAll().anyRequest()).authenticated()).formLogin(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(this.jwtService, this.usuarioRepository);
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((auth) ->
+                        ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl) ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl) auth.requestMatchers(new String[]{"/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**"})).permitAll().anyRequest()).authenticated()).formLogin(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return (SecurityFilterChain)http.build();
     }
 
