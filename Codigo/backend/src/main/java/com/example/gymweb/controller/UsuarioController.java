@@ -1,4 +1,4 @@
-package com.example.gymweb.Controller;
+package com.example.gymweb.controller;
 
 import com.example.gymweb.Service.UsuarioService;
 import com.example.gymweb.dto.Request.UsuarioChangeEstadoRequest;

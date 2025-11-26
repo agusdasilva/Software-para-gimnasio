@@ -1,5 +1,6 @@
 package com.example.gymweb.dto.Request;
 
+
 public class AprobacionRequest {
     private boolean aprobar;
 
@@ -11,11 +12,7 @@ public class AprobacionRequest {
     }
 
     public boolean isAprobar() {
-<<<<<<< Updated upstream
-        return aprobar;
-=======
         return this.aprobar;
->>>>>>> Stashed changes
     }
 
     public void setAprobar(boolean aprobar) {

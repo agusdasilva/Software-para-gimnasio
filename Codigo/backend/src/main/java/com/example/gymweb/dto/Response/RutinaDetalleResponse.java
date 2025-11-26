@@ -8,18 +8,10 @@ public class RutinaDetalleResponse {
     private String descripcion;
     private String imagen;
     private int descanso_seg;
-<<<<<<< Updated upstream
-
-    private List<EjercicioDetalleResponse> ejercicios; // empieza vacío
-
-    public int getId() {
-        return id;
-=======
     private List<EjercicioDetalleResponse> ejercicios;
 
     public int getId() {
         return this.id;
->>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -27,11 +19,7 @@ public class RutinaDetalleResponse {
     }
 
     public String getRutina() {
-<<<<<<< Updated upstream
-        return rutina;
-=======
         return this.rutina;
->>>>>>> Stashed changes
     }
 
     public void setRutina(String rutina) {
@@ -39,11 +27,7 @@ public class RutinaDetalleResponse {
     }
 
     public String getDescripcion() {
-<<<<<<< Updated upstream
-        return descripcion;
-=======
         return this.descripcion;
->>>>>>> Stashed changes
     }
 
     public void setDescripcion(String descripcion) {
@@ -51,11 +35,7 @@ public class RutinaDetalleResponse {
     }
 
     public String getImagen() {
-<<<<<<< Updated upstream
-        return imagen;
-=======
         return this.imagen;
->>>>>>> Stashed changes
     }
 
     public void setImagen(String imagen) {
@@ -63,11 +43,7 @@ public class RutinaDetalleResponse {
     }
 
     public int getDescanso_seg() {
-<<<<<<< Updated upstream
-        return descanso_seg;
-=======
         return this.descanso_seg;
->>>>>>> Stashed changes
     }
 
     public void setDescanso_seg(int descanso_seg) {
@@ -75,18 +51,10 @@ public class RutinaDetalleResponse {
     }
 
     public List<EjercicioDetalleResponse> getEjercicios() {
-<<<<<<< Updated upstream
-        return ejercicios;
-=======
         return this.ejercicios;
->>>>>>> Stashed changes
     }
 
     public void setEjercicios(List<EjercicioDetalleResponse> ejercicios) {
         this.ejercicios = ejercicios;
     }
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes
