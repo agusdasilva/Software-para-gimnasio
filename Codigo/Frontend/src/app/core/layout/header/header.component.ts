@@ -15,12 +15,12 @@ export class HeaderComponent {
   user$: Observable<AuthUser | null>;
 
   constructor(
-    private authService: AuthService,
-    public router: Router,
-    public themeService: ThemeService
-  ) {
-    this.user$ = this.authService.currentUser$;
-  }
+  private authService: AuthService,
+  public router: Router,
+  public themeService: ThemeService
+) {
+  this.user$ = this.authService.currentUser$;
+}
 
 
   isAuthenticated(): boolean {
@@ -30,17 +30,6 @@ export class HeaderComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-  }
-
-  goToProfile(): void {
-    this.router.navigate(['/perfil']);
-  }
-
-  primaryRole(roles?: string[]): string {
-    if (!roles || !roles.length) {
-      return 'Sin rol';
-    }
-    return roles[0];
   }
 
   hasRole(role: string): boolean {
@@ -58,15 +47,14 @@ export class HeaderComponent {
   }
 
   isMember(): boolean {
-    return this.hasRole('SOCIO') || this.hasRole('MEMBER') || this.hasRole('USER') || this.hasRole('CLIENTE') || this.hasRole('CLIENT');
+    return this.hasRole('SOCIO') || this.hasRole('MEMBER');
   }
-
   get isDarkTheme(): boolean {
-    return this.themeService.theme === 'dark';
-  }
+  return this.themeService.theme === 'dark';
+}
 
-  toggleTheme(): void {
-    this.themeService.toggleTheme();
-  }
+toggleTheme(): void {
+  this.themeService.toggleTheme();
+}
 
 }

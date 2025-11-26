@@ -1,8 +1,10 @@
 package com.example.gymweb.model;
 
+<<<<<<< Updated upstream
 import jakarta.persistence.*;
 import org.w3c.dom.Text;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -18,10 +20,40 @@ public class MensajeClase {
     @JoinColumn (name = "clase_id")
     private Clase clase;
 
-    private Date fecha;
-    private Text mensaje;
+=======
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
-    public MensajeClase(int id, Clase clase, Date fecha, Text mensaje) {
+@Entity
+@Table(
+        name = "mensajeclase"
+)
+public class MensajeClase {
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+    )
+    @Column(
+            name = "id_mensaje"
+    )
+    private int id;
+    @ManyToOne
+    @JoinColumn(
+            name = "clase_id"
+    )
+    private Clase clase;
+>>>>>>> Stashed changes
+    private LocalDateTime fecha;
+    private String mensaje;
+
+    public MensajeClase(int id, Clase clase, LocalDateTime fecha, String mensaje) {
         this.id = id;
         this.clase = clase;
         this.fecha = fecha;
@@ -32,7 +64,11 @@ public class MensajeClase {
     }
 
     public int getId() {
+<<<<<<< Updated upstream
         return id;
+=======
+        return this.id;
+>>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -40,26 +76,43 @@ public class MensajeClase {
     }
 
     public Clase getClase() {
+<<<<<<< Updated upstream
         return clase;
+=======
+        return this.clase;
+>>>>>>> Stashed changes
     }
 
     public void setClase(Clase clase) {
         this.clase = clase;
     }
 
-    public Date getFecha() {
+    public LocalDateTime getFecha() {
+<<<<<<< Updated upstream
         return fecha;
+=======
+        return this.fecha;
+>>>>>>> Stashed changes
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 
-    public Text getMensaje() {
+    public String getMensaje() {
+<<<<<<< Updated upstream
         return mensaje;
     }
+=======
+        return this.mensaje;
+    }
 
-    public void setMensaje(Text mensaje) {
+>>>>>>> Stashed changes
+    public void setMensaje(String mensaje) {
         this.mensaje = mensaje;
     }
 }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
