@@ -1,15 +1,24 @@
 package com.example.gymweb.dto.Request;
 
 public class UsuarioPerfilUpdateRequest {
+<<<<<<< Updated upstream
 
     private String nombre;
     private String descripcion; // del perfil
+=======
+    private String nombre;
+    private String descripcion;
+>>>>>>> Stashed changes
     private String fotoUrl;
     private String telefono;
     private String instagram;
 
     public String getNombre() {
+<<<<<<< Updated upstream
         return nombre;
+=======
+        return this.nombre;
+>>>>>>> Stashed changes
     }
 
     public void setNombre(String nombre) {
@@ -17,7 +26,11 @@ public class UsuarioPerfilUpdateRequest {
     }
 
     public String getDescripcion() {
+<<<<<<< Updated upstream
         return descripcion;
+=======
+        return this.descripcion;
+>>>>>>> Stashed changes
     }
 
     public void setDescripcion(String descripcion) {
@@ -25,7 +38,11 @@ public class UsuarioPerfilUpdateRequest {
     }
 
     public String getFotoUrl() {
+<<<<<<< Updated upstream
         return fotoUrl;
+=======
+        return this.fotoUrl;
+>>>>>>> Stashed changes
     }
 
     public void setFotoUrl(String fotoUrl) {
@@ -33,7 +50,11 @@ public class UsuarioPerfilUpdateRequest {
     }
 
     public String getTelefono() {
+<<<<<<< Updated upstream
         return telefono;
+=======
+        return this.telefono;
+>>>>>>> Stashed changes
     }
 
     public void setTelefono(String telefono) {
@@ -41,7 +62,11 @@ public class UsuarioPerfilUpdateRequest {
     }
 
     public String getInstagram() {
+<<<<<<< Updated upstream
         return instagram;
+=======
+        return this.instagram;
+>>>>>>> Stashed changes
     }
 
     public void setInstagram(String instagram) {

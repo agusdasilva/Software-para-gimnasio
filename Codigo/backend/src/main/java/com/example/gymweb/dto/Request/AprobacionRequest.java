@@ -11,7 +11,11 @@ public class AprobacionRequest {
     }
 
     public boolean isAprobar() {
+<<<<<<< Updated upstream
         return aprobar;
+=======
+        return this.aprobar;
+>>>>>>> Stashed changes
     }
 
     public void setAprobar(boolean aprobar) {

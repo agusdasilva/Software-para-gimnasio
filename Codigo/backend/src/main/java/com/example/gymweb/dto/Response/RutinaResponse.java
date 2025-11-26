@@ -8,7 +8,11 @@ public class RutinaResponse {
     private boolean esGlobal;
 
     public int getId() {
+<<<<<<< Updated upstream
         return id;
+=======
+        return this.id;
+>>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -16,7 +20,11 @@ public class RutinaResponse {
     }
 
     public String getNombre() {
+<<<<<<< Updated upstream
         return nombre;
+=======
+        return this.nombre;
+>>>>>>> Stashed changes
     }
 
     public void setNombre(String nombre) {
@@ -24,7 +32,11 @@ public class RutinaResponse {
     }
 
     public String getCreador() {
+<<<<<<< Updated upstream
         return creador;
+=======
+        return this.creador;
+>>>>>>> Stashed changes
     }
 
     public void setCreador(String creador) {
@@ -32,7 +44,11 @@ public class RutinaResponse {
     }
 
     public RutinaDetalleResponse getDetalle() {
+<<<<<<< Updated upstream
         return detalle;
+=======
+        return this.detalle;
+>>>>>>> Stashed changes
     }
 
     public void setDetalle(RutinaDetalleResponse detalle) {
@@ -40,7 +56,11 @@ public class RutinaResponse {
     }
 
     public boolean isEsGlobal() {
+<<<<<<< Updated upstream
         return esGlobal;
+=======
+        return this.esGlobal;
+>>>>>>> Stashed changes
     }
 
     public void setEsGlobal(boolean esGlobal) {
