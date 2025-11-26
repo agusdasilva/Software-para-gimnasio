@@ -1,9 +1,8 @@
 .auth {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: calc(100vh - 110px - 50px);
-  padding: 40px 16px 80px;
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 200px);
+  padding: 80px 16px;
 }
 
 .auth-card {
