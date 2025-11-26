@@ -1,0 +1,27 @@
+<section class="auth">
+  <div class="auth-card">
+    <h1>Iniciar sesion</h1>
+    <p class="subtitle">Ingresa tus datos para continuar.</p>
+
+    <form class="auth-form">
+      <label>
+        Usuario o correo
+        <input name="username" [(ngModel)]="username" type="text" placeholder="Tu usuario">
+      </label>
+
+      <label>
+        Contraseña
+        <input name="password" [(ngModel)]="password" type="password" placeholder="Tu contraseña">
+      </label>
+
+      <button type="button" class="btn primary" (click)="onSubmit()">Entrar</button>
+    </form>
+
+    <div class="auth-error" *ngIf="error">{{ error }}</div>
+
+    <div class="auth-footer">
+      <span>¿No tienes cuenta?</span>
+      <a routerLink="/login/register" class="link">Registrate</a>
+    </div>
+  </div>
+</section>

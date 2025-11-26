@@ -1,0 +1,41 @@
+<section class="planes">
+  <div class="planes__header">
+    <h1>Elige tu plan</h1>
+    <p>Flexibilidad para tu rutina: paga por dia o sumate a un plan mensual.</p>
+  </div>
+
+  <div class="planes__grid">
+    <article class="plan-card">
+      <h2>Plan por dia</h2>
+      <p class="plan-card__price">$10 / dia</p>
+      <ul>
+        <li>Acceso al gimnasio un dia</li>
+        <li>Uso libre de maquinas</li>
+        <li>Sin permanencia</li>
+      </ul>
+      <button (click)="choosePlan('dia')">Elegir plan</button>
+    </article>
+
+    <article class="plan-card">
+      <h2>Plan mensual - 3 dias</h2>
+      <p class="plan-card__price">$80 / mes</p>
+      <ul>
+        <li>Acceso 3 dias a la semana</li>
+        <li>Clases grupales incluidas</li>
+        <li>Seguimiento basico</li>
+      </ul>
+      <button (click)="choosePlan('mensual-3')">Elegir plan</button>
+    </article>
+
+    <article class="plan-card plan-card--destacado">
+      <h2>Plan mensual - Full</h2>
+      <p class="plan-card__price">$120 / mes</p>
+      <ul>
+        <li>Acceso todos los dias</li>
+        <li>Clases y sala premium</li>
+        <li>Acompanamiento personalizado</li>
+      </ul>
+      <button (click)="choosePlan('mensual-full')">Elegir plan</button>
+    </article>
+  </div>
+</section>
