@@ -83,5 +83,3 @@ public class Serie {
         this.orden = orden;
     }
 }
-
-
