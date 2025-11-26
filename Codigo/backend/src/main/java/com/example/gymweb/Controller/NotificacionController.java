@@ -1,4 +1,4 @@
-package com.example.gymweb.controller;
+package com.example.gymweb.Controller;
 
 import com.example.gymweb.Service.NotificacionService;
 import com.example.gymweb.dto.Request.NotificacionRequest;

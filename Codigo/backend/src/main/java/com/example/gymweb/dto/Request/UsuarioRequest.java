@@ -35,4 +35,3 @@ public class UsuarioRequest {
         this.password_hash = password_hash;
     }
 }
-

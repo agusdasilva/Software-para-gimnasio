@@ -1,22 +1,5 @@
 package com.example.gymweb.model;
 
-<<<<<<< Updated upstream
-import jakarta.persistence.*;
-
-@Entity
-@Table (name = "serie")
-public class Serie {
-
-    @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column(name = "id_serie")
-    private int id;
-
-    @ManyToOne
-    @JoinColumn (name = "ejerciciodetalle_id")
-    private EjercicioDetalle ejercicioDetalle;
-
-=======
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +28,6 @@ public class Serie {
             name = "ejerciciodetalle_id"
     )
     private EjercicioDetalle ejercicioDetalle;
->>>>>>> Stashed changes
     private String carga;
     private int repeticiones;
     private int orden;
@@ -62,11 +44,7 @@ public class Serie {
     }
 
     public int getId() {
-<<<<<<< Updated upstream
-        return id;
-=======
         return this.id;
->>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -74,11 +52,7 @@ public class Serie {
     }
 
     public EjercicioDetalle getEjercicioDetalle() {
-<<<<<<< Updated upstream
-        return ejercicioDetalle;
-=======
         return this.ejercicioDetalle;
->>>>>>> Stashed changes
     }
 
     public void setEjercicioDetalle(EjercicioDetalle ejercicioDetalle) {
@@ -86,11 +60,7 @@ public class Serie {
     }
 
     public String getCarga() {
-<<<<<<< Updated upstream
-        return carga;
-=======
         return this.carga;
->>>>>>> Stashed changes
     }
 
     public void setCarga(String carga) {
@@ -98,11 +68,7 @@ public class Serie {
     }
 
     public int getRepeticiones() {
-<<<<<<< Updated upstream
-        return repeticiones;
-=======
         return this.repeticiones;
->>>>>>> Stashed changes
     }
 
     public void setRepeticiones(int repeticiones) {
@@ -110,11 +76,7 @@ public class Serie {
     }
 
     public int getOrden() {
-<<<<<<< Updated upstream
-        return orden;
-=======
         return this.orden;
->>>>>>> Stashed changes
     }
 
     public void setOrden(int orden) {

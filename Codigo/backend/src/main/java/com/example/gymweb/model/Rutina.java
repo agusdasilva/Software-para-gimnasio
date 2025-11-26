@@ -1,25 +1,5 @@
 package com.example.gymweb.model;
 
-<<<<<<< Updated upstream
-import jakarta.persistence.*;
-
-@Entity
-@Table (name = "rutina")
-public class Rutina {
-
-    @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column(name = "id_rutina")
-    private int id;
-
-    private String nombre;
-
-    @OneToOne(mappedBy = "rutina", cascade = CascadeType.ALL)
-    private RutinaDetalle rutinaDetalle;
-
-    @OneToOne
-    @JoinColumn (name = "creador_id")
-=======
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,7 +33,6 @@ public class Rutina {
     @JoinColumn(
             name = "creador_id"
     )
->>>>>>> Stashed changes
     private Usuario creador;
 
     public Rutina(int id, String nombre, Usuario creador) {
@@ -66,11 +45,7 @@ public class Rutina {
     }
 
     public int getId() {
-<<<<<<< Updated upstream
-        return id;
-=======
         return this.id;
->>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -78,11 +53,7 @@ public class Rutina {
     }
 
     public RutinaDetalle getRutinaDetalle() {
-<<<<<<< Updated upstream
-        return rutinaDetalle;
-=======
         return this.rutinaDetalle;
->>>>>>> Stashed changes
     }
 
     public void setRutinaDetalle(RutinaDetalle rutinaDetalle) {
@@ -90,11 +61,7 @@ public class Rutina {
     }
 
     public String getNombre() {
-<<<<<<< Updated upstream
-        return nombre;
-=======
         return this.nombre;
->>>>>>> Stashed changes
     }
 
     public void setNombre(String nombre) {
@@ -102,11 +69,7 @@ public class Rutina {
     }
 
     public Usuario getCreador() {
-<<<<<<< Updated upstream
-        return creador;
-=======
         return this.creador;
->>>>>>> Stashed changes
     }
 
     public void setCreador(Usuario creador) {

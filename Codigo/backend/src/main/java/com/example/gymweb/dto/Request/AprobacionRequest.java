@@ -1,6 +1,5 @@
 package com.example.gymweb.dto.Request;
 
-
 public class AprobacionRequest {
     private boolean aprobar;
 
