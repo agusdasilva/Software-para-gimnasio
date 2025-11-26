@@ -1,4 +1,5 @@
-package com.example.gymweb.repository;
+package com.example.gymweb.Repository;
+
 
 import com.example.gymweb.model.Serie;
 import org.springframework.data.jpa.repository.JpaRepository;

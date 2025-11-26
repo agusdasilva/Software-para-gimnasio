@@ -1,9 +1,14 @@
 package com.example.gymweb.dto.Response;
 
+<<<<<<< Updated upstream
 import java.util.List;
 
 public class ClaseResponse {
 
+=======
+
+public class ClaseResponse {
+>>>>>>> Stashed changes
     private int id;
     private String titulo;
     private String descripcion;
@@ -23,9 +28,14 @@ public class ClaseResponse {
     public ClaseResponse() {
     }
 
+<<<<<<< Updated upstream
 
     public Integer getCreadorId() {
         return creadorId;
+=======
+    public Integer getCreadorId() {
+        return this.creadorId;
+>>>>>>> Stashed changes
     }
 
     public void setCreadorId(Integer creadorId) {
@@ -33,7 +43,11 @@ public class ClaseResponse {
     }
 
     public int getCupo() {
+<<<<<<< Updated upstream
         return cupo;
+=======
+        return this.cupo;
+>>>>>>> Stashed changes
     }
 
     public void setCupo(int cupo) {
@@ -41,7 +55,11 @@ public class ClaseResponse {
     }
 
     public int getId() {
+<<<<<<< Updated upstream
         return id;
+=======
+        return this.id;
+>>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -49,7 +67,11 @@ public class ClaseResponse {
     }
 
     public String getTitulo() {
+<<<<<<< Updated upstream
         return titulo;
+=======
+        return this.titulo;
+>>>>>>> Stashed changes
     }
 
     public void setTitulo(String titulo) {
@@ -57,7 +79,11 @@ public class ClaseResponse {
     }
 
     public String getDescripcion() {
+<<<<<<< Updated upstream
         return descripcion;
+=======
+        return this.descripcion;
+>>>>>>> Stashed changes
     }
 
     public void setDescripcion(String descripcion) {
@@ -65,7 +91,11 @@ public class ClaseResponse {
     }
 
     public String getCreadorNombre() {
+<<<<<<< Updated upstream
         return creadorNombre;
+=======
+        return this.creadorNombre;
+>>>>>>> Stashed changes
     }
 
     public void setCreadorNombre(String creadorNombre) {

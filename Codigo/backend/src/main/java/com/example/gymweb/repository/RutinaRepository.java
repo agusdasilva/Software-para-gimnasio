@@ -1,10 +1,10 @@
-package com.example.gymweb.repository;
+package com.example.gymweb.Repository;
+
 
 import com.example.gymweb.model.Rutina;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public interface RutinaRepository extends JpaRepository<Rutina, Integer> {

@@ -57,7 +57,11 @@
 			<optional>true</optional>
 		</dependency>
 
+<<<<<<< Updated upstream
 		<!-- 🔥 JWT (LA ÚNICA VERSION QUE EXISTE Y FUNCIONA) -->
+=======
+		<!-- JJWT CORRECTO -->
+>>>>>>> Stashed changes
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -76,7 +80,10 @@
 			<scope>runtime</scope>
 		</dependency>
 
+<<<<<<< Updated upstream
 		<!-- Test -->
+=======
+>>>>>>> Stashed changes
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

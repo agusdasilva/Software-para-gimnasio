@@ -18,7 +18,11 @@ public class RutinaRequest {
     }
 
     public String getNombre() {
+<<<<<<< Updated upstream
         return nombre;
+=======
+        return this.nombre;
+>>>>>>> Stashed changes
     }
 
     public void setNombre(String nombre) {
@@ -26,7 +30,11 @@ public class RutinaRequest {
     }
 
     public Integer getIdCreador() {
+<<<<<<< Updated upstream
         return idCreador;
+=======
+        return this.idCreador;
+>>>>>>> Stashed changes
     }
 
     public void setIdCreador(Integer idCreador) {
@@ -34,7 +42,11 @@ public class RutinaRequest {
     }
 
     public String getDescripcion() {
+<<<<<<< Updated upstream
         return descripcion;
+=======
+        return this.descripcion;
+>>>>>>> Stashed changes
     }
 
     public void setDescripcion(String descripcion) {
@@ -42,7 +54,11 @@ public class RutinaRequest {
     }
 
     public String getImagen() {
+<<<<<<< Updated upstream
         return imagen;
+=======
+        return this.imagen;
+>>>>>>> Stashed changes
     }
 
     public void setImagen(String imagen) {
@@ -50,7 +66,11 @@ public class RutinaRequest {
     }
 
     public Integer getDescanso_seg() {
+<<<<<<< Updated upstream
         return descanso_seg;
+=======
+        return this.descanso_seg;
+>>>>>>> Stashed changes
     }
 
     public void setDescanso_seg(Integer descanso_seg) {
@@ -58,7 +78,11 @@ public class RutinaRequest {
     }
 
     public Boolean getEsGlobal() {
+<<<<<<< Updated upstream
         return esGlobal;
+=======
+        return this.esGlobal;
+>>>>>>> Stashed changes
     }
 
     public void setEsGlobal(Boolean esGlobal) {

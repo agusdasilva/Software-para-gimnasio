@@ -1,7 +1,12 @@
 package com.example.gymweb.dto.Response;
 
+<<<<<<< Updated upstream
 public class SerieResponse {
 
+=======
+
+public class SerieResponse {
+>>>>>>> Stashed changes
     private int id;
     private String carga;
     private int repeticiones;
@@ -18,7 +23,11 @@ public class SerieResponse {
     }
 
     public int getId() {
+<<<<<<< Updated upstream
         return id;
+=======
+        return this.id;
+>>>>>>> Stashed changes
     }
 
     public void setId(int id) {
@@ -26,7 +35,11 @@ public class SerieResponse {
     }
 
     public String getCarga() {
+<<<<<<< Updated upstream
         return carga;
+=======
+        return this.carga;
+>>>>>>> Stashed changes
     }
 
     public void setCarga(String carga) {
@@ -34,7 +47,11 @@ public class SerieResponse {
     }
 
     public int getRepeticiones() {
+<<<<<<< Updated upstream
         return repeticiones;
+=======
+        return this.repeticiones;
+>>>>>>> Stashed changes
     }
 
     public void setRepeticiones(int repeticiones) {
@@ -42,7 +59,11 @@ public class SerieResponse {
     }
 
     public int getOrden() {
+<<<<<<< Updated upstream
         return orden;
+=======
+        return this.orden;
+>>>>>>> Stashed changes
     }
 
     public void setOrden(int orden) {
