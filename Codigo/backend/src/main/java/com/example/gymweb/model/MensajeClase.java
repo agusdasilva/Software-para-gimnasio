@@ -73,4 +73,3 @@ public class MensajeClase {
         this.mensaje = mensaje;
     }
 }
-

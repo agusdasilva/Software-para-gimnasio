@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "membresia")
 public class Membresia {
@@ -39,35 +40,32 @@ public class Membresia {
 
     public Membresia() {}
 
-    public int getId() { return id; }
+    public Membresia(int id, Usuario usuario, Plan plan,
+                     LocalDateTime fechaInicio, LocalDateTime fechaFin,
+                     EstadoMembresia estado) {
+        this.id = id;
+        this.usuario = usuario;
+        this.plan = plan;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.estado = estado;
+    }
 
+    public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
     public Usuario getUsuario() { return usuario; }
-
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 
     public Plan getPlan() { return plan; }
-
     public void setPlan(Plan plan) { this.plan = plan; }
 
-    public LocalDateTime getFechaInicio() {
-        return fechaInicio;
-    }
+    public LocalDateTime getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
 
-    public void setFechaInicio(LocalDateTime fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public LocalDateTime getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(LocalDateTime fechaFin) {
-        this.fechaFin = fechaFin;
-    }
+    public LocalDateTime getFechaFin() { return fechaFin; }
+    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
 
     public EstadoMembresia getEstado() { return estado; }
-
     public void setEstado(EstadoMembresia estado) { this.estado = estado; }
 }
