@@ -5,13 +5,13 @@
 
     <form class="auth-form">
       <label>
-        Usuario o correo
-        <input name="username" [(ngModel)]="username" type="text" placeholder="Tu usuario">
+        Correo
+        <input name="email" [(ngModel)]="email" type="email" placeholder="tu@correo.com">
       </label>
 
       <label>
-        Contraseña
-        <input name="password" [(ngModel)]="password" type="password" placeholder="Tu contraseña">
+        Contrasena
+        <input name="password" [(ngModel)]="password" type="password" placeholder="Tu contrasena">
       </label>
 
       <button type="button" class="btn primary" (click)="onSubmit()">Entrar</button>
@@ -20,7 +20,7 @@
     <div class="auth-error" *ngIf="error">{{ error }}</div>
 
     <div class="auth-footer">
-      <span>¿No tienes cuenta?</span>
+      <span>No tienes cuenta?</span>
       <a routerLink="/login/register" class="link">Registrate</a>
     </div>
   </div>

@@ -5,23 +5,23 @@
 
 /* Tema por defecto*/
 :root {
-  --color-bg: #111111;                 
-  --color-bg-alt: #1a1a1a;            
-  --color-text: #ffffff;               
+  --color-bg: #111111;
+  --color-bg-alt: #1a1a1a;
+  --color-text: #ffffff;
 
-  --color-header-bg: #000000;          
+  --color-header-bg: #000000;
   --color-header-text: #ffffff;
 
-  --color-sidebar-bg: #000000;        
+  --color-sidebar-bg: #000000;
   --color-sidebar-text: #cccccc;
-  --color-sidebar-active-bg: #ff1a1a;  
+  --color-sidebar-active-bg: #ff1a1a;
   --color-sidebar-active-text: #ffffff;
 
-  --color-footer-bg: #000000;          
+  --color-footer-bg: #000000;
   --color-footer-text: #cccccc;
 
-  --color-border: #444444;            
-  --color-accent: #ff1a1a;             
+  --color-border: #444444;
+  --color-accent: #ff1a1a;
   --color-overlay-dark: rgba(0, 0, 0, 0.65);
 }
 
@@ -70,6 +70,9 @@ body.theme-dark {
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: var(--color-bg);
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/assets/fotosGym%20(1).jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--color-text);
 }

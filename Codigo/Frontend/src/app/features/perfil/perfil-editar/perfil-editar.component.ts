@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, AuthUser } from '../../../core/auth/auth.service';
+import { AuthService, UsuarioResponse } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-perfil-editar',
@@ -21,17 +21,12 @@ export class PerfilEditarComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    const profile = this.authService.getProfile();
-    if (profile) {
-      this.name = profile.username;
+    this.authService.getProfile().subscribe(profile => {
+      this.name = profile.nombre;
       this.email = profile.email;
-      this.description = profile.description || '';
-      this.avatarUrl = profile.avatarUrl || '';
-    }
-  }
-
-  private isValidEmail(email: string): boolean {
-    return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+      this.description = profile.descripcion || '';
+      this.avatarUrl = profile.fotoUrl || '';
+    });
   }
 
   save(): void {
@@ -48,37 +43,25 @@ export class PerfilEditarComponent implements OnInit {
       return;
     }
 
-    if (!this.isValidEmail(this.email.trim())) {
-      this.error = 'Usa un correo valido (ej: persona@mail.com).';
+    const current = this.authService.currentUser;
+    if (!current) {
+      this.error = 'No hay usuario autenticado.';
       return;
     }
 
-    if (this.password || this.confirmPassword) {
-      if (this.password !== this.confirmPassword) {
-        this.error = 'Las contrasenas no coinciden.';
-        return;
-      }
-      if (this.password.length < 8) {
-        this.error = 'La contrasena debe tener al menos 8 caracteres.';
-        return;
-      }
-    }
-
-    this.authService.updateProfile({
-      name: this.name.trim(),
-      email: this.email.trim(),
-      password: this.password || undefined,
-      description: this.description,
-      avatarUrl: this.avatarUrl
+    this.authService.updateProfile(current.id, {
+      nombre: this.name.trim(),
+      descripcion: this.description,
+      fotoUrl: this.avatarUrl || undefined
     }).subscribe({
-      next: (user: AuthUser) => {
+      next: (user: UsuarioResponse) => {
         this.success = 'Perfil actualizado.';
         this.password = '';
         this.confirmPassword = '';
         setTimeout(() => this.router.navigate(['/perfil']), 500);
       },
-      error: (err: Error) => {
-        this.error = err?.message || 'No se pudo actualizar el perfil.';
+      error: () => {
+        this.error = 'No se pudo actualizar el perfil.';
       }
     });
   }

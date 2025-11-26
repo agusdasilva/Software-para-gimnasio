@@ -19,19 +19,19 @@
       </div>
 
       <div class="table-row" *ngFor="let user of filteredUsers">
-        <span class="link" (click)="goToProfile(user.id)">{{ user.username }}</span>
+        <span class="link" (click)="goToProfile(user.id)">{{ user.nombre }}</span>
         <span>{{ user.email }}</span>
         <span class="roles">
-          <span class="chip" *ngFor="let role of user.roles">{{ role }}</span>
+          <span class="chip">{{ user.rol }}</span>
         </span>
         <span class="actions">
-          <button class="btn ghost" (click)="promote(user.id)" [disabled]="user.roles.includes('ADMIN')">
+          <button class="btn ghost" (click)="promote(user.id)" [disabled]="user.rol === 'ADMIN'">
             Ascender a entrenador
           </button>
-          <button class="btn ghost secondary" (click)="removeTrainer(user.id)" [disabled]="user.roles.includes('ADMIN') || !user.roles.includes('ENTRENADOR')">
+          <button class="btn ghost secondary" (click)="removeTrainer(user.id)" [disabled]="user.rol === 'ADMIN' || user.rol !== 'ENTRENADOR'">
             Quitar entrenador
           </button>
-          <button class="btn danger" (click)="delete(user.id)" [disabled]="user.roles.includes('ADMIN')">
+          <button class="btn danger" (click)="delete(user.id)" [disabled]="user.rol === 'ADMIN'">
             Borrar
           </button>
         </span>
