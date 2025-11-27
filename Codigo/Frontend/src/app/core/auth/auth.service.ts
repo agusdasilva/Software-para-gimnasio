@@ -43,6 +43,9 @@ export interface UsuarioResponse {
   fotoUrl?: string;
   telefono?: string;
   instagram?: string;
+  miembroActivo?: boolean;
+  estadoMembresia?: string;
+  nombrePlan?: string;
 }
 
 export interface UsuarioPerfilUpdateRequest {

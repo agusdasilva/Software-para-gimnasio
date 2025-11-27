@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Integer> {
-    Optional<Notificacion> findByUsuario_Id(int idUsuario);
+    java.util.List<Notificacion> findByUsuario_IdOrderByFechaDesc(int idUsuario);
 }

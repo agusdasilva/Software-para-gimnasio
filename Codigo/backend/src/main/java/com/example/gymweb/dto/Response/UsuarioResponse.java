@@ -14,6 +14,9 @@ public class UsuarioResponse {
     private String descripcion;
     private String fotoUrl;
     private String telefono;
+    private boolean miembroActivo;
+    private String estadoMembresia;
+    private String nombrePlan;
 
     public Integer getId() {
         return this.id;
@@ -85,5 +88,29 @@ public class UsuarioResponse {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public boolean isMiembroActivo() {
+        return miembroActivo;
+    }
+
+    public void setMiembroActivo(boolean miembroActivo) {
+        this.miembroActivo = miembroActivo;
+    }
+
+    public String getEstadoMembresia() {
+        return estadoMembresia;
+    }
+
+    public void setEstadoMembresia(String estadoMembresia) {
+        this.estadoMembresia = estadoMembresia;
+    }
+
+    public String getNombrePlan() {
+        return nombrePlan;
+    }
+
+    public void setNombrePlan(String nombrePlan) {
+        this.nombrePlan = nombrePlan;
     }
 }

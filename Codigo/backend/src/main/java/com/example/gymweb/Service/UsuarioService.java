@@ -1,14 +1,18 @@
 package com.example.gymweb.Service;
 
 import com.example.gymweb.Repository.PerfilUsuarioRepository;
+import com.example.gymweb.Repository.MembresiaRepository;
+import com.example.gymweb.Service.NotificacionService;
 import com.example.gymweb.Repository.UsuarioRepository;
 import com.example.gymweb.dto.Request.UsuarioChangeEstadoRequest;
 import com.example.gymweb.dto.Request.UsuarioChangeRolRequest;
 import com.example.gymweb.dto.Request.UsuarioPerfilUpdateRequest;
 import com.example.gymweb.dto.Response.UsuarioResponse;
 import com.example.gymweb.model.PerfilUsuario;
+import com.example.gymweb.model.Membresia;
 import com.example.gymweb.model.Usuario;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,12 +23,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PerfilUsuarioRepository perfilUsuarioRepository;
+    private final MembresiaRepository membresiaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificacionService notificacionService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PerfilUsuarioRepository perfilUsuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PerfilUsuarioRepository perfilUsuarioRepository,
+                          MembresiaRepository membresiaRepository, PasswordEncoder passwordEncoder,
+                          NotificacionService notificacionService) {
         this.usuarioRepository = usuarioRepository;
         this.perfilUsuarioRepository = perfilUsuarioRepository;
+        this.membresiaRepository = membresiaRepository;
         this.passwordEncoder = passwordEncoder;
+        this.notificacionService = notificacionService;
     }
 
     private UsuarioResponse convertirAResponse(Usuario u) {
@@ -41,6 +51,19 @@ public class UsuarioService {
             response.setFotoUrl(perfil.getFoto_url());
             response.setTelefono(perfil.getTelefono());
         });
+        // Completar estado de membresia solo para clientes
+        Optional<Membresia> membresiaOpt = membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(u.getId());
+        if (membresiaOpt.isPresent()) {
+            Membresia m = membresiaOpt.get();
+            boolean vigentePorFecha = m.getFechaFin() != null && m.getFechaFin().isAfter(LocalDateTime.now());
+            boolean activaPorEstado = m.getEstado() != null && m.getEstado().name().equalsIgnoreCase("ACTIVA");
+            response.setMiembroActivo(vigentePorFecha && activaPorEstado);
+            response.setEstadoMembresia(m.getEstado() != null ? m.getEstado().name() : (vigentePorFecha ? "ACTIVA" : "VENCIDA"));
+            response.setNombrePlan(m.getPlan() != null ? m.getPlan().getNombre() : null);
+        } else {
+            response.setMiembroActivo(false);
+            response.setEstadoMembresia(null);
+        }
         return response;
     }
 
@@ -101,6 +124,13 @@ public class UsuarioService {
         Usuario u = (Usuario)this.usuarioRepository.findById(request.getIdUsuario()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         u.setRol(request.getNuevoRol());
         this.usuarioRepository.save(u);
+        // Notificar ascenso a entrenador
+        if (request.getNuevoRol() == com.example.gymweb.model.Rol.ENTRENADOR) {
+            this.notificacionService.crear(new com.example.gymweb.dto.Request.NotificacionRequest() {{
+                setIdUsuario(u.getId());
+                setMensaje("Fuiste ascendido a entrenador. Ya puedes crear y gestionar clases.");
+            }});
+        }
         return this.convertirAResponse(u);
     }
 

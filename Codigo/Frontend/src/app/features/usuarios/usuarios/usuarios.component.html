@@ -6,23 +6,49 @@
         <p class="subtitle">Gestiona la lista, promueve a entrenador o elimina.</p>
       </div>
       <div class="search">
-        <input [(ngModel)]="search" type="search" placeholder="Buscar por email...">
+        <input [(ngModel)]="search" type="search" placeholder="Buscar por nombre o email...">
+        <div class="filters">
+          <select [(ngModel)]="filtroRol">
+            <option value="todos">Rol: todos</option>
+            <option value="ADMIN">Admin</option>
+            <option value="ENTRENADOR">Entrenador</option>
+            <option value="CLIENTE">Cliente</option>
+          </select>
+          <select [(ngModel)]="filtroEstado">
+            <option value="todos">Estado: todos</option>
+            <option value="ACTIVO">Activo</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="BLOQUEADO">Bloqueado</option>
+          </select>
+          <select [(ngModel)]="filtroMembresia">
+            <option value="todos">Membresía: todas</option>
+            <option value="activos">Activos</option>
+            <option value="inactivos">Sin membresía</option>
+          </select>
+        </div>
       </div>
     </div>
 
     <div class="table">
       <div class="table-head">
-        <span>Nombre</span>
-        <span>Email</span>
-        <span>Roles</span>
+        <span (click)="setSort('nombre')" class="sortable">Nombre</span>
+        <span (click)="setSort('email')" class="sortable">Email</span>
+        <span (click)="setSort('rol')" class="sortable">Rol</span>
+        <span (click)="setSort('estado')" class="sortable">Estado</span>
+        <span (click)="setSort('miembro')" class="sortable">Membresía</span>
         <span class="actions-title">Acciones</span>
       </div>
 
       <div class="table-row" *ngFor="let user of filteredUsers">
         <span class="link" (click)="goToProfile(user.id)">{{ user.nombre }}</span>
         <span>{{ user.email }}</span>
-        <span class="roles">
-          <span class="chip">{{ user.rol }}</span>
+        <span class="roles"><span class="chip">{{ user.rol }}</span></span>
+        <span>
+          <span class="chip state" [ngClass]="user.estado.toLowerCase()">{{ user.estado }}</span>
+        </span>
+        <span>
+          <span class="chip membership" [ngClass]="user.miembroActivo ? 'activo' : 'inactivo'">{{ miembroLabel(user) }}</span>
+          <small class="plan" *ngIf="user.nombrePlan && user.miembroActivo">{{ user.nombrePlan }}</small>
         </span>
         <span class="actions">
           <button class="btn ghost" (click)="promote(user.id)" [disabled]="user.rol === 'ADMIN'">

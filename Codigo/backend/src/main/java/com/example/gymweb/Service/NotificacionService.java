@@ -20,7 +20,7 @@ public class NotificacionService {
     private UsuarioRepository usuarioRepo;
 
     public List<NotificacionResponse> listar(int idUsuario) {
-        return this.repo.findByUsuario_Id(idUsuario).stream().map((n) -> {
+        return this.repo.findByUsuario_IdOrderByFechaDesc(idUsuario).stream().map((n) -> {
             NotificacionResponse response = new NotificacionResponse();
             response.setId(n.getId());
             response.setMensaje(n.getMensaje());
