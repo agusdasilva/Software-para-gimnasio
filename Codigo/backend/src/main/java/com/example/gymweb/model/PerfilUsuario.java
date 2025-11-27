@@ -24,7 +24,8 @@ public class PerfilUsuario {
     private int id;
     @OneToOne
     @JoinColumn(
-            name = "id_usuario"
+            name = "usuario_id",
+            referencedColumnName = "id_usuario"
     )
     private Usuario usuario;
     private String descripcion;

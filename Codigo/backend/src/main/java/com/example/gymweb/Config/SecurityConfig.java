@@ -34,7 +34,9 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests((auth) ->
-                        ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl) ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl) auth.requestMatchers(new String[]{"/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**"})).permitAll().anyRequest()).authenticated())
+                        auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                            .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                            .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return (SecurityFilterChain)http.build();
@@ -48,9 +50,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
-        config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "X-Requested-With"));
+        // Desarrollo: habilitamos cualquier origen (útil si corres el front en otro puerto)
+        config.setAllowedOriginPatterns(java.util.List.of("*"));
+        config.setAllowedMethods(java.util.List.of("*"));
+        config.setAllowedHeaders(java.util.List.of("*"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
