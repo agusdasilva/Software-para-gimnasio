@@ -14,10 +14,13 @@ import com.example.gymweb.model.Membresia;
 import com.example.gymweb.model.Plan;
 import com.example.gymweb.model.Pago;
 import com.example.gymweb.model.Usuario;
+import com.example.gymweb.model.Estado;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +51,8 @@ public class PagoService {
     }
 
     public PagoResponse registrarPago(PagoRequest request) {
-        Membresia membresia = (Membresia)this.membresiaRepository.findById(request.getIdMembresia()).orElseThrow(() -> new RuntimeException("Membresía no encontrada"));
+        Membresia membresia = this.membresiaRepository.findById(request.getIdMembresia())
+                .orElseThrow(() -> new RuntimeException("Membresia no encontrada"));
         Pago pago = new Pago();
         pago.setMembresia(membresia);
         pago.setMonto(request.getMonto());
@@ -56,9 +60,13 @@ public class PagoService {
         pago.setFecha(LocalDateTime.now());
         pago.setEstado(EstadoPago.COMPLETADO);
         this.pagoRepository.save(pago);
+        if (membresia.getPlan() == null) {
+            throw new RuntimeException("La membresia no tiene un plan asociado");
+        }
         membresia.setEstado(EstadoMembresia.ACTIVA);
-        membresia.setFechaInicio(LocalDateTime.now());
-        membresia.setFechaFin(LocalDateTime.now().plusMonths(1L));
+        LocalDateTime inicio = LocalDateTime.now();
+        membresia.setFechaInicio(inicio);
+        membresia.setFechaFin(this.membresiaService.calcularFechaFin(membresia.getPlan(), inicio));
         this.membresiaRepository.save(membresia);
         return this.convertirAResponse(pago);
     }
@@ -68,7 +76,11 @@ public class PagoService {
     }
 
     public List<PagoResponse> listarPagosDeUsuario(int idUsuario) {
-        return this.membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(idUsuario).stream().flatMap((m) -> this.pagoRepository.findByMembresiaId(m.getId()).stream()).map(this::convertirAResponse).toList();
+        return this.membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(idUsuario)
+                .stream()
+                .flatMap((m) -> this.pagoRepository.findByMembresiaId(m.getId()).stream())
+                .map(this::convertirAResponse)
+                .toList();
     }
 
     public List<PagoResponse> listarTodos() {
@@ -83,21 +95,25 @@ public class PagoService {
 
         String externalRef = info.getExternalReference();
         if (externalRef == null || !externalRef.contains("user-") || !externalRef.contains("-plan-")) {
-            throw new RuntimeException("Referencia externa inválida");
+            throw new RuntimeException("Referencia externa invalida");
         }
 
-        // Formato: user-{id}-plan-{code}
-        String[] parts = externalRef.split("-");
-        int userId;
-        String planCode;
-        try {
-            userId = Integer.parseInt(parts[1]);
-            planCode = parts[3];
-        } catch (Exception e) {
-            throw new RuntimeException("Referencia externa inválida");
+        // Formato: user-{id}-plan-{code}, donde {code} puede incluir guiones
+        Pattern refPattern = Pattern.compile("^user-(\\d+)-plan-(.+)$");
+        Matcher matcher = refPattern.matcher(externalRef);
+        if (!matcher.matches()) {
+            throw new RuntimeException("Referencia externa invalida");
         }
 
-        Usuario usuario = this.usuarioRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        int userId = Integer.parseInt(matcher.group(1));
+        String planCode = matcher.group(2);
+
+        Usuario usuario = this.usuarioRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (usuario.getEstado() == null || Estado.PENDIENTE.equals(usuario.getEstado())) {
+            usuario.setEstado(Estado.ACTIVO);
+            this.usuarioRepository.save(usuario);
+        }
 
         PlanInfo planInfo = PLANES.getOrDefault(planCode, PLANES.get("mensual-full"));
         Plan plan = this.planRepository.findByNombreIgnoreCase(planInfo.nombre())
@@ -105,12 +121,17 @@ public class PagoService {
                     Plan p = new Plan();
                     p.setNombre(planInfo.nombre());
                     p.setPrecio(planInfo.precio());
-                    p.setPeriodo("MENSUAL");
+                    p.setPeriodo(planInfo.periodo());
                     return this.planRepository.save(p);
                 });
+        if (plan.getPeriodo() == null || !plan.getPeriodo().equalsIgnoreCase(planInfo.periodo())) {
+            plan.setPeriodo(planInfo.periodo());
+            plan = this.planRepository.save(plan);
+        }
 
-        // Buscar membresía vigente o última
-        Membresia membresia = this.membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(userId).orElse(new Membresia());
+        // Buscar membresia vigente o ultima y extender segun plan elegido
+        Membresia membresia = this.membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(userId)
+                .orElse(new Membresia());
         membresia.setUsuario(usuario);
         membresia.setPlan(plan);
         LocalDateTime inicio = LocalDateTime.now();
@@ -118,7 +139,7 @@ public class PagoService {
             inicio = membresia.getFechaFin();
         }
         membresia.setFechaInicio(inicio);
-        membresia.setFechaFin(inicio.plusMonths(1));
+        membresia.setFechaFin(this.membresiaService.calcularFechaFin(plan, inicio));
         membresia.setEstado(EstadoMembresia.ACTIVA);
         this.membresiaRepository.save(membresia);
 
@@ -134,11 +155,11 @@ public class PagoService {
         return this.membresiaService.obtenerMembresiaActualPorUsuario(userId);
     }
 
-    private record PlanInfo(String nombre, java.math.BigDecimal precio) {}
+    private record PlanInfo(String nombre, java.math.BigDecimal precio, String periodo) {}
 
     private static final Map<String, PlanInfo> PLANES = Map.of(
-            "dia", new PlanInfo("Plan por dia", new java.math.BigDecimal("10")),
-            "mensual-3", new PlanInfo("Plan mensual - 3 dias", new java.math.BigDecimal("80")),
-            "mensual-full", new PlanInfo("Plan mensual - Full", new java.math.BigDecimal("120"))
+            "dia", new PlanInfo("Plan por dia", new java.math.BigDecimal("10"), "DIARIO"),
+            "mensual-3", new PlanInfo("Plan mensual - 3 dias", new java.math.BigDecimal("80"), "MENSUAL"),
+            "mensual-full", new PlanInfo("Plan mensual - Full", new java.math.BigDecimal("120"), "MENSUAL")
     );
 }

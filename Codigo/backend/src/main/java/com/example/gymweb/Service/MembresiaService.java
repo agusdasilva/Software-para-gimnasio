@@ -9,8 +9,8 @@ import com.example.gymweb.model.EstadoMembresia;
 import com.example.gymweb.model.Membresia;
 import com.example.gymweb.model.Plan;
 import com.example.gymweb.model.Usuario;
-
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,14 +44,16 @@ public class MembresiaService {
     }
 
     public MembresiaResponse crearMembresia(MembresiaRequest request) {
-        Usuario usuario = (Usuario)this.usuarioRepository.findById(request.getIdUsuario()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        Plan plan = (Plan)this.planRepository.findById(request.getIdPlan()).orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+        Usuario usuario = this.usuarioRepository.findById(request.getIdUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Plan plan = this.planRepository.findById(request.getIdPlan())
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
         Membresia membresia = new Membresia();
         membresia.setUsuario(usuario);
         membresia.setPlan(plan);
         LocalDateTime ahora = LocalDateTime.now();
         membresia.setFechaInicio(ahora);
-        membresia.setFechaFin(ahora.plusMonths(1L));
+        membresia.setFechaFin(this.calcularFechaFin(plan, ahora));
         membresia.setEstado(EstadoMembresia.ACTIVA);
         this.membresiaRepository.save(membresia);
         return this.convertirAResponse(membresia);
@@ -79,9 +81,29 @@ public class MembresiaService {
     }
 
     public void cambiarEstado(int idMembresia, EstadoMembresia nuevoEstado) {
-        Membresia m = (Membresia)this.membresiaRepository.findById(idMembresia).orElseThrow(() -> new RuntimeException("Membresía no encontrada"));
+        Membresia m = this.membresiaRepository.findById(idMembresia)
+                .orElseThrow(() -> new RuntimeException("Membresia no encontrada"));
         m.setEstado(nuevoEstado);
         this.membresiaRepository.save(m);
     }
-}
 
+    /**
+     * Calcula la fecha de finalizacion segun el periodo del plan elegido.
+     * Si el plan no tiene periodo definido, se asume mensual por defecto.
+     */
+    public LocalDateTime calcularFechaFin(Plan plan, LocalDateTime fechaInicio) {
+        if (plan == null) {
+            throw new IllegalArgumentException("El plan es requerido para calcular la vigencia");
+        }
+        LocalDateTime inicio = fechaInicio != null ? fechaInicio : LocalDateTime.now();
+        String periodo = plan.getPeriodo() != null ? plan.getPeriodo().trim().toUpperCase() : "";
+        ChronoUnit unidad = switch (periodo) {
+            case "DIARIO" -> ChronoUnit.DAYS;
+            case "SEMANAL" -> ChronoUnit.WEEKS;
+            case "ANUAL" -> ChronoUnit.YEARS;
+            case "MENSUAL" -> ChronoUnit.MONTHS;
+            default -> ChronoUnit.MONTHS;
+        };
+        return inicio.plus(1, unidad);
+    }
+}

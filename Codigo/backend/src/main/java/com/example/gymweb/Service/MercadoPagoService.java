@@ -55,7 +55,7 @@ public class MercadoPagoService {
         Map<String, Object> payload = new HashMap<>();
         payload.put("items", java.util.List.of(item));
         payload.put("back_urls", backUrls);
-        // No forzamos auto_return para evitar errores si MP requiere https en success
+        // No usamos auto_return porque exige back_urls https; en local es http y falla
         payload.put("external_reference", "user-" + usuario.getId() + "-plan-" + planCode);
         payload.put("payer", Map.of("email", usuario.getEmail()));
 
