@@ -1,0 +1,107 @@
+<section class="clases-hero">
+  <div>
+    <p class="kicker">Agenda de clases</p>
+    <h1>Entrena con las mejores rutinas grupales</h1>
+    <p class="lede">Filtra por nivel o estado y encuentra tu siguiente clase. Preparado para conectar con el back cuando este listo.</p>
+    <div class="hero-actions">
+      <button class="btn primary" [disabled]="!isAdminOrTrainer">Crear clase</button>
+      <button class="btn ghost">Ver calendario</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-label">Activas</span>
+      <span class="stat-value">{{ filtradas.length }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Promedio cupo</span>
+      <span class="stat-value">
+        {{ promedioCupo | number:'1.0-0' }}
+      </span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Disponibles</span>
+      <span class="stat-value">
+        {{ totalDisponibles }}
+      </span>
+    </div>
+  </div>
+</section>
+
+<section class="clases-filtros">
+  <div class="search">
+    <input
+      type="text"
+      placeholder="Buscar por nombre o entrenador"
+      [(ngModel)]="filtroTexto"
+      (ngModelChange)="aplicarFiltros()">
+  </div>
+  <div class="selects">
+    <label>
+      Nivel
+      <select [(ngModel)]="filtroNivel" (change)="aplicarFiltros()">
+        <option value="todos">Todos</option>
+        <option value="Inicial">Inicial</option>
+        <option value="Intermedio">Intermedio</option>
+        <option value="Avanzado">Avanzado</option>
+      </select>
+    </label>
+    <label>
+      Estado
+      <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+        <option value="todos">Todos</option>
+        <option value="ABIERTA">Abiertas</option>
+        <option value="LLENA">Llenas</option>
+        <option value="CANCELADA">Canceladas</option>
+      </select>
+    </label>
+  </div>
+</section>
+
+<section class="clases-grid" *ngIf="filtradas.length; else emptyState">
+  <article class="clase-card" *ngFor="let clase of filtradas">
+    <div class="card-header">
+      <div>
+        <p class="chip nivel" [class.avanzado]="clase.nivel === 'Avanzado'" [class.inicial]="clase.nivel === 'Inicial'">
+          {{ clase.nivel }}
+        </p>
+        <h3>{{ clase.titulo }}</h3>
+        <p class="entrenador">{{ clase.entrenador }}</p>
+      </div>
+      <p class="chip estado" [class.llena]="clase.estado === 'LLENA'" [class.cancelada]="clase.estado === 'CANCELADA'">
+        {{ estadoClase(clase) }}
+      </p>
+    </div>
+
+    <p class="descripcion">{{ clase.descripcion }}</p>
+
+    <div class="meta">
+      <span class="pill">{{ clase.duracionMin }} min</span>
+      <span class="pill">Cupo {{ capacidad(clase) }}</span>
+      <span class="pill">{{ clase.ubicacion }}</span>
+    </div>
+
+    <div class="schedule">
+      <div>
+        <p class="label">Horario</p>
+        <p class="value">{{ clase.horario }}</p>
+        <p class="muted">Proxima: {{ clase.proximaFecha }}</p>
+      </div>
+      <div class="tag" *ngIf="clase.etiqueta">{{ clase.etiqueta }}</div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn ghost">Ver detalle</button>
+      <button class="btn primary" [disabled]="clase.estado !== 'ABIERTA'">Reservar</button>
+    </div>
+  </article>
+</section>
+
+<ng-template #emptyState>
+  <div class="empty">
+    <p>No hay clases con estos filtros.</p>
+    <button class="btn ghost" (click)="filtroTexto=''; filtroNivel='todos'; filtroEstado='todos'; aplicarFiltros();">
+      Limpiar filtros
+    </button>
+  </div>
+</ng-template>
