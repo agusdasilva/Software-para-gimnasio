@@ -13,6 +13,11 @@ export class UsuariosComponent implements OnInit {
   users: UsuarioResponse[] = [];
   error = '';
   success = '';
+  filtroRol: 'todos' | 'ADMIN' | 'ENTRENADOR' | 'CLIENTE' = 'todos';
+  filtroEstado: 'todos' | 'ACTIVO' | 'PENDIENTE' | 'BLOQUEADO' = 'todos';
+  filtroMembresia: 'todos' | 'activos' | 'inactivos' = 'todos';
+  sortKey: 'nombre' | 'email' | 'rol' | 'estado' | 'miembro' = 'nombre';
+  sortDir: 'asc' | 'desc' = 'asc';
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -22,10 +27,26 @@ export class UsuariosComponent implements OnInit {
 
   get filteredUsers() {
     const term = this.search.trim().toLowerCase();
-    if (!term) {
-      return this.users;
-    }
-    return this.users.filter(u => u.email.toLowerCase().includes(term) || u.nombre.toLowerCase().includes(term));
+    let list = this.users.filter(u => {
+      const coincideTexto = !term || u.email.toLowerCase().includes(term) || u.nombre.toLowerCase().includes(term);
+      const coincideRol = this.filtroRol === 'todos' || u.rol === this.filtroRol;
+      const coincideEstado = this.filtroEstado === 'todos' || u.estado === this.filtroEstado;
+      const esMiembro = !!u.miembroActivo;
+      const coincideMembresia =
+        this.filtroMembresia === 'todos' ||
+        (this.filtroMembresia === 'activos' && esMiembro) ||
+        (this.filtroMembresia === 'inactivos' && !esMiembro);
+      return coincideTexto && coincideRol && coincideEstado && coincideMembresia;
+    });
+
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    list = list.sort((a, b) => {
+      const val = this.sortKey === 'miembro'
+        ? Number(!!a.miembroActivo) - Number(!!b.miembroActivo)
+        : (a[this.sortKey] || '').toString().localeCompare((b[this.sortKey] || '').toString(), 'es', { sensitivity: 'base' });
+      return val * dir;
+    });
+    return list;
   }
 
   refresh(): void {
@@ -80,5 +101,21 @@ export class UsuariosComponent implements OnInit {
         this.error = 'No se pudo bloquear al usuario.';
       }
     });
+  }
+
+  setSort(key: 'nombre' | 'email' | 'rol' | 'estado' | 'miembro'): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDir = 'asc';
+    }
+  }
+
+  miembroLabel(user: UsuarioResponse): string {
+    if (user.rol !== 'CLIENTE') {
+      return '-';
+    }
+    return user.miembroActivo ? 'Miembro activo' : 'Sin membresía';
   }
 }
