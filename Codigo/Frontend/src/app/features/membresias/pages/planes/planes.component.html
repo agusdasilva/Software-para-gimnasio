@@ -1,27 +1,4 @@
 <section class="planes">
-  <div class="status" *ngIf="authService.isAuthenticated()">
-    <div class="status__content" *ngIf="membresia; else noMembresia">
-      <div>
-        <p class="eyebrow">Tu membresía actual</p>
-        <h2>{{ membresia.nombrePlan || 'Membresía activa' }}</h2>
-        <p class="muted">Miembro desde {{ membresia.fechaInicio | date:'mediumDate' }}</p>
-      </div>
-      <div class="status__badge">
-        <span *ngIf="diasRestantes() !== null">Te quedan {{ diasRestantes() }} días</span>
-        <small>Fin: {{ membresia.fechaFin | date:'mediumDate' }}</small>
-      </div>
-    </div>
-    <ng-template #noMembresia>
-      <div class="status__content">
-        <div>
-          <p class="eyebrow">Sin membresía activa</p>
-          <p class="muted">Elige un plan y activa tu próximo mes.</p>
-        </div>
-      </div>
-    </ng-template>
-    <p class="error" *ngIf="error">{{ error }}</p>
-  </div>
-
   <div class="planes__header">
     <h1>Elige tu plan</h1>
     <p>Flexibilidad para tu rutina: paga por dia o sumate a un plan mensual con beneficios extra.</p>

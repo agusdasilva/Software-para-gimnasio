@@ -1,63 +1,67 @@
 <section class="perfil">
   <div class="perfil-card">
-    <div class="ig-header">
-      <div class="avatar-ring">
+    <div class="header">
+      <div class="id-block">
         <div class="avatar" [ngStyle]="{'background-image': avatarUrl ? 'url(' + avatarUrl + ')' : 'none'}">
           <span *ngIf="!avatarUrl">{{ avatarFallback() }}</span>
         </div>
+        <div>
+          <h1>{{ name || 'Sin nombre' }}</h1>
+          <p class="subtitle">{{ email || 'Sin correo' }}</p>
+          <div class="meta-chips">
+            <span class="chip strong" *ngIf="roles?.length">Rol: {{ roles[0] }}</span>
+            <span class="chip subtle" *ngIf="status">Estado: {{ status }}</span>
+            <span class="chip subtle" *ngIf="joinedAt">Alta: {{ joinedAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
       </div>
-
-      <div class="ig-meta">
-        <div class="name-row">
-          <div>
-            <h1>{{ name || 'Sin nombre' }}</h1>
-            <p class="subtitle">{{ email || 'Sin correo' }}</p>
-          </div>
-          <div class="actions" *ngIf="!viewOnly">
-            <button class="btn ghost" (click)="goToEdit()">Editar perfil</button>
-          </div>
-        </div>
-
-        <div class="meta-chips">
-          <span class="chip strong" *ngIf="roles?.length">Rol: {{ roles[0] }}</span>
-          <span class="chip subtle" *ngIf="status">Estado: {{ status }}</span>
-          <span class="chip subtle" *ngIf="joinedAt">Alta: {{ joinedAt | date:'mediumDate' }}</span>
-        </div>
-
-        <div class="bio-block">
-          <p class="desc">{{ description || 'Aun no agregaste una descripcion.' }}</p>
-          <div class="contact">
-            <span class="meta-label">Telefono</span>
-            <span class="meta-value" *ngIf="phone; else noPhoneInline">{{ phone }}</span>
-            <ng-template #noPhoneInline><span class="meta-value">Aun no cargaste un telefono.</span></ng-template>
-          </div>
-        </div>
+      <div class="actions" *ngIf="!viewOnly">
+        <button class="btn ghost" (click)="goToEdit()">Editar perfil</button>
       </div>
     </div>
 
-    <div class="ig-grid">
-      <button class="ig-card disabled">
-        <div class="ig-card__overlay">
-          <p class="eyebrow">Pagos</p>
-          <h3>Metodo de pago (proximamente)</h3>
-          <span class="arrow">></span>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Descripcion</h3>
+        <p class="desc">{{ description || 'Aun no agregaste una descripcion.' }}</p>
+      </div>
+      <div class="info-card">
+        <h3>Contacto</h3>
+        <p class="desc" *ngIf="phone; else noPhone">Telefono: {{ phone }}</p>
+        <ng-template #noPhone><p class="desc">Aun no cargaste un telefono.</p></ng-template>
+      </div>
+      <div class="info-card">
+        <h3>Roles</h3>
+        <div class="roles" *ngIf="roles?.length; else noRoles">
+          <span class="chip" *ngFor="let role of roles">{{ role }}</span>
         </div>
+        <ng-template #noRoles><p class="desc">Sin roles asignados.</p></ng-template>
+      </div>
+    </div>
+
+    <div class="quick-links">
+      <button class="link-card">
+        <div>
+          <h3>Metodo de pago</h3>
+          <p>Agrega o actualiza tu tarjeta.</p>
+        </div>
+        <span class="arrow">›</span>
       </button>
 
-      <button class="ig-card" (click)="goToMembresias()">
-        <div class="ig-card__overlay">
-          <p class="eyebrow">Membresias</p>
-          <h3>Tus planes y renovaciones</h3>
-          <span class="arrow">></span>
+      <button class="link-card">
+        <div>
+          <h3>Membresias</h3>
+          <p>Ver tus planes y renovaciones.</p>
         </div>
+        <span class="arrow">›</span>
       </button>
 
-      <button class="ig-card disabled">
-        <div class="ig-card__overlay">
-          <p class="eyebrow">Ajustes</p>
-          <h3>Mas opciones pronto</h3>
-          <span class="arrow">></span>
+      <button class="link-card disabled">
+        <div>
+          <h3>Otros ajustes</h3>
+          <p>Próximamente más opciones.</p>
         </div>
+        <span class="arrow">•</span>
       </button>
     </div>
   </div>

@@ -32,10 +32,6 @@ export class PerfilComponent implements OnInit {
     this.router.navigate(['/perfil/editar']);
   }
 
-  goToMembresias(): void {
-    this.router.navigate(['/membresias']);
-  }
-
   avatarFallback(): string {
     return this.name ? this.name.charAt(0).toUpperCase() : 'P';
   }

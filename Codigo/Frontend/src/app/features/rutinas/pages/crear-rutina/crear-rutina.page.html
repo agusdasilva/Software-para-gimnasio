@@ -1,0 +1,109 @@
+<section class="crear-hero">
+  <div>
+    <p class="kicker">Nueva rutina</p>
+    <h1>Diseña un plan listo para enviar</h1>
+    <p class="lede">Mock simple: guarda en memoria mientras conectamos el servicio real.</p>
+    <div class="hero-actions">
+      <a class="btn ghost" routerLink="/rutinas">Volver a listadas</a>
+      <button class="btn primary" type="button" (click)="guardar()">Guardar borrador</button>
+    </div>
+  </div>
+</section>
+
+<form class="crear-form" (ngSubmit)="guardar()">
+  <div class="grid">
+    <label>
+      Nombre
+      <input type="text" name="titulo" [(ngModel)]="rutina.titulo" required>
+    </label>
+    <label>
+      Objetivo
+      <input type="text" name="objetivo" [(ngModel)]="rutina.objetivo" required>
+    </label>
+    <label>
+      Nivel
+      <select name="nivel" [(ngModel)]="rutina.nivel">
+        <option value="Principiante">Principiante</option>
+        <option value="Intermedio">Intermedio</option>
+        <option value="Avanzado">Avanzado</option>
+      </select>
+    </label>
+    <label>
+      Estado
+      <select name="estado" [(ngModel)]="rutina.estado">
+        <option value="BORRADOR">Borrador</option>
+        <option value="ACTIVA">Activa</option>
+      </select>
+    </label>
+    <label>
+      Semanas
+      <input type="number" min="1" max="20" name="semanas" [(ngModel)]="rutina.semanas">
+    </label>
+    <label>
+      Frecuencia semanal
+      <input type="number" min="1" max="7" name="frecuencia" [(ngModel)]="rutina.frecuencia">
+    </label>
+    <label>
+      Duración por sesión (min)
+      <input type="number" min="20" max="180" name="duracionMin" [(ngModel)]="rutina.duracionMin">
+    </label>
+  </div>
+
+  <label class="full">
+    Descripción corta
+    <textarea name="descripcion" rows="3" [(ngModel)]="rutina.descripcion"></textarea>
+  </label>
+
+  <section class="bloques">
+    <header class="bloques-header">
+      <div>
+        <p class="kicker">Bloques</p>
+        <p class="muted">Agrupa ejercicios por dia o foco. Se guarda en memoria por ahora.</p>
+      </div>
+      <button class="btn ghost" type="button" (click)="agregarBloque()">Agregar bloque</button>
+    </header>
+
+    <article class="bloque" *ngFor="let bloque of rutina.bloques; let i = index">
+      <div class="bloque-header">
+        <label>
+          Nombre del bloque
+          <input type="text" [name]="'bloqueNombre' + i" [(ngModel)]="bloque.nombre">
+        </label>
+        <label>
+          Foco
+          <input type="text" [name]="'bloqueFoco' + i" [(ngModel)]="bloque.foco">
+        </label>
+        <button class="btn ghost" type="button" (click)="agregarEjercicio(i)">Agregar ejercicio</button>
+      </div>
+
+      <div class="ejercicios">
+        <div class="ejercicio" *ngFor="let ej of bloque.ejercicios; let j = index">
+          <label>
+            Ejercicio
+            <input type="text" [name]="'ejercicio' + i + '-' + j" [(ngModel)]="ej.nombre">
+          </label>
+          <label>
+            Series
+            <input type="number" min="1" max="10" [name]="'series' + i + '-' + j" [(ngModel)]="ej.series">
+          </label>
+          <label>
+            Repeticiones
+            <input type="text" [name]="'reps' + i + '-' + j" [(ngModel)]="ej.repeticiones">
+          </label>
+          <label>
+            Descanso
+            <input type="text" [name]="'rest' + i + '-' + j" [(ngModel)]="ej.descanso">
+          </label>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <div class="form-actions">
+    <button class="btn ghost" type="button" routerLink="/rutinas">Cancelar</button>
+    <button class="btn primary" type="submit">Guardar</button>
+  </div>
+
+  <p class="alert success" *ngIf="mensaje">{{ mensaje }}</p>
+  <p class="alert error" *ngIf="error">{{ error }}</p>
+</form>
