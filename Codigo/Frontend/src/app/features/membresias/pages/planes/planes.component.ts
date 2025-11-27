@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MembresiaService, MembresiaResponse } from '../../../../core/services/membresia.service';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -9,12 +9,14 @@ import { PagoService } from '../../../../core/services/pago.service';
   templateUrl: './planes.component.html',
   styleUrls: ['./planes.component.css']
 })
-export class PlanesComponent implements OnInit {
+export class PlanesComponent implements OnInit, OnDestroy {
 
   membresia: MembresiaResponse | null = null;
   loading = false;
+  loadingPlan: string | null = null;
   error = '';
   success = '';
+  private paymentPoll: number | null = null;
 
   constructor(
     private router: Router,
@@ -45,6 +47,13 @@ export class PlanesComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    if (this.paymentPoll !== null) {
+      window.clearInterval(this.paymentPoll);
+      this.paymentPoll = null;
+    }
+  }
+
   choosePlan(plan: string): void {
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login'], { queryParams: { plan, returnUrl: '/membresias' } });
@@ -52,17 +61,31 @@ export class PlanesComponent implements OnInit {
     }
 
     this.loading = true;
+    this.loadingPlan = plan;
     this.error = '';
     this.pagoService.crearPreferencia(plan).subscribe({
       next: (pref) => {
+        const paymentWindow = window.open(pref.initPoint, '_blank', 'width=520,height=780');
+        // Si el navegador bloquea el popup, degradamos a la misma pestaña
+        if (!paymentWindow) {
+          window.location.href = pref.initPoint;
+          return;
+        }
+        this.startPopupListener(paymentWindow);
+        paymentWindow.focus();
         this.loading = false;
-        window.location.href = pref.initPoint;
+        this.loadingPlan = null;
       },
       error: () => {
         this.loading = false;
+        this.loadingPlan = null;
         this.error = 'No se pudo iniciar el pago. Verifica tu sesión o inténtalo más tarde.';
       }
     });
+  }
+
+  isLoading(plan: string): boolean {
+    return this.loadingPlan === plan;
   }
 
   diasRestantes(): number | null {
@@ -95,5 +118,51 @@ export class PlanesComponent implements OnInit {
         this.error = 'No se pudo confirmar el pago. Si el cargo fue realizado, contacta soporte.';
       }
     });
+  }
+
+  private startPopupListener(popup: Window): void {
+    if (this.paymentPoll !== null) {
+        window.clearInterval(this.paymentPoll);
+    }
+    this.paymentPoll = window.setInterval(() => {
+      try {
+        // Solo podemos leer la URL cuando el popup está en nuestro dominio (back_url)
+        const sameOrigin = popup.location.origin === window.location.origin;
+        if (popup.closed) {
+          window.clearInterval(this.paymentPoll!);
+          this.paymentPoll = null;
+          this.loading = false;
+          this.loadingPlan = null;
+          return;
+        }
+        if (!sameOrigin) {
+          return;
+        }
+
+        const url = new URL(popup.location.href);
+        const paymentId = url.searchParams.get('payment_id');
+        const status = url.searchParams.get('status');
+        if (paymentId && status) {
+          window.clearInterval(this.paymentPoll!);
+          this.paymentPoll = null;
+          popup.close();
+          this.loading = true;
+          this.error = '';
+          this.pagoService.confirmarPago(paymentId).subscribe({
+            next: () => {
+              this.success = 'Pago confirmado y membresía renovada.';
+              this.membresiaService.getMembresiaActual().subscribe((m) => this.membresia = m);
+              this.loading = false;
+            },
+            error: () => {
+              this.loading = false;
+              this.error = 'No se pudo confirmar el pago. Si el cargo fue realizado, contacta soporte.';
+            }
+          });
+        }
+      } catch (err) {
+        // Ignoramos errores de cross-origin hasta que vuelva al dominio
+      }
+    }, 800);
   }
 }

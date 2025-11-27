@@ -64,10 +64,6 @@ public class PagoController {
 
     @PostMapping({"/mercadopago/confirmar"})
     public ResponseEntity<MembresiaResponse> confirmarPago(@RequestParam Long paymentId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) {
-            return ResponseEntity.status(401).build();
-        }
         return ResponseEntity.ok(this.pagoService.procesarPagoMercadoPago(paymentId));
     }
 }
