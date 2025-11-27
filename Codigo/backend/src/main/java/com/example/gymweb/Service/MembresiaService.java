@@ -58,10 +58,7 @@ public class MembresiaService {
     }
 
     public MembresiaResponse obtenerMembresiaActualPorUsuario(int idUsuario) {
-        Membresia m = this.membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(idUsuario).orElse(null);
-        if (m == null) {
-            return null;
-        }
+        Membresia m = (Membresia)this.membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(idUsuario).orElseThrow(() -> new RuntimeException("El usuario no tiene membresías"));
         if (m.getFechaFin() != null && m.getFechaFin().isBefore(LocalDateTime.now())) {
             m.setEstado(EstadoMembresia.VENCIDA);
             this.membresiaRepository.save(m);

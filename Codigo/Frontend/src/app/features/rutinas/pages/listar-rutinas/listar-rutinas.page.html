@@ -1,0 +1,80 @@
+<section class="rutinas-hero">
+  <div>
+    <p class="kicker">Biblioteca de rutinas</p>
+    <h1>Comparte, adapta y lanza planes de entrenamiento</h1>
+    <p class="lede">
+      Usa los filtros para encontrar planes listos para clientes o para inspirarte.
+      Todo mockeado hasta conectar con el back.
+    </p>
+    <div class="hero-actions">
+      <a class="btn primary" routerLink="/rutinas/crear">Crear rutina</a>
+      <button class="btn ghost" type="button" (click)="resetFiltros()">Limpiar filtros</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-label">Rutinas visibles</span>
+      <span class="stat-value">{{ filtradas.length }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Activas</span>
+      <span class="stat-value">{{ totalActivas }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Avance promedio</span>
+      <span class="stat-value">{{ promedioAvance }}%</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Frecuencia promedio</span>
+      <span class="stat-value">{{ frecuenciaPromedio }}x</span>
+    </div>
+  </div>
+</section>
+
+<section class="rutinas-filtros">
+  <div class="search">
+    <input
+      type="text"
+      placeholder="Buscar por nombre, objetivo o entrenador"
+      [(ngModel)]="filtroTexto"
+      (ngModelChange)="aplicarFiltros()">
+  </div>
+  <div class="selects">
+    <label>
+      Nivel
+      <select [(ngModel)]="filtroNivel" (change)="aplicarFiltros()">
+        <option value="todos">Todos</option>
+        <option value="Principiante">Principiante</option>
+        <option value="Intermedio">Intermedio</option>
+        <option value="Avanzado">Avanzado</option>
+      </select>
+    </label>
+    <label>
+      Estado
+      <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+        <option value="todos">Todos</option>
+        <option value="ACTIVA">Activas</option>
+        <option value="BORRADOR">Borrador</option>
+        <option value="PAUSADA">Pausadas</option>
+      </select>
+    </label>
+  </div>
+</section>
+
+<p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+
+<section class="rutinas-grid" *ngIf="filtradas.length; else emptyState">
+  <app-rutina-card
+    *ngFor="let rutina of filtradas"
+    [rutina]="rutina"
+    (ver)="verRutina($event)"
+    (arrancar)="arrancarRutina($event)">
+  </app-rutina-card>
+</section>
+
+<ng-template #emptyState>
+  <div class="empty">
+    <p>No hay rutinas que coincidan con tus filtros.</p>
+    <button class="btn ghost" type="button" (click)="resetFiltros()">Ver todas</button>
+  </div>
+</ng-template>

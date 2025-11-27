@@ -1,11 +1,11 @@
 .private-layout {
   min-height: calc(100vh - 120px); /* header + footer aprox */
-  background: transparent;
+  background: var(--color-bg);
 }
 
 .content {
   padding: 20px;
-  background: transparent;
+  background: var(--color-bg-alt);
   color: var(--color-text);
   min-height: inherit;
 }

@@ -11,9 +11,6 @@ public class UsuarioResponse {
     private Rol rol;
     private Estado estado;
     private Date fechaAlta;
-    private String descripcion;
-    private String fotoUrl;
-    private String telefono;
 
     public Integer getId() {
         return this.id;
@@ -61,29 +58,5 @@ public class UsuarioResponse {
 
     public void setFechaAlta(Date fechaAlta) {
         this.fechaAlta = fechaAlta;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getFotoUrl() {
-        return fotoUrl;
-    }
-
-    public void setFotoUrl(String fotoUrl) {
-        this.fotoUrl = fotoUrl;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 }
