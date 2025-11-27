@@ -6,21 +6,22 @@
   color: var(--color-header-text);
   position: relative;
   z-index: 10;
-  padding: 14px 20px;
+  padding: 14px 6px;
   border-bottom: 2px solid #e53935;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
 .header-shell {
   width: 100%;
-  max-width: 1300px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .logo-panel {
   cursor: pointer;
+  margin-left: 2px;
   padding: 14px 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
@@ -86,6 +87,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   min-width: max-content;
+  margin-left: auto;
 }
 
 .action-link {

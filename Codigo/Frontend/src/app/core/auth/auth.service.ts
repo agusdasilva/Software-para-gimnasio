@@ -18,6 +18,13 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  nombre: string;
+  email: string;
+  password: string;
+  rol?: UserRole;
+}
+
 export interface LoginResponse {
   token: string;
   id: number;
@@ -108,6 +115,16 @@ export class AuthService {
 
   login(data: LoginRequest): Observable<AuthUser> {
     return this.http.post<LoginResponse>(`${this.authBaseUrl}/login`, data).pipe(
+      tap(res => {
+        const user = this.mapResponseToUser(res);
+        this.setSession(res.token, user);
+      }),
+      map(res => this.mapResponseToUser(res))
+    );
+  }
+
+  register(data: RegisterRequest): Observable<AuthUser> {
+    return this.http.post<LoginResponse>(`${this.authBaseUrl}/register`, data).pipe(
       tap(res => {
         const user = this.mapResponseToUser(res);
         this.setSession(res.token, user);

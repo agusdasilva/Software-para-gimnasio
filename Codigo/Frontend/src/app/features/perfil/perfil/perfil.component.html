@@ -8,6 +8,11 @@
         <div>
           <h1>{{ name || 'Sin nombre' }}</h1>
           <p class="subtitle">{{ email || 'Sin correo' }}</p>
+          <div class="meta-chips">
+            <span class="chip strong" *ngIf="roles?.length">Rol: {{ roles[0] }}</span>
+            <span class="chip subtle" *ngIf="status">Estado: {{ status }}</span>
+            <span class="chip subtle" *ngIf="joinedAt">Alta: {{ joinedAt | date:'mediumDate' }}</span>
+          </div>
         </div>
       </div>
       <div class="actions" *ngIf="!viewOnly">
@@ -19,6 +24,11 @@
       <div class="info-card">
         <h3>Descripcion</h3>
         <p class="desc">{{ description || 'Aun no agregaste una descripcion.' }}</p>
+      </div>
+      <div class="info-card">
+        <h3>Contacto</h3>
+        <p class="desc" *ngIf="phone; else noPhone">Telefono: {{ phone }}</p>
+        <ng-template #noPhone><p class="desc">Aun no cargaste un telefono.</p></ng-template>
       </div>
       <div class="info-card">
         <h3>Roles</h3>

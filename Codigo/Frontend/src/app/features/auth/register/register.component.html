@@ -3,7 +3,7 @@
     <h1>Crea tu cuenta</h1>
     <p class="subtitle">Completa tus datos y empieza a entrenar.</p>
 
-    <form class="auth-form">
+    <form class="auth-form" (ngSubmit)="onSubmit()">
       <label>
         Nombre completo
         <input name="name" [(ngModel)]="name" type="text" placeholder="Ej: Juan Perez">
@@ -24,7 +24,7 @@
         <input name="confirmPassword" [(ngModel)]="confirmPassword" type="password" placeholder="Repite tu contraseña">
       </label>
 
-      <button type="button" class="btn primary" (click)="onSubmit()">Crear cuenta</button>
+      <button type="submit" class="btn primary">Crear cuenta</button>
     </form>
 
     <div class="auth-error" *ngIf="error">{{ error }}</div>

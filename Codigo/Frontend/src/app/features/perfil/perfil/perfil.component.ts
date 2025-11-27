@@ -14,6 +14,9 @@ export class PerfilComponent implements OnInit {
   description = '';
   avatarUrl = '';
   roles: string[] = [];
+  status = '';
+  phone = '';
+  joinedAt = '';
   viewOnly = false;
 
   constructor(private authService: AuthService, private route: ActivatedRoute, private router: Router) {}
@@ -57,5 +60,8 @@ export class PerfilComponent implements OnInit {
     this.description = user.descripcion || '';
     this.avatarUrl = user.fotoUrl || '';
     this.roles = [user.rol];
+    this.status = user.estado;
+    this.phone = user.telefono || '';
+    this.joinedAt = user.fechaAlta || '';
   }
 }

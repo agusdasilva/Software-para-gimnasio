@@ -94,7 +94,7 @@
   z-index: 3;
   display: grid;
   place-items: center;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: 0.2s ease, transform 0.2s ease;
 }
 
 .hero-nav:hover {

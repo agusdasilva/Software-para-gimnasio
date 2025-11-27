@@ -2,6 +2,9 @@ package com.example.gymweb.Auth;
 
 
 import com.example.gymweb.dto.Request.ActivarMembresiaRequest;
+import com.example.gymweb.dto.Request.UsuarioLoginRequest;
+import com.example.gymweb.dto.Request.UsuarioRegisterRequest;
+import com.example.gymweb.dto.Response.AuthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +19,16 @@ public class AuthController {
 
     public AuthController(AuthenticationService authService) {
         this.authService = authService;
+    }
+
+    @PostMapping({"/register"})
+    public ResponseEntity<AuthResponse> register(@RequestBody UsuarioRegisterRequest request) {
+        return ResponseEntity.ok(this.authService.register(request));
+    }
+
+    @PostMapping({"/login"})
+    public ResponseEntity<AuthResponse> login(@RequestBody UsuarioLoginRequest request) {
+        return ResponseEntity.ok(this.authService.login(request));
     }
 
     @PostMapping({"/activar/{idUsuario}"})
