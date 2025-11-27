@@ -15,6 +15,7 @@ export class PerfilEditarComponent implements OnInit {
   avatarUrl = '';
   password = '';
   confirmPassword = '';
+  phone = '';
   error = '';
   success = '';
 
@@ -26,6 +27,7 @@ export class PerfilEditarComponent implements OnInit {
       this.email = profile.email;
       this.description = profile.descripcion || '';
       this.avatarUrl = profile.fotoUrl || '';
+      this.phone = profile.telefono || '';
     });
   }
 
@@ -33,13 +35,32 @@ export class PerfilEditarComponent implements OnInit {
     this.error = '';
     this.success = '';
 
-    if (!this.name.trim() || !this.email.trim()) {
+    const trimmedName = this.name.trim();
+    const trimmedEmail = this.email.trim();
+    const trimmedPhone = this.phone ? this.phone.trim() : '';
+
+    if (!trimmedName || !trimmedEmail) {
       this.error = 'Nombre y correo son obligatorios.';
       return;
     }
 
-    if (this.name.trim().length < 3) {
+    if (trimmedName.length < 3) {
       this.error = 'El nombre debe tener al menos 3 caracteres.';
+      return;
+    }
+
+    if (!trimmedEmail.includes('@')) {
+      this.error = 'Ingresa un correo válido.';
+      return;
+    }
+
+    if (this.password && this.password.length < 6) {
+      this.error = 'La contraseña debe tener al menos 6 caracteres.';
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      this.error = 'Las contraseñas no coinciden.';
       return;
     }
 
@@ -50,18 +71,32 @@ export class PerfilEditarComponent implements OnInit {
     }
 
     this.authService.updateProfile(current.id, {
-      nombre: this.name.trim(),
+      nombre: trimmedName,
+      email: trimmedEmail,
       descripcion: this.description,
-      fotoUrl: this.avatarUrl || undefined
+      fotoUrl: this.avatarUrl || undefined,
+      telefono: trimmedPhone || undefined,
+      password: this.password || undefined
     }).subscribe({
       next: (user: UsuarioResponse) => {
         this.success = 'Perfil actualizado.';
         this.password = '';
         this.confirmPassword = '';
-        setTimeout(() => this.router.navigate(['/perfil']), 500);
+
+        // Si cambió el correo, el token actual deja de ser válido (se requiere re-login)
+        if (trimmedEmail !== current.email) {
+          setTimeout(() => {
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          }, 700);
+          return;
+        }
+
+        this.authService.getProfile().subscribe(); // refresca sesión local
+        setTimeout(() => this.router.navigate(['/perfil']), 800);
       },
-      error: () => {
-        this.error = 'No se pudo actualizar el perfil.';
+      error: (err) => {
+        this.error = err?.error?.message || 'No se pudo actualizar el perfil.';
       }
     });
   }
