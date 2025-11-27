@@ -1,22 +1,30 @@
 package com.example.gymweb.Service;
 
+import com.example.gymweb.Repository.PerfilUsuarioRepository;
 import com.example.gymweb.Repository.UsuarioRepository;
 import com.example.gymweb.dto.Request.UsuarioChangeEstadoRequest;
 import com.example.gymweb.dto.Request.UsuarioChangeRolRequest;
 import com.example.gymweb.dto.Request.UsuarioPerfilUpdateRequest;
 import com.example.gymweb.dto.Response.UsuarioResponse;
+import com.example.gymweb.model.PerfilUsuario;
 import com.example.gymweb.model.Usuario;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
+    private final PerfilUsuarioRepository perfilUsuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PerfilUsuarioRepository perfilUsuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.perfilUsuarioRepository = perfilUsuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private UsuarioResponse convertirAResponse(Usuario u) {
@@ -27,6 +35,12 @@ public class UsuarioService {
         response.setRol(u.getRol());
         response.setEstado(u.getEstado());
         response.setFechaAlta(u.getFechaAlta());
+        Optional<PerfilUsuario> perfilOpt = perfilUsuarioRepository.findByUsuarioId(u.getId());
+        perfilOpt.ifPresent(perfil -> {
+            response.setDescripcion(perfil.getDescripcion());
+            response.setFotoUrl(perfil.getFoto_url());
+            response.setTelefono(perfil.getTelefono());
+        });
         return response;
     }
 
@@ -44,8 +58,42 @@ public class UsuarioService {
         if (request.getNombre() != null) {
             u.setNombre(request.getNombre());
         }
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            String nuevoEmail = request.getEmail().trim();
+            Optional<Usuario> existente = this.usuarioRepository.findByEmailIgnoreCase(nuevoEmail);
+            if (existente.isPresent() && existente.get().getId() != u.getId()) {
+                throw new RuntimeException("Ya existe un usuario con ese email");
+            }
+            u.setEmail(nuevoEmail);
+        }
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            u.setPassword_hash(this.passwordEncoder.encode(request.getPassword()));
+        }
 
         this.usuarioRepository.save(u);
+
+        PerfilUsuario perfil = this.perfilUsuarioRepository.findByUsuarioId(u.getId())
+                .orElseGet(() -> {
+                    PerfilUsuario nuevo = new PerfilUsuario();
+                    nuevo.setUsuario(u);
+                    return nuevo;
+                });
+        // Aseguramos que la relación siempre quede seteada (por si viniera null en un perfil existente)
+        if (perfil.getUsuario() == null) {
+            perfil.setUsuario(u);
+        }
+
+        if (request.getDescripcion() != null) {
+            perfil.setDescripcion(request.getDescripcion());
+        }
+        if (request.getFotoUrl() != null) {
+            perfil.setFoto_url(request.getFotoUrl());
+        }
+        if (request.getTelefono() != null) {
+            perfil.setTelefono(request.getTelefono());
+        }
+
+        this.perfilUsuarioRepository.save(perfil);
         return this.convertirAResponse(u);
     }
 

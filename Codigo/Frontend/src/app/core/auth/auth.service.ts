@@ -47,10 +47,12 @@ export interface UsuarioResponse {
 
 export interface UsuarioPerfilUpdateRequest {
   nombre: string;
+  email?: string;
   descripcion?: string;
   fotoUrl?: string;
   telefono?: string;
   instagram?: string;
+  password?: string;
 }
 
 export interface UsuarioChangeRolRequest {
