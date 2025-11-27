@@ -1,0 +1,60 @@
+<article class="rutina-card">
+  <header class="card-header">
+    <div>
+      <p class="chip nivel" [class.avanzado]="rutina.nivel === 'Avanzado'" [class.principiante]="rutina.nivel === 'Principiante'">
+        {{ rutina.nivel }}
+      </p>
+      <h3>{{ rutina.titulo }}</h3>
+      <p class="sub">{{ rutina.objetivo }} · {{ rutina.entrenador }}</p>
+    </div>
+    <div class="estado" [class.borrador]="rutina.estado === 'BORRADOR'" [class.pausada]="rutina.estado === 'PAUSADA'">
+      {{ estadoLabel(rutina.estado) }}
+    </div>
+  </header>
+
+  <div class="tags" *ngIf="rutina.tags.length">
+    <span class="pill" *ngFor="let tag of rutina.tags">{{ tag }}</span>
+  </div>
+
+  <div class="metrics">
+    <div>
+      <p class="label">Semanas</p>
+      <p class="value">{{ rutina.semanas }}</p>
+    </div>
+    <div>
+      <p class="label">Frecuencia</p>
+      <p class="value">{{ rutina.frecuencia }}x/sem</p>
+    </div>
+    <div>
+      <p class="label">Duración</p>
+      <p class="value">{{ rutina.duracionMin }} min</p>
+    </div>
+    <div *ngIf="rutina.calorias">
+      <p class="label">Estimado</p>
+      <p class="value">{{ rutina.calorias }} kcal</p>
+    </div>
+  </div>
+
+  <section class="bloques">
+    <div class="bloque" *ngFor="let bloque of rutina.bloques">
+      <div>
+        <p class="bloque-nombre">{{ bloque.nombre }}</p>
+        <p class="bloque-detalle">{{ bloque.detalle }}</p>
+      </div>
+      <span class="foco">{{ bloque.foco }}</span>
+    </div>
+  </section>
+
+  <div class="progreso">
+    <div class="bar">
+      <div class="fill" [style.width.%]="rutina.avance"></div>
+    </div>
+    <p class="muted">{{ rutina.avance }}% completada · Próxima: {{ rutina.proximaSesion }}</p>
+    <p class="muted">Actualizada {{ rutina.actualizado }}</p>
+  </div>
+
+  <footer class="card-actions">
+    <button class="btn ghost" type="button" (click)="onVerDetalle()">Ver detalle</button>
+    <button class="btn primary" type="button" (click)="onArrancar()">Iniciar hoy</button>
+  </footer>
+</article>

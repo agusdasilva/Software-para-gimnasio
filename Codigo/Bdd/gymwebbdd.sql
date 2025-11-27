@@ -210,3 +210,52 @@ CREATE TABLE serie (
   PRIMARY KEY (id_serie),
   FOREIGN KEY (ejercicioDetalle_id) REFERENCES ejerciciodetalle(id_ejec_det)
 );
+
+-------------------------------------------------------
+-- INSERTAR USUARIOS
+-- Los passwords están en bcrypt:
+--  password real = "123456"
+-------------------------------------------------------
+
+INSERT INTO usuario (nombre, email, password_hash, estado, rol)
+VALUES
+('Administrador del Sistema', 'admin@gym.com',
+ '$2a$10$EBQ0L4bnB93k6Bgd35ci0eQzTJfzQjK7vVbXcX5HjuJpGd8PvXlke', 
+ 1, 1),
+
+('Profesor de Entrenamiento', 'profesor@gym.com',
+ '$2a$10$EBQ0L4bnB93k6Bgd35ci0eQzTJfzQjK7vVbXcX5HjuJpGd8PvXlke',
+ 1, 2),
+
+('Juan Pérez', 'juanperez@gmail.com',
+ '$2a$10$EBQ0L4bnB93k6Bgd35ci0eQzTJfzQjK7vVbXcX5HjuJpGd8PvXlke',
+ 1, 3);
+
+-------------------------------------------------------
+-- INSERTAR PERFILES (usuario_id = id_usuario generado)
+-- IMPORTANTE: La FK usuario_id debe existir en "usuario"
+-------------------------------------------------------
+
+-- Perfil del admin
+INSERT INTO perfilusuario (usuario_id, descripcion, foto_url, telefono)
+VALUES
+((SELECT id_usuario FROM usuario WHERE email='admin@gym.com'),
+ 'Administrador general del sistema', 
+ NULL,
+ '111-222-333');
+
+-- Perfil del profesor
+INSERT INTO perfilusuario (usuario_id, descripcion, foto_url, telefono)
+VALUES
+((SELECT id_usuario FROM usuario WHERE email='profesor@gym.com'),
+ 'Entrenador certificado de musculación',
+ NULL,
+ '222-333-444');
+
+-- Perfil del usuario Juan Pérez
+INSERT INTO perfilusuario (usuario_id, descripcion, foto_url, telefono)
+VALUES
+((SELECT id_usuario FROM usuario WHERE email='juanperez@gmail.com'),
+ 'Socio activo con plan mensual',
+ NULL,
+ '333-444-555');

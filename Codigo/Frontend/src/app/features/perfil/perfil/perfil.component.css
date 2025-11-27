@@ -33,6 +33,13 @@
   gap: 14px;
 }
 
+.meta-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
 .avatar {
   width: 64px;
   height: 64px;
@@ -114,6 +121,18 @@ body.theme-light .desc {
   border-radius: 999px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 26, 26, 0.25);
+}
+
+.chip.strong {
+  background: rgba(255, 26, 26, 0.2);
+  border-color: rgba(255, 26, 26, 0.4);
+  color: #fff;
+}
+
+.chip.subtle {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 body.theme-light .chip {
