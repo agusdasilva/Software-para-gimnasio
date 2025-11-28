@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CrearRutinaRequest, RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
+import { ActualizarRutinaRequest, CrearRutinaRequest, RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
 import { CatalogoEjercicio, EjercicioForm, Nivel, SerieForm } from '../../models/ejercicios.model';
 
 interface RutinaForm {
@@ -28,57 +28,40 @@ export class CrearRutinaPage implements OnInit {
   mensaje = '';
   error = '';
   cargando = false;
+  private draftKey = 'rutina-form-borrador';
 
   rutina: RutinaForm = {
-    titulo: 'Rutina personalizada',
-    objetivo: 'Fuerza e hipertrofia',
+    titulo: '',
+    objetivo: '',
     nivel: 'Intermedio',
-    semanas: 6,
-    frecuencia: 4,
-    duracionMin: 60,
-    descripcion: 'Estructura lista para editar. Ajusta ejercicios, series y peso.',
-    descansoSeg: 90,
+    semanas: 1,
+    frecuencia: 1,
+    duracionMin: 45,
+    descripcion: '',
+    descansoSeg: 60,
     imagen: '',
     esGlobal: false,
-    ejercicios: [
-      {
-        nombre: 'Press banca',
-        grupoMuscular: 'Pecho',
-        equipamiento: 'Barra',
-        nivel: 'Intermedio',
-        notas: 'Controla el arco y el tempo.',
-        series: [
-          { orden: 1, repeticiones: 8, carga: '40 kg', descansoSeg: 90 },
-          { orden: 2, repeticiones: 8, carga: '40 kg', descansoSeg: 90 },
-          { orden: 3, repeticiones: 10, carga: '35 kg', descansoSeg: 90 }
-        ]
-      },
-      {
-        nombre: 'Remo con barra',
-        grupoMuscular: 'Espalda',
-        equipamiento: 'Barra',
-        nivel: 'Intermedio',
-        notas: 'Espalda neutra y codos pegados.',
-        series: [
-          { orden: 1, repeticiones: 10, carga: '35 kg', descansoSeg: 75 },
-          { orden: 2, repeticiones: 10, carga: '35 kg', descansoSeg: 75 }
-        ]
-      }
-    ]
+    ejercicios: []
   };
 
   constructor(private rutinaService: RutinaService, private router: Router) {}
 
   ngOnInit(): void {
-    const state = (history.state || {}) as { nuevosEjercicios?: CatalogoEjercicio[]; rutinaBase?: RutinaResponse; rutinaId?: number };
+    const state = (history.state || {}) as { nuevosEjercicios?: CatalogoEjercicio[]; rutinaBase?: RutinaResponse; rutinaId?: number; rutinaForm?: RutinaForm };
+    if (state.rutinaForm) {
+      this.rutina = state.rutinaForm;
+    } else {
+      this.cargarDraft();
+    }
     if (state.rutinaBase) {
       this.prefillDesdeDetalle(state.rutinaBase);
     }
     if (!this.rutina.id && state.rutinaId) {
       this.rutina.id = state.rutinaId;
+      this.prefillDesdeLocal(state.rutinaId);
     }
     if (state.nuevosEjercicios?.length) {
-      this.insertarSeleccion(state.nuevosEjercicios);
+      this.reemplazarEjercicios(state.nuevosEjercicios);
     }
   }
 
@@ -114,10 +97,12 @@ export class CrearRutinaPage implements OnInit {
   }
 
   irASelector(): void {
+    this.guardarDraft();
     this.router.navigate(['/rutinas/crear/ejercicios'], {
       state: {
         preseleccion: this.rutina.ejercicios.map(e => e.nombre),
-        rutinaId: this.rutina.id
+        rutinaId: this.rutina.id,
+        rutinaForm: this.rutina
       }
     });
   }
@@ -144,6 +129,31 @@ export class CrearRutinaPage implements OnInit {
         series: [this.crearSerie(1)]
       });
     });
+  }
+
+  private reemplazarEjercicios(lista: CatalogoEjercicio[]): void {
+    const existentePorNombre = new Map<string, EjercicioForm>();
+    this.rutina.ejercicios.forEach(ej => existentePorNombre.set(ej.nombre.toLowerCase(), ej));
+
+    const nuevaLista: EjercicioForm[] = [];
+    lista.forEach(ej => {
+      const key = ej.nombre.toLowerCase();
+      const previo = existentePorNombre.get(key);
+      if (previo) {
+        nuevaLista.push(previo);
+      } else {
+        nuevaLista.push({
+          nombre: ej.nombre,
+          notas: ej.descripcion || '',
+          grupoMuscular: ej.grupoMuscular,
+          equipamiento: ej.equipamiento,
+          nivel: ej.nivel,
+          series: [this.crearSerie(1)]
+        });
+      }
+    });
+
+    this.rutina.ejercicios = nuevaLista;
   }
 
   quitarEjercicio(index: number): void {
@@ -204,6 +214,7 @@ export class CrearRutinaPage implements OnInit {
         }))
       }))
     };
+    this.prefillDesdeLocal(data.id);
   }
 
   private crearSerie(orden: number, repeticiones = 12, carga = '15 kg'): SerieForm {
@@ -226,7 +237,7 @@ export class CrearRutinaPage implements OnInit {
 
     const payload: CrearRutinaRequest = {
       nombre: this.rutina.titulo.trim(),
-      descripcion: this.rutina.descripcion.trim(),
+      descripcion: this.getDescripcionFinal(),
       descanso_seg: this.rutina.descansoSeg,
       imagen: this.rutina.imagen || '',
       esGlobal: this.rutina.esGlobal,
@@ -237,7 +248,8 @@ export class CrearRutinaPage implements OnInit {
     this.rutinaService.crearRutina(payload).subscribe({
       next: (res: RutinaResponse) => {
         this.mensaje = 'Rutina "' + res.nombre + '" guardada en el backend.';
-        this.persistirEjerciciosLocal(res.id);
+        this.persistirRutinaLocal(res.id);
+        this.borrarDraft();
         this.cargando = false;
         this.router.navigate(['/rutinas'], { state: { mensaje: this.mensaje } });
       },
@@ -252,14 +264,17 @@ export class CrearRutinaPage implements OnInit {
   private actualizarRutina(): void {
     if (!this.rutina.id) return;
     this.cargando = true;
-    this.rutinaService.modificarDetalle(this.rutina.id, {
-      descripcion: this.rutina.descripcion.trim(),
+    const payload: ActualizarRutinaRequest = {
+      nombre: this.rutina.titulo.trim(),
+      descripcion: this.getDescripcionFinal(),
       imagen: this.rutina.imagen || '',
       descanso_seg: this.rutina.descansoSeg
-    }).subscribe({
+    };
+    this.rutinaService.actualizarRutina(this.rutina.id, payload).subscribe({
       next: (res: RutinaResponse) => {
         this.mensaje = 'Rutina "' + res.nombre + '" actualizada.';
-        this.persistirEjerciciosLocal(this.rutina!.id!);
+        this.persistirRutinaLocal(this.rutina!.id!);
+        this.borrarDraft();
         this.cargando = false;
         this.router.navigate(['/rutinas'], { state: { mensaje: this.mensaje } });
       },
@@ -279,8 +294,8 @@ export class CrearRutinaPage implements OnInit {
     return this.rutina.ejercicios.length;
   }
 
-  private persistirEjerciciosLocal(idRutina: number): void {
-    if (!idRutina || !this.rutina.ejercicios.length) {
+  private persistirRutinaLocal(idRutina: number): void {
+    if (!idRutina) {
       return;
     }
     const ejercicios = this.rutina.ejercicios.map((ej, idx) => ({
@@ -290,13 +305,61 @@ export class CrearRutinaPage implements OnInit {
         id: Date.now() + idx + i,
         orden: s.orden || i + 1,
         repeticiones: s.repeticiones || 0,
-        carga: s.carga || ''
+        carga: s.carga || '',
+        descansoSeg: s.descansoSeg || this.rutina.descansoSeg
       }))
     }));
     try {
       localStorage.setItem('rutina-ejercicios-' + idRutina, JSON.stringify(ejercicios));
+      localStorage.setItem('rutina-form-' + idRutina, JSON.stringify({
+        ...this.rutina,
+        id: idRutina
+      }));
     } catch {
       // ignore quota/storage errors
+    }
+  }
+
+  private prefillDesdeLocal(idRutina: number): void {
+    try {
+      const raw = localStorage.getItem('rutina-form-' + idRutina);
+      if (!raw) return;
+      const data = JSON.parse(raw) as RutinaForm;
+      this.rutina = { ...data, id: idRutina };
+    } catch {
+      // ignore parsing errors
+    }
+  }
+
+  private getDescripcionFinal(): string {
+    const desc = this.rutina.descripcion.trim();
+    return desc || this.rutina.objetivo.trim();
+  }
+
+  private guardarDraft(): void {
+    try {
+      localStorage.setItem(this.draftKey, JSON.stringify(this.rutina));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  private cargarDraft(): void {
+    try {
+      const raw = localStorage.getItem(this.draftKey);
+      if (!raw) return;
+      const data = JSON.parse(raw) as RutinaForm;
+      this.rutina = { ...this.rutina, ...data };
+    } catch {
+      // ignore errors
+    }
+  }
+
+  private borrarDraft(): void {
+    try {
+      localStorage.removeItem(this.draftKey);
+    } catch {
+      // ignore
     }
   }
 }

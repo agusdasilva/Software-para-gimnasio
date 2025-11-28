@@ -1,6 +1,7 @@
 package com.example.gymweb.Controller;
 
 import com.example.gymweb.Service.RutinaService;
+import com.example.gymweb.dto.Request.ActualizarRutinaRequest;
 import com.example.gymweb.dto.Request.ModificarRutinaDetalleRequest;
 import com.example.gymweb.dto.Request.RutinaRequest;
 import com.example.gymweb.dto.Response.RutinaResponse;
@@ -64,5 +65,13 @@ public class RutinaController {
             @RequestBody ModificarRutinaDetalleRequest request
     ) {
         return ResponseEntity.ok(rutinaService.modificarDetalle(id, request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<RutinaResponse> actualizarRutina(
+            @PathVariable Integer id,
+            @RequestBody ActualizarRutinaRequest request
+    ) {
+        return ResponseEntity.ok(rutinaService.actualizarRutina(id, request));
     }
 }
