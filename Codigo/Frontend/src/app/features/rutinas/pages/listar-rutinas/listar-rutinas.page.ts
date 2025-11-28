@@ -128,7 +128,7 @@ export class ListarRutinasPage implements OnInit {
         titulo: 'Definicion express',
         objetivo: 'Quema grasa manteniendo musculo',
         nivel: 'Principiante',
-        estado: 'BORRADOR',
+        estado: 'ACTIVA',
         semanas: 4,
         frecuencia: 5,
         duracionMin: 45,
@@ -170,7 +170,7 @@ export class ListarRutinasPage implements OnInit {
         titulo: 'Movimiento sano',
         objetivo: 'Movilidad y fuerza ligera',
         nivel: 'Principiante',
-        estado: 'PAUSADA',
+        estado: 'ACTIVA',
         semanas: 5,
         frecuencia: 3,
         duracionMin: 40,
@@ -191,17 +191,21 @@ export class ListarRutinasPage implements OnInit {
   private mapearRutina(r: RutinaResponse): RutinaResumen {
     const ejercicios = r.detalle?.ejercicios || [];
     const primerEjercicio = ejercicios[0];
+    const progresoLocal = this.leerProgresoLocal(r.id);
+    const avanceCalc = progresoLocal.total
+      ? Math.round((progresoLocal.completadas / progresoLocal.total) * 100)
+      : 0;
     return {
       id: r.id,
       titulo: r.nombre,
       objetivo: r.detalle?.descripcion || 'Sin descripcion',
       nivel: 'Intermedio',
-      estado: ejercicios.length ? 'ACTIVA' : 'BORRADOR',
+      estado: 'ACTIVA',
       semanas: Math.max(1, ejercicios.length || 4),
       frecuencia: Math.max(1, Math.min(7, ejercicios.length || 3)),
       duracionMin: 60,
       calorias: undefined,
-      avance: 0,
+      avance: avanceCalc,
       entrenador: r.creador || 'Sin datos',
       proximaSesion: primerEjercicio ? 'Siguiente: ' + primerEjercicio.ejercicio : 'Define tus sesiones',
       tags: [r.esGlobal ? 'Global' : 'Local', `Descanso ${r.detalle?.descanso_seg || 0}s`],
@@ -212,5 +216,15 @@ export class ListarRutinasPage implements OnInit {
       })),
       actualizado: 'Reciente'
     };
+  }
+
+  private leerProgresoLocal(id: number): { completadas: number; total: number } {
+    try {
+      const raw = localStorage.getItem('rutina-progreso-' + id);
+      if (!raw) return { completadas: 0, total: 0 };
+      return JSON.parse(raw);
+    } catch {
+      return { completadas: 0, total: 0 };
+    }
   }
 }

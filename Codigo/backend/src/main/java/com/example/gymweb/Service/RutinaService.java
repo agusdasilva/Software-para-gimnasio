@@ -7,11 +7,14 @@ import com.example.gymweb.dto.Request.ModificarRutinaDetalleRequest;
 import com.example.gymweb.dto.Request.RutinaRequest;
 import com.example.gymweb.dto.Response.RutinaDetalleResponse;
 import com.example.gymweb.dto.Response.RutinaResponse;
+import com.example.gymweb.model.EjercicioDetalle;
 import com.example.gymweb.model.Rutina;
 import com.example.gymweb.model.RutinaDetalle;
+import com.example.gymweb.model.Serie;
 import com.example.gymweb.model.Usuario;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,7 +74,7 @@ public class RutinaService {
         detRes.setDescanso_seg(detalle.getDescanso_seg());
         detRes.setDescripcion(detalle.getDescripcion());
         detRes.setImagen(detalle.getImagen());
-        detRes.setEjercicios(new ArrayList());
+        detRes.setEjercicios(mapEjercicios(detalle));
         response.setDetalle(detRes);
         return response;
     }
@@ -124,5 +127,41 @@ public class RutinaService {
         rutinaDetalleRepository.save(detalle);
 
         return convertirAResponse(rutina);
+    }
+
+    private List<com.example.gymweb.dto.Response.EjercicioDetalleResponse> mapEjercicios(RutinaDetalle detalle) {
+        if (detalle == null || detalle.getEjercicios() == null) {
+            return new ArrayList<>();
+        }
+        return detalle.getEjercicios().stream()
+                .sorted(Comparator.comparingInt(EjercicioDetalle::getOrden))
+                .map(this::mapEjercicio)
+                .toList();
+    }
+
+    private com.example.gymweb.dto.Response.EjercicioDetalleResponse mapEjercicio(EjercicioDetalle ej) {
+        com.example.gymweb.dto.Response.EjercicioDetalleResponse res = new com.example.gymweb.dto.Response.EjercicioDetalleResponse();
+        res.setId(ej.getId());
+        res.setEjercicio(ej.getEjercicio().getNombre());
+        res.setSeries(mapSeries(ej));
+        return res;
+    }
+
+    private List<com.example.gymweb.dto.Response.SerieResponse> mapSeries(EjercicioDetalle ej) {
+        List<Serie> series = ej.getSeries();
+        if (series == null) {
+            return new ArrayList<>();
+        }
+        return series.stream()
+                .sorted(Comparator.comparingInt(Serie::getOrden))
+                .map(s -> {
+                    com.example.gymweb.dto.Response.SerieResponse sr = new com.example.gymweb.dto.Response.SerieResponse();
+                    sr.setId(s.getId());
+                    sr.setCarga(s.getCarga());
+                    sr.setRepeticiones(s.getRepeticiones());
+                    sr.setOrden(s.getOrden());
+                    return sr;
+                })
+                .toList();
     }
 }

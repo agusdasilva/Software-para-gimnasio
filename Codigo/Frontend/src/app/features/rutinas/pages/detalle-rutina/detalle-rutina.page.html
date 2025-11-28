@@ -8,7 +8,9 @@
     </div>
     <div class="acciones">
       <button class="btn ghost" type="button" (click)="volver()">Volver</button>
-      <button class="btn primary" type="button" (click)="ejecutar()" [disabled]="!rutina?.id">Ejecutar rutina</button>
+      <button class="btn" type="button" (click)="editar()" [disabled]="!rutina">Editar rutina</button>
+      <button class="btn ghost" type="button" (click)="eliminar()" [disabled]="!rutina">Eliminar</button>
+      <button class="btn primary" type="button" (click)="ejecutar()" [disabled]="!rutina?.id">Iniciar entrenamiento</button>
     </div>
   </header>
 
@@ -30,15 +32,26 @@
     </div>
   </section>
 
-  <section *ngIf="rutina?.detalle as detalle" class="panel ejercicios">
+  <section *ngIf="ejercicios.length" class="panel ejercicios">
     <header class="subheader">
-      <h3>Ejercicios</h3>
-      <span class="muted">{{ detalle.ejercicios.length || 0 }} items</span>
-    </header>
-    <div class="ejercicio" *ngFor="let ej of detalle.ejercicios">
       <div>
-        <p class="ejercicio__nombre">{{ ej.ejercicio }}</p>
-        <p class="muted">Series: {{ ej.series.length || 0 }}</p>
+        <p class="kicker">Ejercicios</p>
+        <h3>Contenido de la rutina</h3>
+      </div>
+      <span class="muted">{{ ejercicios.length }} ejercicios - Usa las flechas para reordenar</span>
+    </header>
+
+    <div class="ejercicio" *ngFor="let ej of ejercicios; let i = index">
+      <div class="ejercicio__info">
+        <div class="orden-badges">
+          <span class="pill">#{{ i + 1 }}</span>
+          <button class="btn ghost tiny" type="button" (click)="moverEjercicio(i, 'up')" [disabled]="i === 0">Subir</button>
+          <button class="btn ghost tiny" type="button" (click)="moverEjercicio(i, 'down')" [disabled]="i === ejercicios.length - 1">Bajar</button>
+        </div>
+        <div>
+          <p class="ejercicio__nombre">{{ ej.ejercicio }}</p>
+          <p class="muted">Series: {{ ej.series.length || 0 }}</p>
+        </div>
       </div>
       <div class="series">
         <div class="serie" *ngFor="let s of ej.series">
@@ -50,7 +63,7 @@
     </div>
   </section>
 
-  <section *ngIf="rutina && !rutina.detalle.ejercicios.length" class="panel">
+  <section *ngIf="rutina && !(rutina.detalle?.ejercicios?.length)" class="panel">
     <p class="muted">Esta rutina aun no tiene ejercicios asignados.</p>
   </section>
 </section>

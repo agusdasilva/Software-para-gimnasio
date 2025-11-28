@@ -1,11 +1,11 @@
-<article class="rutina-card">
+<article class="rutina-card" (click)="onVerDetalle()">
   <header class="card-header">
     <div>
       <p class="chip nivel" [class.avanzado]="rutina.nivel === 'Avanzado'" [class.principiante]="rutina.nivel === 'Principiante'">
         {{ rutina.nivel }}
       </p>
       <h3>{{ rutina.titulo }}</h3>
-      <p class="sub">{{ rutina.objetivo }} · {{ rutina.entrenador }}</p>
+      <p class="sub">{{ rutina.objetivo }} - {{ rutina.entrenador }}</p>
     </div>
     <div class="estado" [class.borrador]="rutina.estado === 'BORRADOR'" [class.pausada]="rutina.estado === 'PAUSADA'">
       {{ estadoLabel(rutina.estado) }}
@@ -26,7 +26,7 @@
       <p class="value">{{ rutina.frecuencia }}x/sem</p>
     </div>
     <div>
-      <p class="label">Duración</p>
+      <p class="label">Duracion</p>
       <p class="value">{{ rutina.duracionMin }} min</p>
     </div>
     <div *ngIf="rutina.calorias">
@@ -49,12 +49,12 @@
     <div class="bar">
       <div class="fill" [style.width.%]="rutina.avance"></div>
     </div>
-    <p class="muted">{{ rutina.avance }}% completada · Próxima: {{ rutina.proximaSesion }}</p>
+    <p class="muted">{{ rutina.avance }}% completada - Proxima: {{ rutina.proximaSesion }}</p>
     <p class="muted">Actualizada {{ rutina.actualizado }}</p>
   </div>
 
   <footer class="card-actions">
-    <button class="btn ghost" type="button" (click)="onVerDetalle()">Ver detalle</button>
-    <button class="btn primary" type="button" (click)="onArrancar()">Iniciar hoy</button>
+    <button class="btn ghost" type="button" (click)="onVerDetalle(); $event.stopPropagation()">Ver detalle</button>
+    <button class="btn primary" type="button" (click)="onArrancar(); $event.stopPropagation()">Iniciar hoy</button>
   </footer>
 </article>
