@@ -12,7 +12,7 @@
       <div class="horario-header">
         <div>
           <h3>Horario del gym</h3>
-          <p class="muted">Selecciona un dia para editar o revisar rapidamente</p>
+          <p class="muted" *ngIf="isAdmin">Selecciona un dia para editar o revisar rapidamente</p>
         </div>
         <div class="header-actions" *ngIf="isAdmin">
           <button class="btn ghost" *ngIf="!editMode" (click)="iniciarEdicionHorario()">Editar</button>
@@ -20,16 +20,16 @@
         </div>
       </div>
 
-      <ng-container *ngIf="!editMode">
+      <ng-container *ngIf="!editMode || !isAdmin">
         <ul class="list list--split">
           <li *ngFor="let d of horario">
             <strong>{{ d.dia }}</strong>: {{ d.horaApertura }} - {{ d.horaCierre }}
           </li>
         </ul>
-        <p class="muted">Actualizado para todos los usuarios</p>
+        <p class="muted" *ngIf="isAdmin">Actualizado para todos los usuarios</p>
       </ng-container>
 
-      <ng-container *ngIf="editMode">
+      <ng-container *ngIf="editMode && isAdmin">
         <div class="horario-editor">
           <div class="dia-selector">
             <button
@@ -59,12 +59,12 @@
             </div>
           </div>
         </div>
-        <div class="horario-actions">
-          <button class="btn" [disabled]="loading" (click)="guardarHorario()">
-            {{ loading ? 'Guardando...' : 'Guardar y notificar' }}
-          </button>
-          <button class="btn ghost" (click)="cancelarEdicion()">Salir sin guardar</button>
-        </div>
+          <div class="horario-actions">
+            <button class="btn" [disabled]="loading" (click)="guardarHorario()">
+              {{ loading ? 'Guardando...' : 'Guardar y notificar' }}
+            </button>
+            <button class="btn ghost" (click)="cancelarEdicion()">Salir sin guardar</button>
+          </div>
         <p class="muted">Se enviara una notificacion a todos los usuarios.</p>
       </ng-container>
 
@@ -76,7 +76,7 @@
       <div class="horario-header">
         <div>
           <h3>Noticias del gym</h3>
-          <p class="muted">Comparte novedades</p>
+          <p class="muted" *ngIf="isAdmin">Comparte novedades</p>
         </div>
         <div class="header-actions" *ngIf="isAdmin">
           <button class="btn ghost" *ngIf="!editNoticias" (click)="editNoticias = true; noticiasMessage = ''; noticiasError = ''">Editar</button>
@@ -84,13 +84,13 @@
         </div>
       </div>
 
-      <ng-container *ngIf="!editNoticias">
+      <ng-container *ngIf="!editNoticias || !isAdmin">
         <ul class="list">
           <li *ngFor="let n of config.noticias">{{ n }}</li>
         </ul>
       </ng-container>
 
-      <div *ngIf="editNoticias">
+      <div *ngIf="editNoticias && isAdmin">
         <div class="horario-form">
           <label>
             Noticias (una por linea)
@@ -110,7 +110,7 @@
       <div class="horario-header">
         <div>
           <h3>Recordatorios</h3>
-          <p class="muted">Mantene a todos atentos</p>
+          <p class="muted" *ngIf="isAdmin">Mantene a todos atentos</p>
         </div>
         <div class="header-actions" *ngIf="isAdmin">
           <button class="btn ghost" *ngIf="!editRecordatorios" (click)="editRecordatorios = true; recordatoriosMessage = ''; recordatoriosError = ''">Editar</button>
@@ -118,12 +118,12 @@
         </div>
       </div>
 
-      <ng-container *ngIf="!editRecordatorios">
+      <ng-container *ngIf="!editRecordatorios || !isAdmin">
         <ul class="list">
           <li *ngFor="let r of config.recordatorios">{{ r }}</li>
         </ul>
       </ng-container>
-      <div *ngIf="editRecordatorios">
+      <div *ngIf="editRecordatorios && isAdmin">
         <div class="horario-form">
           <label>
             Recordatorios (uno por linea)

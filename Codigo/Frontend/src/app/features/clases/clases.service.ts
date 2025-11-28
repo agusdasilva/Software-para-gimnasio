@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, map, throwError } from 'rxjs';
+import { AuthService } from '../../core/auth/auth.service';
 
 export type ClaseEstado = 'ABIERTA' | 'LLENA' | 'CANCELADA';
 
@@ -38,115 +40,57 @@ export interface ClaseItem {
   providedIn: 'root'
 })
 export class ClasesService {
-  private clases: ClaseItem[] = [
-    {
-      id: 1,
-      titulo: 'HIIT explosivo',
-      descripcion: 'Circuitos cortos, alta intensidad y control de tecnica.',
-      entrenadores: [],
-      nivel: 'Intermedio',
-      duracionMin: 45,
-      cupo: 10,
-      ocupados: 0,
-      horario: 'Lunes y Miercoles 19:00',
-      ubicacion: 'Sala Functional',
-      estado: 'ABIERTA',
-      etiqueta: 'Quedan lugares',
-      proximaFecha: 'Lunes 27 Nov - 19:00',
-      miembros: [],
-      solicitudesPendientes: [],
-      mensajes: []
-    },
-    {
-      id: 2,
-      titulo: 'Powerlifting',
-      descripcion: 'Tecnica y progresion en sentadilla, banca y peso muerto.',
-      entrenadores: [],
-      nivel: 'Avanzado',
-      duracionMin: 60,
-      cupo: 8,
-      ocupados: 0,
-      horario: 'Martes y Jueves 20:00',
-      ubicacion: 'Sala Pesas',
-      estado: 'ABIERTA',
-      etiqueta: 'Lista de espera',
-      proximaFecha: 'Martes 28 Nov - 20:00',
-      miembros: [],
-      solicitudesPendientes: [],
-      mensajes: []
-    },
-    {
-      id: 3,
-      titulo: 'Movilidad y core',
-      descripcion: 'Trabajo de estabilidad, movilidad y fuerza abdominal.',
-      entrenadores: [],
-      nivel: 'Inicial',
-      duracionMin: 50,
-      cupo: 12,
-      ocupados: 0,
-      horario: 'Sabado 10:00',
-      ubicacion: 'Sala Yoga',
-      estado: 'ABIERTA',
-      etiqueta: 'Ideal principiantes',
-      proximaFecha: 'Sabado 30 Nov - 10:00',
-      miembros: [],
-      solicitudesPendientes: [],
-      mensajes: []
-    },
-    {
-      id: 4,
-      titulo: 'Cycling nocturno',
-      descripcion: 'Sesiones por intervalos con musica y medidor de potencia.',
-      entrenadores: [],
-      nivel: 'Intermedio',
-      duracionMin: 40,
-      cupo: 14,
-      ocupados: 0,
-      horario: 'Lunes a Jueves 21:00',
-      ubicacion: 'Sala Bikes',
-      estado: 'ABIERTA',
-      etiqueta: 'Alta demanda',
-      proximaFecha: 'Lunes 27 Nov - 21:00',
-      miembros: [],
-      solicitudesPendientes: [],
-      mensajes: []
-    },
-    {
-      id: 5,
-      titulo: 'Cross entrenamiento',
-      descripcion: 'WODs variados, tecnica de levantamientos y cardio.',
-      entrenadores: [],
-      nivel: 'Avanzado',
-      duracionMin: 55,
-      cupo: 10,
-      ocupados: 0,
-      horario: 'Martes, Jueves y Sabado 18:00',
-      ubicacion: 'Box Exterior',
-      estado: 'ABIERTA',
-      etiqueta: 'Clima permisivo',
-      proximaFecha: 'Martes 28 Nov - 18:00',
-      miembros: [],
-      solicitudesPendientes: [],
-      mensajes: []
-    }
-  ];
+  private clases: ClaseItem[] = [];
+  private baseUrl = 'http://localhost:8080/api/clases';
 
   private clasesSubject = new BehaviorSubject<ClaseItem[]>([...this.clases]);
   private joinedIds = new Set<number>();
+
+  constructor(private http: HttpClient, private auth: AuthService) {
+    this.cargarDesdeApi();
+    this.limpiarClasesFantasma();
+  }
 
   obtenerClases(): Observable<ClaseItem[]> {
     return this.clasesSubject.asObservable();
   }
 
-  agregarClase(clase: ClaseItem): void {
-    this.clases = [clase, ...this.clases];
-    this.emit();
+  agregarClase(clase: ClaseItem): Observable<ClaseItem> {
+    // Persistir en backend y luego reflejar en memoria
+    const creadorId = this.auth.currentUser?.id;
+    const payload = {
+      titulo: clase.titulo,
+      descripcion: clase.descripcion,
+      cupo: clase.cupo,
+      creadorId
+    };
+    return this.http.post<any>(this.baseUrl, payload).pipe(
+      map(creada => {
+        const nueva = this.mapBackendClase(creada);
+        this.clases = [nueva, ...this.clases.filter(c => c.id !== nueva.id)];
+        this.emit();
+        return nueva;
+      }),
+      catchError(err => {
+        return throwError(() => err);
+      })
+    );
   }
 
   eliminarClase(id: number): void {
-    this.clases = this.clases.filter(c => c.id !== id);
-    this.joinedIds.delete(id);
-    this.emit();
+    this.http.delete<void>(`${this.baseUrl}/${id}`).subscribe({
+      next: () => {
+        this.clases = this.clases.filter(c => c.id !== id);
+        this.joinedIds.delete(id);
+        this.emit();
+      },
+      error: () => {
+        // Si falla el backend, al menos limpiamos local para no dejar basura
+        this.clases = this.clases.filter(c => c.id !== id);
+        this.joinedIds.delete(id);
+        this.emit();
+      }
+    });
   }
 
   asignarEntrenadores(id: number, entrenadores: string[]): void {
@@ -194,6 +138,7 @@ export class ClasesService {
       const miembros = clase.miembros.some(m => m.nombre === nombre) ? clase.miembros : [...clase.miembros, { nombre, lastOnline: 'hace 1 min', rol }];
       const ocupa = rol === 'ADMIN' || rol === 'ENTRENADOR' ? 0 : 1;
       const nuevoOcupados = Math.min(clase.cupo, clase.ocupados + ocupa);
+      this.joinedIds.add(id);
       this.clases[idx] = { ...clase, solicitudesPendientes: solicitudes, miembros, ocupados: nuevoOcupados };
       this.actualizarEstado(id);
       this.emit();
@@ -238,6 +183,13 @@ export class ClasesService {
     return this.clases.filter(c => this.joinedIds.has(c.id));
   }
 
+  misClasesDelUsuario(nombre: string): ClaseItem[] {
+    if (!nombre) {
+      return [];
+    }
+    return this.clases.filter(c => c.miembros.some(m => m.nombre === nombre));
+  }
+
   buscarPorId(id: number): ClaseItem | undefined {
     return this.clases.find(c => c.id === id);
   }
@@ -253,5 +205,58 @@ export class ClasesService {
 
   private emit(): void {
     this.clasesSubject.next([...this.clases]);
+  }
+
+  private cargarDesdeApi(): void {
+    this.http.get<any[]>(this.baseUrl).subscribe({
+      next: data => {
+        const list = Array.isArray(data) ? data : [];
+        this.clases = list.map(c => this.mapBackendClase(c));
+        this.emit();
+      },
+      error: () => {
+        // dejamos las clases en memoria si falla el backend
+        this.emit();
+      }
+    });
+  }
+
+  private limpiarClasesFantasma(): void {
+    const validas = this.clases.filter(c => c && typeof c.id === 'number' && !!c.titulo && !!c.descripcion);
+    if (validas.length !== this.clases.length) {
+      this.clases = validas;
+      this.emit();
+    }
+  }
+
+  private mapBackendClase(raw: any): ClaseItem {
+    const currentId = this.auth.currentUser?.id;
+    const nombreActual = this.auth.currentUser?.username || this.auth.currentUser?.email || '';
+    const entrenadores = Array.isArray(raw?.entrenadores) ? raw.entrenadores.filter(Boolean) : [];
+    if (raw?.creadorNombre) {
+      entrenadores.push(raw.creadorNombre);
+    }
+    if (raw?.creadorId && raw.creadorId === currentId && nombreActual) {
+      entrenadores.push(nombreActual);
+    }
+    const entrenadoresUnicos: string[] = Array.from(new Set(entrenadores)) as string[];
+    return {
+      id: raw?.id ?? Date.now(),
+      titulo: raw?.titulo || 'Clase',
+      descripcion: raw?.descripcion || '',
+      entrenadores: entrenadoresUnicos,
+      nivel: 'Inicial',
+      duracionMin: 45,
+      cupo: raw?.cupo ?? 10,
+      ocupados: 0,
+      horario: 'A coordinar',
+      ubicacion: 'A confirmar',
+      estado: 'ABIERTA',
+      etiqueta: undefined,
+      proximaFecha: 'Pronto a confirmar',
+      miembros: [],
+      solicitudesPendientes: [],
+      mensajes: []
+    };
   }
 }

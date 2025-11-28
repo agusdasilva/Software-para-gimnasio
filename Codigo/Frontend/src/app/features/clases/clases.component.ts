@@ -100,7 +100,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   solicitarUnirse(clase: ClaseItem): void {
-    if (clase.estado !== 'ABIERTA') {
+    if (clase.estado !== 'ABIERTA' || this.esMiembro(clase)) {
       return;
     }
     const nombre = this.nombreUsuario();
@@ -112,7 +112,8 @@ export class ClasesComponent implements OnInit, OnDestroy {
 
   comenzarCrearClase(): void {
     this.creandoClase = true;
-    this.nuevaClase = { entrenadores: [], nivel: 'Inicial', duracionMin: 45, cupo: 15, estado: 'ABIERTA' };
+    const entrenadorActual = this.nombreUsuario();
+    this.nuevaClase = { entrenadores: [entrenadorActual], nivel: 'Inicial', duracionMin: 45, cupo: 15, estado: 'ABIERTA' };
   }
 
   cancelarCrearClase(): void {
@@ -124,12 +125,16 @@ export class ClasesComponent implements OnInit, OnDestroy {
     if (!this.nuevaClase.titulo || !this.nuevaClase.descripcion) {
       return;
     }
-    const nuevoId = this.clases.length ? Math.max(...this.clases.map(c => c.id)) + 1 : 1;
+    if (!this.authService.hasRole(['ENTRENADOR'])) {
+      this.mensajeSolicitud = 'Solo un entrenador puede crear clases.';
+      return;
+    }
     const nueva: ClaseItem = {
-      id: nuevoId,
+      // id provisional, se reemplazara por el backend
+      id: Date.now(),
       titulo: this.nuevaClase.titulo,
       descripcion: this.nuevaClase.descripcion,
-      entrenadores: [...(this.nuevaClase.entrenadores || [])],
+      entrenadores: Array.from(new Set([this.nombreUsuario(), ...(this.nuevaClase.entrenadores || [])].filter(Boolean))),
       nivel: this.nuevaClase.nivel as ClaseItem['nivel'],
       duracionMin: Number(this.nuevaClase.duracionMin || 45),
       cupo: Number(this.nuevaClase.cupo || 15),
@@ -142,10 +147,19 @@ export class ClasesComponent implements OnInit, OnDestroy {
       solicitudesPendientes: [],
       mensajes: []
     };
-    this.clasesService.agregarClase(nueva);
-    this.creandoClase = false;
-    this.aplicarFiltros();
-    this.actualizarMisClases();
+    this.mensajeSolicitud = '';
+    this.clasesService.agregarClase(nueva).subscribe({
+      next: () => {
+        this.creandoClase = false;
+        this.aplicarFiltros();
+        this.actualizarMisClases();
+        this.mensajeSolicitud = 'Clase creada correctamente.';
+      },
+      error: err => {
+        const msg = err?.error ?? 'No se pudo crear la clase en el servidor.';
+        this.mensajeSolicitud = typeof msg === 'string' ? msg : 'No se pudo crear la clase en el servidor.';
+      }
+    });
   }
 
   toggleEntrenadorSeleccion(nombre: string): void {
@@ -236,14 +250,21 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   private actualizarMisClases(): void {
-    this.misClases = this.clasesService.misClases();
     const nombre = this.nombreUsuario();
+    this.misClases = this.clasesService.misClasesDelUsuario(nombre);
+    // Si ya es miembro, limpiamos cualquier bandera de solicitud previa
+    this.misClases.forEach(c => this.solicitudesEnviadas.delete(c.id));
     this.misClasesEntrenador = this.clases.filter(c => c.entrenadores.includes(nombre));
   }
 
   private nombreUsuario(): string {
     const usuario = this.authService.currentUser as any;
     return usuario?.nombreCompleto || usuario?.username || usuario?.nombre || 'Usuario';
+  }
+
+  esMiembro(clase: ClaseItem): boolean {
+    const nombre = this.nombreUsuario();
+    return clase.miembros.some(m => m.nombre === nombre);
   }
 
   private cargarUsuariosReales(): void {
