@@ -143,6 +143,46 @@
   z-index: 20;
 }
 
+.notif-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.tick-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.tick-btn.cleared {
+  background: rgba(76, 175, 80, 0.16);
+  border-color: #4caf50;
+  color: #c8f7cd;
+  box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.35);
+}
+
+.mini-hint {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
 .notif-item {
   padding: 10px 10px 12px;
   border-radius: 10px;
