@@ -9,6 +9,7 @@ import { RutinaCardComponent } from './components/rutina-card/rutina-card.compon
 import { DetalleRutinaPage } from './pages/detalle-rutina/detalle-rutina.page';
 import { EjecutarRutinaPage } from './pages/ejecutar-rutina/ejecutar-rutina.page';
 import { SeleccionarEjerciciosPage } from './pages/seleccionar-ejercicios/seleccionar-ejercicios.page';
+import { CrearEjercicioPage } from './pages/crear-ejercicio/crear-ejercicio.page';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { SeleccionarEjerciciosPage } from './pages/seleccionar-ejercicios/selecc
     RutinaCardComponent,
     DetalleRutinaPage,
     EjecutarRutinaPage,
-    SeleccionarEjerciciosPage
+    SeleccionarEjerciciosPage,
+    CrearEjercicioPage
   ],
   imports: [
     CommonModule,

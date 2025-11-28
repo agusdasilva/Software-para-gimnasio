@@ -9,55 +9,84 @@
     <div class="acciones">
       <button class="btn ghost" type="button" (click)="volver()">Volver</button>
       <button class="btn" type="button" (click)="reiniciar()" [disabled]="!totalSeries">Reiniciar</button>
+      <button class="btn primary" type="button" (click)="finalizar()" [disabled]="!totalSeries">Terminar</button>
     </div>
   </header>
 
   <p class="alert error" *ngIf="error">{{ error }}</p>
   <p class="alert muted" *ngIf="cargando && !error">Preparando rutina...</p>
 
-  <section *ngIf="rutina as r" class="runner__grid">
-    <div class="panel resumen">
-      <div class="progress">
-        <div class="progress__bar">
+  <section *ngIf="rutina as r" class="runner__grid runner-horizontal">
+    <div class="top-stats">
+      <div>
+        <p class="label">Progreso</p>
+        <p class="value">{{ seriesCompletadas }} / {{ totalSeries }}</p>
+      </div>
+      <div>
+        <p class="label">Avance</p>
+        <div class="progress__bar narrow">
           <div class="progress__fill" [style.width.%]="progresoPorc"></div>
         </div>
-        <p class="muted">{{ seriesCompletadas }} / {{ totalSeries }} series completadas ({{ progresoPorc }}%)</p>
+        <p class="muted">{{ progresoPorc }}%</p>
       </div>
-      <div class="stats">
-        <div>
-          <p class="label">Creador</p>
-          <p class="value">{{ r.creador }}</p>
-        </div>
-        <div>
-          <p class="label">Descanso</p>
-          <p class="value">{{ r.detalle.descanso_seg || 0 }}s</p>
-        </div>
-        <div>
-          <p class="label">Ejercicios</p>
-          <p class="value">{{ r.detalle.ejercicios.length || 0 }}</p>
-        </div>
+      <div>
+        <p class="label">Descanso</p>
+        <p class="value">{{ r.detalle.descanso_seg || 0 }}s</p>
+      </div>
+      <div>
+        <p class="label">Ejercicios</p>
+        <p class="value">{{ r.detalle.ejercicios.length || 0 }}</p>
       </div>
     </div>
 
-    <div class="panel pasos">
-      <header class="subheader">
-        <h3>Sesiones</h3>
-        <span class="muted">Marca series a medida que las completas.</span>
-      </header>
-      <div class="ejercicio" *ngFor="let ej of r.detalle.ejercicios">
-        <div>
-          <p class="ejercicio__nombre">{{ ej.ejercicio }}</p>
-          <p class="muted">Series: {{ ej.series.length || 0 }}</p>
-        </div>
-        <div class="series">
-          <label class="serie" *ngFor="let s of ej.series; let i = index" [class.done]="isSerieCompletada(ej.id, i)">
-            <input #chk type="checkbox" [checked]="isSerieCompletada(ej.id, i)" (change)="toggleSerie(ej.id, i, chk.checked)">
-            <span>{{ s.repeticiones }} reps - {{ s.carga }}</span>
-            <small class="muted">Orden {{ s.orden }}</small>
-          </label>
+    <div class="pasos">
+      <div class="ejercicio-card" *ngFor="let ej of r.detalle.ejercicios; let idx = index; trackBy: trackById">
+        <header class="ejercicio-card__head">
+          <div class="left">
+            <div class="orden">
+              <button class="btn ghost tiny" type="button" (click)="moverEjercicio(idx, 'up')" [disabled]="idx === 0">Subir</button>
+              <button class="btn ghost tiny" type="button" (click)="moverEjercicio(idx, 'down')" [disabled]="idx === r.detalle.ejercicios.length - 1">Bajar</button>
+            </div>
+            <div>
+              <p class="ejercicio__nombre">{{ ej.ejercicio }}</p>
+              <p class="muted">Series: {{ ej.series.length || 0 }}</p>
+            </div>
+          </div>
+          <button class="btn small" type="button" (click)="agregarSerie(ej.id)">+ Serie</button>
+        </header>
+
+        <div class="series-grid">
+          <div class="serie-row" *ngFor="let s of ej.series; let i = index" [class.done]="isSerieCompletada(ej.id, i)">
+            <div class="serie-meta">
+              <label class="check">
+                <input #chk type="checkbox" [checked]="isSerieCompletada(ej.id, i)" (change)="toggleSerie(ej.id, i, chk.checked)">
+                <span>#{{ s.orden }}</span>
+              </label>
+            </div>
+            <div class="serie-input">
+              <p class="label">Carga</p>
+              <input type="text" [name]="'carga' + ej.id + '-' + i" [(ngModel)]="s.carga" (ngModelChange)="actualizarSerie(ej.id, i, 'carga', s.carga)">
+            </div>
+            <div class="serie-input">
+              <p class="label">Reps</p>
+              <input type="number" min="1" [name]="'reps' + ej.id + '-' + i" [(ngModel)]="s.repeticiones" (ngModelChange)="actualizarSerie(ej.id, i, 'repeticiones', s.repeticiones)">
+            </div>
+            <div class="serie-actions">
+              <button class="btn ghost tiny" type="button" (click)="eliminarSerie(ej.id, i)">Quitar</button>
+            </div>
+          </div>
         </div>
       </div>
       <p class="muted" *ngIf="!r.detalle.ejercicios.length">No hay ejercicios para esta rutina.</p>
     </div>
   </section>
+
+  <footer class="descanso" *ngIf="descansoActivo">
+    <button class="btn ghost tiny" type="button" (click)="ajustarDescanso(-15)">-15</button>
+    <div class="timer">{{ descansoRestante | number:'2.0-0' }}s</div>
+    <button class="btn ghost tiny" type="button" (click)="ajustarDescanso(15)">+15</button>
+    <button class="btn primary" type="button" (click)="omitirDescanso()">Omitir</button>
+  </footer>
+
+  <p class="alert success" *ngIf="mensaje">{{ mensaje }}</p>
 </section>

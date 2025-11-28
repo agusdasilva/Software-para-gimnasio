@@ -3,9 +3,8 @@ import { Router } from '@angular/router';
 import { CrearRutinaRequest, RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
 import { CatalogoEjercicio, EjercicioForm, Nivel, SerieForm } from '../../models/ejercicios.model';
 
-type Estado = 'ACTIVA' | 'BORRADOR';
-
 interface RutinaForm {
+  id?: number;
   titulo: string;
   objetivo: string;
   nivel: Nivel;
@@ -13,7 +12,6 @@ interface RutinaForm {
   frecuencia: number;
   duracionMin: number;
   descripcion: string;
-  estado: Estado;
   descansoSeg: number;
   imagen: string;
   esGlobal: boolean;
@@ -39,7 +37,6 @@ export class CrearRutinaPage implements OnInit {
     frecuencia: 4,
     duracionMin: 60,
     descripcion: 'Estructura lista para editar. Ajusta ejercicios, series y peso.',
-    estado: 'BORRADOR',
     descansoSeg: 90,
     imagen: '',
     esGlobal: false,
@@ -73,7 +70,13 @@ export class CrearRutinaPage implements OnInit {
   constructor(private rutinaService: RutinaService, private router: Router) {}
 
   ngOnInit(): void {
-    const state = (history.state || {}) as { nuevosEjercicios?: CatalogoEjercicio[] };
+    const state = (history.state || {}) as { nuevosEjercicios?: CatalogoEjercicio[]; rutinaBase?: RutinaResponse; rutinaId?: number };
+    if (state.rutinaBase) {
+      this.prefillDesdeDetalle(state.rutinaBase);
+    }
+    if (!this.rutina.id && state.rutinaId) {
+      this.rutina.id = state.rutinaId;
+    }
     if (state.nuevosEjercicios?.length) {
       this.insertarSeleccion(state.nuevosEjercicios);
     }
@@ -103,40 +106,19 @@ export class CrearRutinaPage implements OnInit {
       return;
     }
 
-    let idCreador: number;
-    try {
-      idCreador = this.rutinaService.getCurrentUserId();
-    } catch (e: any) {
-      this.error = e?.message || 'No se pudo obtener el usuario autenticado.';
-      return;
+    if (this.rutina.id) {
+      this.actualizarRutina();
+    } else {
+      this.crearRutina();
     }
-
-    const payload: CrearRutinaRequest = {
-      nombre: this.rutina.titulo.trim(),
-      descripcion: this.rutina.descripcion.trim(),
-      descanso_seg: this.rutina.descansoSeg,
-      imagen: this.rutina.imagen || '',
-      esGlobal: this.rutina.esGlobal,
-      idCreador
-    };
-
-    this.cargando = true;
-    this.rutinaService.crearRutina(payload).subscribe({
-      next: (res: RutinaResponse) => {
-        this.mensaje = 'Rutina "' + res.nombre + '" guardada en el backend.';
-        this.cargando = false;
-      },
-      error: (err: unknown) => {
-        const mensaje = (err as { error?: { message?: string } })?.error?.message;
-        this.error = mensaje || 'No se pudo guardar la rutina.';
-        this.cargando = false;
-      }
-    });
   }
 
   irASelector(): void {
     this.router.navigate(['/rutinas/crear/ejercicios'], {
-      state: { preseleccion: this.rutina.ejercicios.map(e => e.nombre) }
+      state: {
+        preseleccion: this.rutina.ejercicios.map(e => e.nombre),
+        rutinaId: this.rutina.id
+      }
     });
   }
 
@@ -182,6 +164,48 @@ export class CrearRutinaPage implements OnInit {
     destino.series = destino.series.map((s, i) => ({ ...s, orden: i + 1 }));
   }
 
+  moverEjercicio(index: number, direction: 'up' | 'down'): void {
+    const nuevoIndice = direction === 'up' ? index - 1 : index + 1;
+    if (nuevoIndice < 0 || nuevoIndice >= this.rutina.ejercicios.length) {
+      return;
+    }
+    const copia = [...this.rutina.ejercicios];
+    const temp = copia[nuevoIndice];
+    copia[nuevoIndice] = copia[index];
+    copia[index] = temp;
+    this.rutina.ejercicios = copia;
+  }
+
+  prefillDesdeDetalle(data: RutinaResponse): void {
+    const ejercicios = data.detalle?.ejercicios || [];
+    this.rutina = {
+      id: data.id,
+      titulo: data.nombre,
+      objetivo: data.detalle?.descripcion || 'Objetivo no definido',
+      nivel: 'Intermedio',
+      semanas: Math.max(1, ejercicios.length || 4),
+      frecuencia: Math.max(1, Math.min(7, ejercicios.length || 3)),
+      duracionMin: 60,
+      descripcion: data.detalle?.descripcion || '',
+      descansoSeg: data.detalle?.descanso_seg || 90,
+      imagen: data.detalle?.imagen || '',
+      esGlobal: data.esGlobal,
+      ejercicios: ejercicios.map(ej => ({
+        nombre: ej.ejercicio,
+        notas: '',
+        grupoMuscular: undefined,
+        equipamiento: undefined,
+        nivel: 'Intermedio',
+        series: (ej.series || []).map((s, idx) => ({
+          orden: idx + 1,
+          repeticiones: s.repeticiones,
+          carga: s.carga,
+          descansoSeg: data.detalle?.descanso_seg
+        }))
+      }))
+    };
+  }
+
   private crearSerie(orden: number, repeticiones = 12, carga = '15 kg'): SerieForm {
     return {
       orden,
@@ -191,11 +215,88 @@ export class CrearRutinaPage implements OnInit {
     };
   }
 
+  private crearRutina(): void {
+    let idCreador: number;
+    try {
+      idCreador = this.rutinaService.getCurrentUserId();
+    } catch (e: any) {
+      this.error = e?.message || 'No se pudo obtener el usuario autenticado.';
+      return;
+    }
+
+    const payload: CrearRutinaRequest = {
+      nombre: this.rutina.titulo.trim(),
+      descripcion: this.rutina.descripcion.trim(),
+      descanso_seg: this.rutina.descansoSeg,
+      imagen: this.rutina.imagen || '',
+      esGlobal: this.rutina.esGlobal,
+      idCreador
+    };
+
+    this.cargando = true;
+    this.rutinaService.crearRutina(payload).subscribe({
+      next: (res: RutinaResponse) => {
+        this.mensaje = 'Rutina "' + res.nombre + '" guardada en el backend.';
+        this.persistirEjerciciosLocal(res.id);
+        this.cargando = false;
+        this.router.navigate(['/rutinas'], { state: { mensaje: this.mensaje } });
+      },
+      error: (err: unknown) => {
+        const mensaje = (err as { error?: { message?: string } })?.error?.message;
+        this.error = mensaje || 'No se pudo guardar la rutina.';
+        this.cargando = false;
+      }
+    });
+  }
+
+  private actualizarRutina(): void {
+    if (!this.rutina.id) return;
+    this.cargando = true;
+    this.rutinaService.modificarDetalle(this.rutina.id, {
+      descripcion: this.rutina.descripcion.trim(),
+      imagen: this.rutina.imagen || '',
+      descanso_seg: this.rutina.descansoSeg
+    }).subscribe({
+      next: (res: RutinaResponse) => {
+        this.mensaje = 'Rutina "' + res.nombre + '" actualizada.';
+        this.persistirEjerciciosLocal(this.rutina!.id!);
+        this.cargando = false;
+        this.router.navigate(['/rutinas'], { state: { mensaje: this.mensaje } });
+      },
+      error: (err: unknown) => {
+        const mensaje = (err as { error?: { message?: string } })?.error?.message;
+        this.error = mensaje || 'No se pudo actualizar la rutina.';
+        this.cargando = false;
+      }
+    });
+  }
+
   trackByIndex(index: number): number {
     return index;
   }
 
   get totalEjercicios(): number {
     return this.rutina.ejercicios.length;
+  }
+
+  private persistirEjerciciosLocal(idRutina: number): void {
+    if (!idRutina || !this.rutina.ejercicios.length) {
+      return;
+    }
+    const ejercicios = this.rutina.ejercicios.map((ej, idx) => ({
+      id: Date.now() + idx,
+      ejercicio: ej.nombre,
+      series: (ej.series || []).map((s, i) => ({
+        id: Date.now() + idx + i,
+        orden: s.orden || i + 1,
+        repeticiones: s.repeticiones || 0,
+        carga: s.carga || ''
+      }))
+    }));
+    try {
+      localStorage.setItem('rutina-ejercicios-' + idRutina, JSON.stringify(ejercicios));
+    } catch {
+      // ignore quota/storage errors
+    }
   }
 }
