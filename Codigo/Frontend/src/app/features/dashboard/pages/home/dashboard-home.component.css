@@ -73,3 +73,130 @@
   gap: 8px;
   opacity: 0.9;
 }
+
+.horario-card .horario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.horario-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 10px 0 6px;
+}
+
+.horario-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  gap: 4px;
+  color: #444;
+}
+
+.horario-form input {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.horario-form textarea {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.horario-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.horario-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dia-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.dia-chip {
+  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dia-chip:hover {
+  border-color: var(--color-accent);
+}
+
+.dia-chip.active {
+  background: rgba(255, 26, 26, 0.12);
+  border-color: var(--color-accent);
+  box-shadow: 0 6px 18px rgba(255, 26, 26, 0.15);
+}
+
+.dia-chip__title {
+  display: block;
+  font-weight: 700;
+}
+
+.dia-chip__hours {
+  opacity: 0.75;
+}
+
+.card-note {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  grid-column: 1 / -1;
+  font-size: 14px;
+}
+
+.list--split {
+  list-style: none;
+  padding-left: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px 14px;
+}
+
+.list--split li {
+  padding-left: 0;
+}
+
+.feedback.success {
+  color: #1b5e20;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.feedback.error {
+  color: #c62828;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.wide-card {
+  margin-top: 10px;
+}

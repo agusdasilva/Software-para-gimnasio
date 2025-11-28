@@ -6,7 +6,6 @@ import com.example.gymweb.dto.Request.NotificacionRequest;
 import com.example.gymweb.dto.Response.NotificacionResponse;
 import com.example.gymweb.model.Notificacion;
 import com.example.gymweb.model.Usuario;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class NotificacionService {
     }
 
     public NotificacionResponse crear(NotificacionRequest req) {
-        Usuario u = (Usuario)this.usuarioRepo.findById(req.getIdUsuario()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario u = this.usuarioRepo.findById(req.getIdUsuario()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         Notificacion n = new Notificacion();
         n.setUsuario(u);
         n.setMensaje(req.getMensaje());
@@ -46,13 +45,24 @@ public class NotificacionService {
     }
 
     public String marcarLeida(int id) {
-        Notificacion n = (Notificacion)this.repo.findById(id).orElseThrow(() -> new RuntimeException("No existe notificación"));
+        Notificacion n = this.repo.findById(id).orElseThrow(() -> new RuntimeException("No existe notificacion"));
         n.setLeida(true);
         this.repo.save(n);
-        return "Notificación marcada como leída";
+        return "Notificacion marcada como leida";
     }
 
     public void eliminar(int id) {
         this.repo.deleteById(id);
+    }
+
+    public void crearParaTodos(String mensaje) {
+        List<Usuario> usuarios = this.usuarioRepo.findAll();
+        usuarios.forEach(u -> {
+            Notificacion n = new Notificacion();
+            n.setUsuario(u);
+            n.setMensaje(mensaje);
+            n.setFecha(LocalDateTime.now());
+            this.repo.save(n);
+        });
     }
 }

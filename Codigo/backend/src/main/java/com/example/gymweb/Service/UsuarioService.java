@@ -124,11 +124,16 @@ public class UsuarioService {
         Usuario u = (Usuario)this.usuarioRepository.findById(request.getIdUsuario()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         u.setRol(request.getNuevoRol());
         this.usuarioRepository.save(u);
-        // Notificar ascenso a entrenador
+        // Notificar cambio de rol
         if (request.getNuevoRol() == com.example.gymweb.model.Rol.ENTRENADOR) {
             this.notificacionService.crear(new com.example.gymweb.dto.Request.NotificacionRequest() {{
                 setIdUsuario(u.getId());
                 setMensaje("Fuiste ascendido a entrenador. Ya puedes crear y gestionar clases.");
+            }});
+        } else if (request.getNuevoRol() == com.example.gymweb.model.Rol.ADMIN) {
+            this.notificacionService.crear(new com.example.gymweb.dto.Request.NotificacionRequest() {{
+                setIdUsuario(u.getId());
+                setMensaje("Fuiste ascendido a administrador. Ahora puedes gestionar usuarios y la configuracion del gimnasio.");
             }});
         }
         return this.convertirAResponse(u);

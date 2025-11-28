@@ -8,42 +8,135 @@
   </div>
 
   <div class="dashboard__grid">
-    <div class="card">
-      <h3>Estado de membresia</h3>
-      <p class="value">Activa</p>
-      <p class="muted">Vence el 30/12/2025</p>
+    <div class="card horario-card" *ngIf="horario?.length">
+      <div class="horario-header">
+        <div>
+          <h3>Horario del gym</h3>
+          <p class="muted">Selecciona un día para editar o revisar rápidamente</p>
+        </div>
+        <div class="header-actions" *ngIf="isAdmin">
+          <button class="btn ghost" *ngIf="!editMode" (click)="iniciarEdicionHorario()">Editar</button>
+          <button class="btn ghost" *ngIf="editMode" (click)="cancelarEdicion()">Cancelar</button>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!editMode">
+        <ul class="list list--split">
+          <li *ngFor="let d of horario">
+            <strong>{{ d.dia }}</strong>: {{ d.horaApertura }} - {{ d.horaCierre }}
+          </li>
+        </ul>
+        <p class="muted">Actualizado para todos los usuarios</p>
+      </ng-container>
+
+      <ng-container *ngIf="editMode">
+        <div class="horario-editor">
+          <div class="dia-selector">
+            <button
+              type="button"
+              class="dia-chip"
+              *ngFor="let dia of diasSemana"
+              [class.active]="selectedDia === dia"
+              (click)="seleccionarDia(dia)">
+              <span class="dia-chip__title">{{ dia }}</span>
+              <small class="dia-chip__hours">
+                {{ horarioDelDia(dia)?.horaApertura }} - {{ horarioDelDia(dia)?.horaCierre }}
+              </small>
+            </button>
+          </div>
+
+          <div class="horario-form" *ngIf="horarioDelDia(selectedDia) as diaSeleccionado">
+            <label>
+              Apertura
+              <input type="time" [(ngModel)]="diaSeleccionado.horaApertura">
+            </label>
+            <label>
+              Cierre
+              <input type="time" [(ngModel)]="diaSeleccionado.horaCierre">
+            </label>
+            <div class="card-note">
+              Estás editando el horario de <strong>{{ selectedDia }}</strong>.
+            </div>
+          </div>
+        </div>
+        <div class="horario-actions">
+          <button class="btn" [disabled]="loading" (click)="guardarHorario()">
+            {{ loading ? 'Guardando...' : 'Guardar y notificar' }}
+          </button>
+          <button class="btn ghost" (click)="cancelarEdicion()">Salir sin guardar</button>
+        </div>
+        <p class="muted">Se enviará una notificación a todos los usuarios.</p>
+      </ng-container>
+
+      <p class="feedback success" *ngIf="updateMessage">{{ updateMessage }}</p>
+      <p class="feedback error" *ngIf="updateError">{{ updateError }}</p>
     </div>
 
     <div class="card">
-      <h3>Proxima clase</h3>
-      <p class="value">HIIT - 18:30</p>
-      <p class="muted">Con entrenador principal</p>
+      <div class="horario-header">
+        <div>
+          <h3>Noticias del gym</h3>
+          <p class="muted">Comparte novedades</p>
+        </div>
+        <div class="header-actions" *ngIf="isAdmin">
+          <button class="btn ghost" *ngIf="!editNoticias" (click)="editNoticias = true; noticiasMessage = ''; noticiasError = ''">Editar</button>
+          <button class="btn ghost" *ngIf="editNoticias" (click)="cancelarContenidoNoticias()">Cancelar</button>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!editNoticias">
+        <ul class="list">
+          <li *ngFor="let n of config.noticias">{{ n }}</li>
+        </ul>
+      </ng-container>
+
+      <div *ngIf="editNoticias">
+        <div class="horario-form">
+          <label>
+            Noticias (una por linea)
+            <textarea rows="4" [(ngModel)]="noticiasString"></textarea>
+          </label>
+        </div>
+        <div class="horario-actions">
+          <button class="btn ghost" (click)="cancelarContenidoNoticias()">Cancelar</button>
+          <button class="btn" (click)="guardarNoticias()">Guardar y notificar</button>
+        </div>
+        <p class="feedback success" *ngIf="noticiasMessage">{{ noticiasMessage }}</p>
+        <p class="feedback error" *ngIf="noticiasError">{{ noticiasError }}</p>
+      </div>
     </div>
 
     <div class="card">
-      <h3>Pagos</h3>
-      <p class="value">$0 pendiente</p>
-      <p class="muted">Ultimo pago: 30/11/2025</p>
-    </div>
-  </div>
+      <div class="horario-header">
+        <div>
+          <h3>Recordatorios</h3>
+          <p class="muted">Mantene a todos atentos</p>
+        </div>
+        <div class="header-actions" *ngIf="isAdmin">
+          <button class="btn ghost" *ngIf="!editRecordatorios" (click)="editRecordatorios = true; recordatoriosMessage = ''; recordatoriosError = ''">Editar</button>
+          <button class="btn ghost" *ngIf="editRecordatorios" (click)="cancelarContenidoRecordatorios()">Cancelar</button>
+        </div>
+      </div>
 
-  <div class="dashboard__grid dashboard__grid--wide">
-    <div class="card">
-      <h3>Noticias del gym</h3>
-      <ul class="list">
-        <li>Nuevas maquinas de fuerza disponibles desde la proxima semana.</li>
-        <li>Promo amigos: trae a un amigo y ambos obtienen 10% off en enero.</li>
-        <li>Clases especiales de movilidad los viernes 19:00.</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h3>Recordatorios</h3>
-      <ul class="list">
-        <li>Llega 10 minutos antes para tu clase.</li>
-        <li>Trae toalla y botella reutilizable.</li>
-        <li>Agenda tu evaluacion mensual con un entrenador.</li>
-      </ul>
+      <ng-container *ngIf="!editRecordatorios">
+        <ul class="list">
+          <li *ngFor="let r of config.recordatorios">{{ r }}</li>
+        </ul>
+      </ng-container>
+      <div *ngIf="editRecordatorios">
+        <div class="horario-form">
+          <label>
+            Recordatorios (uno por linea)
+            <textarea rows="4" [(ngModel)]="recordatoriosString"></textarea>
+          </label>
+        </div>
+        <div class="horario-actions">
+          <button class="btn ghost" (click)="cancelarContenidoRecordatorios()">Cancelar</button>
+          <button class="btn" (click)="guardarRecordatorios()">Guardar y notificar</button>
+        </div>
+        <p class="feedback success" *ngIf="recordatoriosMessage">{{ recordatoriosMessage }}</p>
+        <p class="feedback error" *ngIf="recordatoriosError">{{ recordatoriosError }}</p>
+      </div>
     </div>
   </div>
 </section>

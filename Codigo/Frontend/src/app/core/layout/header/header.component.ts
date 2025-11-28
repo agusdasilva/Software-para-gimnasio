@@ -1,29 +1,43 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService, AuthUser, UserRole } from '../../auth/auth.service';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
+import { NotificacionService, Notificacion } from '../../services/notificacion.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
 
   user$: Observable<AuthUser | null>;
   showNotifications = false;
-  notifications: Array<{ id: number; title: string; message: string; time: string; read: boolean }> = [
-    { id: 1, title: 'Pago confirmado', message: 'Tu membresia fue activada correctamente.', time: 'Hace 1 min', read: false },
-    { id: 2, title: 'Clase agendada', message: 'Recordatorio de tu clase funcional manana.', time: 'Hoy', read: true }
-  ];
+  cleared = false;
+  notifications: Notificacion[] = [];
 
   constructor(
     private authService: AuthService,
     public router: Router,
-    public themeService: ThemeService
+    public themeService: ThemeService,
+    private notificacionService: NotificacionService
   ) {
     this.user$ = this.authService.currentUser$;
+  }
+
+  ngOnInit(): void {
+    const current = this.authService.currentUser;
+    if (current) {
+      this.cargarNotificaciones(current.id);
+    }
+    this.user$.subscribe(user => {
+      if (user) {
+        this.cargarNotificaciones(user.id);
+      } else {
+        this.notifications = [];
+      }
+    });
   }
 
   isAuthenticated(): boolean {
@@ -39,7 +53,15 @@ export class HeaderComponent {
   }
 
   get unreadCount(): number {
-    return this.notifications.filter(n => !n.read).length;
+    return this.notifications.filter(n => !n.leida).length;
+  }
+
+  clearNotifications(): void {
+    const toDelete = [...this.notifications];
+    this.notifications = [];
+    toDelete.forEach(n => this.notificacionService.eliminar(n.id).subscribe());
+    this.cleared = true;
+    setTimeout(() => this.cleared = false, 1500);
   }
 
   @HostListener('document:click', ['$event'])
@@ -78,5 +100,11 @@ export class HeaderComponent {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  private cargarNotificaciones(userId: number): void {
+    this.notificacionService.listar(userId).subscribe(list => {
+      this.notifications = list;
+    });
   }
 }
