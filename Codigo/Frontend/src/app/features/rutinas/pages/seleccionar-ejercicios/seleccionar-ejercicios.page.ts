@@ -23,7 +23,21 @@ export class SeleccionarEjerciciosPage implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    const preseleccion = (history.state?.preseleccion as string[]) || [];
+    const state = history.state || {};
+    const preseleccion = (state.preseleccion as string[]) || [];
+    const ejercicioCreado = state.ejercicioCreado as CatalogoEjercicio | undefined;
+    const seleccionPrev = (state.seleccionPrev as number[]) || [];
+    const rutinaId = state.rutinaId as number | undefined;
+    if (rutinaId) {
+      this.rutinaId = rutinaId;
+    }
+    if (ejercicioCreado) {
+      this.catalogo = [ejercicioCreado, ...this.catalogo];
+      this.seleccion.add(ejercicioCreado.id);
+    }
+    if (seleccionPrev.length) {
+      seleccionPrev.forEach(id => this.seleccion.add(id));
+    }
     if (preseleccion.length) {
       this.catalogo.forEach(ej => {
         if (preseleccion.includes(ej.nombre)) {
@@ -55,26 +69,26 @@ export class SeleccionarEjerciciosPage implements OnInit {
 
   confirmar(): void {
     const elegidos = this.catalogo.filter(ej => this.seleccion.has(ej.id));
-    this.router.navigate(['/rutinas/crear'], { state: { nuevosEjercicios: elegidos } });
+    this.router.navigate(['/rutinas/crear'], {
+      state: { nuevosEjercicios: elegidos, rutinaId: this.rutinaId }
+    });
   }
 
   cancelar(): void {
-    this.router.navigate(['/rutinas/crear']);
+    this.router.navigate(['/rutinas/crear'], { state: { rutinaId: this.rutinaId } });
   }
 
   crearPropio(): void {
-    const custom: CatalogoEjercicio = {
-      id: Date.now(),
-      nombre: 'Ejercicio personalizado',
-      grupoMuscular: 'Fullbody',
-      nivel: 'Intermedio',
-      equipamiento: 'Peso corporal',
-      descripcion: 'Edita el nombre y agrega series al volver'
-    };
-    this.catalogo = [custom, ...this.catalogo];
-    this.filtrar();
-    this.seleccion.add(custom.id);
+    this.router.navigate(['/rutinas/crear/ejercicios/nuevo'], {
+      state: {
+        returnTo: '/rutinas/crear/ejercicios',
+        seleccionPrev: Array.from(this.seleccion),
+        rutinaId: this.rutinaId
+      }
+    });
   }
+
+  rutinaId?: number;
 
   get totalSeleccionados(): number {
     return this.seleccion.size;

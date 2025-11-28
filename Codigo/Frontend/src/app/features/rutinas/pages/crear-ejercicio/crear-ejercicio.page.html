@@ -1,0 +1,83 @@
+<section class="crear-ej">
+  <header class="topbar">
+    <button class="link" type="button" (click)="cancelar()">< Volver</button>
+    <h1>Crear ejercicio</h1>
+    <button class="btn primary" type="button" (click)="guardar()">Guardar</button>
+  </header>
+
+  <div class="recurso">
+    <div class="circle">IMG</div>
+    <button class="link" type="button">Anadir recurso</button>
+  </div>
+
+  <form class="form" (ngSubmit)="guardar()">
+    <label>
+      Nombre de ejercicio
+      <input type="text" name="nombre" [(ngModel)]="nombre" placeholder="Press banca, Sentadilla...">
+    </label>
+
+    <div class="grid">
+      <label>
+        Equipamiento
+        <select name="equipamiento" [(ngModel)]="equipamiento">
+          <option value="Peso corporal">Peso corporal</option>
+          <option value="Mancuernas">Mancuernas</option>
+          <option value="Barra">Barra</option>
+          <option value="Maquina">Maquina</option>
+          <option value="Bandas">Bandas</option>
+          <option value="Kettlebell">Kettlebell</option>
+        </select>
+      </label>
+
+      <label>
+        Grupo muscular primario
+        <select name="grupo" [(ngModel)]="grupo">
+          <option value="Pecho">Pecho</option>
+          <option value="Espalda">Espalda</option>
+          <option value="Piernas">Piernas</option>
+          <option value="Hombros">Hombros</option>
+          <option value="Brazos">Brazos</option>
+          <option value="Core">Core</option>
+          <option value="Fullbody">Fullbody</option>
+          <option value="Cardio">Cardio</option>
+        </select>
+      </label>
+
+      <label>
+        Otros musculos (opcional)
+        <input type="text" name="otros" [(ngModel)]="otrosMusculos" placeholder="Estabilizadores, core, etc">
+      </label>
+
+      <label>
+        Tipo de ejercicio
+        <select name="tipo" [(ngModel)]="tipo">
+          <option value="Fuerza">Fuerza</option>
+          <option value="Tecnica">Tecnica</option>
+          <option value="Cardio">Cardio</option>
+          <option value="Movilidad">Movilidad</option>
+        </select>
+      </label>
+
+      <label>
+        Nivel
+        <select name="nivel" [(ngModel)]="nivel">
+          <option value="Principiante">Principiante</option>
+          <option value="Intermedio">Intermedio</option>
+          <option value="Avanzado">Avanzado</option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Notas y descripcion
+      <textarea name="descripcion" rows="4" [(ngModel)]="descripcion" placeholder="Instrucciones breves, tecnica o variantes"></textarea>
+    </label>
+
+    <div class="acciones">
+      <button class="btn ghost" type="button" (click)="cancelar()">Cancelar</button>
+      <button class="btn primary" type="submit">Guardar</button>
+    </div>
+
+    <p class="alert error" *ngIf="error">{{ error }}</p>
+  </form>
+</section>

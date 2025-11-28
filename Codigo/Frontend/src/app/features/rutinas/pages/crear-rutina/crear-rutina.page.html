@@ -5,7 +5,7 @@
     <p class="lede">Edita cada serie por ejercicio y agrega varios a la vez desde el catalogo.</p>
     <div class="hero-actions">
       <a class="btn ghost" routerLink="/rutinas">Volver a listadas</a>
-      <button class="btn primary" type="button" (click)="guardar()" [disabled]="cargando">Guardar borrador</button>
+      <button class="btn primary" type="button" (click)="guardar()" [disabled]="cargando">Guardar rutina</button>
     </div>
   </div>
 </section>
@@ -26,13 +26,6 @@
         <option value="Principiante">Principiante</option>
         <option value="Intermedio">Intermedio</option>
         <option value="Avanzado">Avanzado</option>
-      </select>
-    </label>
-    <label>
-      Estado
-      <select name="estado" [(ngModel)]="rutina.estado">
-        <option value="BORRADOR">Borrador</option>
-        <option value="ACTIVA">Activa</option>
       </select>
     </label>
     <label>
@@ -114,7 +107,11 @@
             </select>
           </div>
         </div>
-        <button class="btn ghost tiny" type="button" (click)="quitarEjercicio(i)">Quitar</button>
+        <div class="orden-actions">
+          <button class="btn ghost tiny" type="button" (click)="moverEjercicio(i, 'up')" [disabled]="i === 0">Subir</button>
+          <button class="btn ghost tiny" type="button" (click)="moverEjercicio(i, 'down')" [disabled]="i === rutina.ejercicios.length - 1">Bajar</button>
+          <button class="btn ghost tiny" type="button" (click)="quitarEjercicio(i)">Quitar</button>
+        </div>
       </div>
 
       <label class="notas">

@@ -40,20 +40,6 @@ h1 {
   gap: 14px;
 }
 
-.panel {
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.resumen .stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-}
-
 .label {
   margin: 0;
   text-transform: uppercase;
@@ -76,22 +62,59 @@ h1 {
   overflow: hidden;
 }
 
+.progress__bar.narrow {
+  height: 8px;
+}
+
 .progress__fill {
   height: 100%;
   background: linear-gradient(120deg, #ff1a1a, #ff6b6b);
   border-radius: 999px;
 }
 
-.pasos .ejercicio {
-  border-top: 1px solid var(--color-border);
-  padding: 12px 0;
+.runner-horizontal {
+  gap: 10px;
+}
+
+.top-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.pasos {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
 }
 
-.pasos .ejercicio:first-of-type {
-  border-top: none;
+.ejercicio-card {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+}
+
+.ejercicio-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.ejercicio-card__head .left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.orden {
+  display: flex;
+  gap: 6px;
 }
 
 .ejercicio__nombre {
@@ -99,31 +122,51 @@ h1 {
   font-weight: 700;
 }
 
-.series {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.serie {
+.series-grid {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.03);
-  min-width: 150px;
+  margin-top: 10px;
+  gap: 8px;
 }
 
-.serie.done {
+.serie-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 120px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.serie-row.done {
   border-color: var(--color-accent);
   background: rgba(255, 26, 26, 0.08);
 }
 
-.serie input {
-  transform: scale(1.2);
+.serie-meta .check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.serie-input input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: #0f0f0f;
+  color: var(--color-text);
+}
+
+.serie-input .label {
+  font-size: 10px;
+}
+
+.serie-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .btn {
@@ -140,6 +183,16 @@ h1 {
 .btn.ghost {
   border-color: rgba(255, 255, 255, 0.18);
   color: var(--color-text);
+}
+
+.btn.small {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.btn.tiny {
+  padding: 6px 10px;
+  font-size: 12px;
 }
 
 .btn:hover {
@@ -164,17 +217,32 @@ h1 {
   color: var(--color-text);
 }
 
+.descanso {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(3, auto) 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border-top: 1px solid var(--color-border);
+  backdrop-filter: blur(8px);
+}
+
+.timer {
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+}
+
 @media (max-width: 900px) {
-  .pasos .ejercicio {
-    flex-direction: column;
-  }
-
-  .series {
-    justify-content: flex-start;
-  }
-
   .acciones {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .serie-row {
+    grid-template-columns: 1fr 1fr;
   }
 }
