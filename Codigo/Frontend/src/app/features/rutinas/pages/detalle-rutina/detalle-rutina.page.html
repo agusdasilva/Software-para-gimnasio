@@ -1,0 +1,56 @@
+<section class="detalle">
+  <header class="detalle__header">
+    <div>
+      <p class="kicker">Rutina</p>
+      <h1 *ngIf="rutina; else cargandoTpl">{{ rutina.nombre }}</h1>
+      <ng-template #cargandoTpl><h1>Cargando rutina...</h1></ng-template>
+      <p class="meta" *ngIf="rutina">Creada por {{ rutina.creador }}</p>
+    </div>
+    <div class="acciones">
+      <button class="btn ghost" type="button" (click)="volver()">Volver</button>
+      <button class="btn primary" type="button" (click)="ejecutar()" [disabled]="!rutina?.id">Ejecutar rutina</button>
+    </div>
+  </header>
+
+  <p class="alert error" *ngIf="error">{{ error }}</p>
+  <p class="alert muted" *ngIf="cargando && !error">Cargando datos...</p>
+
+  <section *ngIf="rutina as r" class="detalle__grid">
+    <div class="panel">
+      <h2>Descripcion</h2>
+      <p class="descripcion">{{ r.detalle.descripcion || 'Sin descripcion' }}</p>
+      <div class="tags">
+        <span class="tag">Descanso: {{ descansoSeg }}s</span>
+        <span class="tag" *ngIf="r.esGlobal">Plantilla global</span>
+      </div>
+    </div>
+
+    <div class="panel image" *ngIf="r.detalle.imagen">
+      <img [src]="r.detalle.imagen" [alt]="r.nombre">
+    </div>
+  </section>
+
+  <section *ngIf="rutina?.detalle as detalle" class="panel ejercicios">
+    <header class="subheader">
+      <h3>Ejercicios</h3>
+      <span class="muted">{{ detalle.ejercicios.length || 0 }} items</span>
+    </header>
+    <div class="ejercicio" *ngFor="let ej of detalle.ejercicios">
+      <div>
+        <p class="ejercicio__nombre">{{ ej.ejercicio }}</p>
+        <p class="muted">Series: {{ ej.series.length || 0 }}</p>
+      </div>
+      <div class="series">
+        <div class="serie" *ngFor="let s of ej.series">
+          <span class="pill">Carga: {{ s.carga }}</span>
+          <span class="pill">Reps: {{ s.repeticiones }}</span>
+          <span class="pill">Orden: {{ s.orden }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="rutina && !rutina.detalle.ejercicios.length" class="panel">
+    <p class="muted">Esta rutina aun no tiene ejercicios asignados.</p>
+  </section>
+</section>
