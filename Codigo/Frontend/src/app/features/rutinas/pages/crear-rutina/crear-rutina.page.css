@@ -50,6 +50,15 @@ label {
   font-weight: 700;
 }
 
+.checkbox-label {
+  flex-direction: row;
+  align-items: center;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
 input, select, textarea {
   padding: 10px 12px;
   border-radius: 10px;
@@ -64,6 +73,52 @@ textarea {
 
 .full {
   width: 100%;
+}
+
+.catalogo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.catalogo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.catalogo-filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.catalogo-card {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.catalogo-nombre {
+  margin: 0;
+  font-weight: 800;
 }
 
 .bloques {
@@ -104,13 +159,49 @@ textarea {
 .ejercicios {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .ejercicio {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ejercicio-meta {
+  display: flex;
+  justify-content: space-between;
   gap: 10px;
+  align-items: center;
+}
+
+.ejercicio-nombre {
+  margin: 0;
+  font-weight: 800;
+}
+
+.tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ejercicio-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  align-items: end;
 }
 
 .form-actions {
@@ -141,6 +232,16 @@ textarea {
   color: var(--color-text);
 }
 
+.btn.small {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.btn.tiny {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 .btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
@@ -164,7 +265,8 @@ textarea {
 }
 
 @media (max-width: 800px) {
-  .bloques-header {
+  .bloques-header,
+  .catalogo-header {
     flex-direction: column;
     align-items: flex-start;
   }

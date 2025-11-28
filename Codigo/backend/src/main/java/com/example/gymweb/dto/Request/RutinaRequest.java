@@ -64,5 +64,6 @@ public class RutinaRequest {
     public void setEsGlobal(Boolean esGlobal) {
         this.esGlobal = esGlobal;
     }
+
 }
 

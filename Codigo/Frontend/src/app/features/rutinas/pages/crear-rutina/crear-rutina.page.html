@@ -1,11 +1,11 @@
 <section class="crear-hero">
   <div>
     <p class="kicker">Nueva rutina</p>
-    <h1>Diseña un plan listo para enviar</h1>
-    <p class="lede">Mock simple: guarda en memoria mientras conectamos el servicio real.</p>
+    <h1>Disena un plan listo para enviar</h1>
+    <p class="lede">Ahora guarda directo en el backend. Ajusta los datos y envia.</p>
     <div class="hero-actions">
       <a class="btn ghost" routerLink="/rutinas">Volver a listadas</a>
-      <button class="btn primary" type="button" (click)="guardar()">Guardar borrador</button>
+      <button class="btn primary" type="button" (click)="guardar()" [disabled]="cargando">Guardar borrador</button>
     </div>
   </div>
 </section>
@@ -44,21 +44,96 @@
       <input type="number" min="1" max="7" name="frecuencia" [(ngModel)]="rutina.frecuencia">
     </label>
     <label>
-      Duración por sesión (min)
+      Duracion por sesion (min)
       <input type="number" min="20" max="180" name="duracionMin" [(ngModel)]="rutina.duracionMin">
+    </label>
+    <label>
+      Descanso base (seg)
+      <input type="number" min="10" max="600" name="descansoSeg" [(ngModel)]="rutina.descansoSeg">
+    </label>
+    <label>
+      Imagen (URL)
+      <input type="text" name="imagen" placeholder="https://..." [(ngModel)]="rutina.imagen">
+    </label>
+    <label class="checkbox-label">
+      Disponible como plantilla
+      <input type="checkbox" name="esGlobal" [(ngModel)]="rutina.esGlobal">
     </label>
   </div>
 
   <label class="full">
-    Descripción corta
+    Descripcion corta
     <textarea name="descripcion" rows="3" [(ngModel)]="rutina.descripcion"></textarea>
   </label>
+
+  <section class="catalogo">
+    <header class="catalogo-header">
+      <div>
+        <p class="kicker">Catalogo de ejercicios</p>
+        <p class="muted">Filtra por nombre, grupo, nivel y equipamiento. Se agrega al bloque destino.</p>
+      </div>
+      <label class="destino">
+        Bloque destino
+        <select [(ngModel)]="bloqueDestino" name="bloqueDestino">
+          <option *ngFor="let b of rutina.bloques; let i = index" [value]="i">{{ b.nombre || ('Bloque ' + (i + 1)) }}</option>
+        </select>
+      </label>
+    </header>
+
+    <div class="catalogo-filtros">
+      <input type="text" placeholder="Buscar ejercicio" [(ngModel)]="filtroNombre" name="filtroNombre" (ngModelChange)="filtrarCatalogo()">
+      <select [(ngModel)]="filtroGrupo" name="filtroGrupo" (change)="filtrarCatalogo()">
+        <option value="todos">Todos los grupos</option>
+        <option value="Pecho">Pecho</option>
+        <option value="Espalda">Espalda</option>
+        <option value="Piernas">Piernas</option>
+        <option value="Hombros">Hombros</option>
+        <option value="Brazos">Brazos</option>
+        <option value="Core">Core</option>
+        <option value="Fullbody">Fullbody</option>
+        <option value="Cardio">Cardio</option>
+      </select>
+      <select [(ngModel)]="filtroNivel" name="filtroNivel" (change)="filtrarCatalogo()">
+        <option value="todos">Todos los niveles</option>
+        <option value="Principiante">Principiante</option>
+        <option value="Intermedio">Intermedio</option>
+        <option value="Avanzado">Avanzado</option>
+      </select>
+      <select [(ngModel)]="filtroEquipamiento" name="filtroEquipamiento" (change)="filtrarCatalogo()">
+        <option value="todos">Todo equipamiento</option>
+        <option value="Peso corporal">Peso corporal</option>
+        <option value="Mancuernas">Mancuernas</option>
+        <option value="Barra">Barra</option>
+        <option value="Maquina">Maquina</option>
+        <option value="Bandas">Bandas</option>
+        <option value="Kettlebell">Kettlebell</option>
+      </select>
+    </div>
+
+    <div class="catalogo-grid" *ngIf="ejerciciosFiltrados.length; else catalogoVacio">
+      <article class="catalogo-card" *ngFor="let ej of ejerciciosFiltrados">
+        <div>
+          <p class="catalogo-nombre">{{ ej.nombre }}</p>
+          <p class="muted">{{ ej.descripcion || 'Ejercicio base' }}</p>
+          <div class="tags">
+            <span class="tag">{{ ej.grupoMuscular }}</span>
+            <span class="tag">{{ ej.nivel }}</span>
+            <span class="tag">{{ ej.equipamiento }}</span>
+          </div>
+        </div>
+        <button class="btn small" type="button" (click)="agregarDesdeCatalogo(ej)">Agregar</button>
+      </article>
+    </div>
+    <ng-template #catalogoVacio>
+      <p class="muted">No hay ejercicios con estos filtros.</p>
+    </ng-template>
+  </section>
 
   <section class="bloques">
     <header class="bloques-header">
       <div>
         <p class="kicker">Bloques</p>
-        <p class="muted">Agrupa ejercicios por dia o foco. Se guarda en memoria por ahora.</p>
+        <p class="muted">Agrupa ejercicios por dia o foco. Se guarda en bloques locales.</p>
       </div>
       <button class="btn ghost" type="button" (click)="agregarBloque()">Agregar bloque</button>
     </header>
@@ -73,27 +148,34 @@
           Foco
           <input type="text" [name]="'bloqueFoco' + i" [(ngModel)]="bloque.foco">
         </label>
-        <button class="btn ghost" type="button" (click)="agregarEjercicio(i)">Agregar ejercicio</button>
+        <button class="btn ghost" type="button" (click)="agregarEjercicio(i)">Agregar manual</button>
       </div>
 
       <div class="ejercicios">
         <div class="ejercicio" *ngFor="let ej of bloque.ejercicios; let j = index">
-          <label>
-            Ejercicio
-            <input type="text" [name]="'ejercicio' + i + '-' + j" [(ngModel)]="ej.nombre">
-          </label>
-          <label>
-            Series
-            <input type="number" min="1" max="10" [name]="'series' + i + '-' + j" [(ngModel)]="ej.series">
-          </label>
-          <label>
-            Repeticiones
-            <input type="text" [name]="'reps' + i + '-' + j" [(ngModel)]="ej.repeticiones">
-          </label>
-          <label>
-            Descanso
-            <input type="text" [name]="'rest' + i + '-' + j" [(ngModel)]="ej.descanso">
-          </label>
+          <div class="ejercicio-meta">
+            <p class="ejercicio-nombre">{{ ej.nombre }}</p>
+            <div class="tags">
+              <span class="tag" *ngIf="ej.grupoMuscular">{{ ej.grupoMuscular }}</span>
+              <span class="tag" *ngIf="ej.nivel">{{ ej.nivel }}</span>
+              <span class="tag" *ngIf="ej.equipamiento">{{ ej.equipamiento }}</span>
+            </div>
+          </div>
+          <div class="ejercicio-campos">
+            <label>
+              Series
+              <input type="number" min="1" max="10" [name]="'series' + i + '-' + j" [(ngModel)]="ej.series">
+            </label>
+            <label>
+              Repeticiones
+              <input type="text" [name]="'reps' + i + '-' + j" [(ngModel)]="ej.repeticiones">
+            </label>
+            <label>
+              Descanso
+              <input type="text" [name]="'rest' + i + '-' + j" [(ngModel)]="ej.descanso">
+            </label>
+            <button class="btn tiny" type="button" (click)="quitarEjercicio(i, j)">Quitar</button>
+          </div>
         </div>
       </div>
     </article>
@@ -101,9 +183,10 @@
 
   <div class="form-actions">
     <button class="btn ghost" type="button" routerLink="/rutinas">Cancelar</button>
-    <button class="btn primary" type="submit">Guardar</button>
+    <button class="btn primary" type="submit" [disabled]="cargando">Guardar</button>
   </div>
 
+  <p class="alert muted" *ngIf="cargando">Guardando rutina en el servidor...</p>
   <p class="alert success" *ngIf="mensaje">{{ mensaje }}</p>
   <p class="alert error" *ngIf="error">{{ error }}</p>
 </form>

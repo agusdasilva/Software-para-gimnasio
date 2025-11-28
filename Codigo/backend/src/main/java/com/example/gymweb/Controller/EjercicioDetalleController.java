@@ -46,4 +46,18 @@ public class EjercicioDetalleController {
     public ResponseEntity<SerieResponse> modificarSerie(@PathVariable int idSerie, @RequestBody SerieRequest request) {
         return ResponseEntity.ok(this.service.modificarSerie(idSerie, request));
     }
+    @DeleteMapping("/serie/{idSerie}")
+    public ResponseEntity<Void> eliminarSerie(@PathVariable int idSerie) {
+        service.eliminarSerie(idSerie);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{idDetalle}/orden/{nuevoOrden}")
+    public ResponseEntity<EjercicioDetalleResponse> modificarOrden(
+            @PathVariable int idDetalle,
+            @PathVariable int nuevoOrden
+    ) {
+        EjercicioDetalleResponse response = service.modificarOrden(idDetalle, nuevoOrden);
+        return ResponseEntity.ok(response);
+    }
 }
