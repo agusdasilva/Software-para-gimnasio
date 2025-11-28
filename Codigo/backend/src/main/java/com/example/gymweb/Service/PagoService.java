@@ -115,18 +115,45 @@ public class PagoService {
             this.usuarioRepository.save(usuario);
         }
 
-        PlanInfo planInfo = PLANES.getOrDefault(planCode, PLANES.get("mensual-full"));
-        Plan plan = this.planRepository.findByNombreIgnoreCase(planInfo.nombre())
-                .orElseGet(() -> {
-                    Plan p = new Plan();
-                    p.setNombre(planInfo.nombre());
-                    p.setPrecio(planInfo.precio());
-                    p.setPeriodo(planInfo.periodo());
-                    return this.planRepository.save(p);
-                });
-        if (plan.getPeriodo() == null || !plan.getPeriodo().equalsIgnoreCase(planInfo.periodo())) {
-            plan.setPeriodo(planInfo.periodo());
-            plan = this.planRepository.save(plan);
+        Plan plan = null;
+        PlanInfo planInfo = null;
+        if (planCode != null && planCode.matches("\\d+")) {
+            int idPlan = Integer.parseInt(planCode);
+            plan = this.planRepository.findById(idPlan).orElse(null);
+        }
+        if (plan == null) {
+            planInfo = PLANES.get(planCode);
+        }
+        if (plan == null && planInfo == null) {
+            planInfo = PLANES.get("mensual-full");
+        }
+        if (plan == null && planInfo != null) {
+            final PlanInfo infoPlan = planInfo;
+            plan = this.planRepository.findByNombreIgnoreCase(infoPlan.nombre())
+                    .orElseGet(() -> {
+                        Plan p = new Plan();
+                        p.setNombre(infoPlan.nombre());
+                        p.setPrecio(infoPlan.precio());
+                        p.setPeriodo(infoPlan.periodo());
+                        return this.planRepository.save(p);
+                    });
+        }
+        if (plan == null) {
+            throw new RuntimeException("Plan no encontrado");
+        }
+        if (planInfo != null) {
+            boolean actualizar = false;
+            if (plan.getPeriodo() == null || !plan.getPeriodo().equalsIgnoreCase(planInfo.periodo())) {
+                plan.setPeriodo(planInfo.periodo());
+                actualizar = true;
+            }
+            if (plan.getPrecio() == null) {
+                plan.setPrecio(planInfo.precio());
+                actualizar = true;
+            }
+            if (actualizar) {
+                plan = this.planRepository.save(plan);
+            }
         }
 
         // Buscar membresia vigente o ultima y extender segun plan elegido
@@ -146,7 +173,14 @@ public class PagoService {
         // Registrar pago
         Pago pago = new Pago();
         pago.setMembresia(membresia);
-        pago.setMonto(info.getTransactionAmount() != null ? info.getTransactionAmount() : planInfo.precio());
+        java.math.BigDecimal monto = info.getTransactionAmount();
+        if (monto == null) {
+            monto = plan.getPrecio();
+            if (monto == null && planInfo != null) {
+                monto = planInfo.precio();
+            }
+        }
+        pago.setMonto(monto);
         pago.setComprobante_url("mercadopago:" + paymentId);
         pago.setFecha(LocalDateTime.now());
         pago.setEstado(EstadoPago.COMPLETADO);

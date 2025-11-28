@@ -204,3 +204,98 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--color-border);
 }
+
+.admin-panel {
+  margin-top: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--color-bg-alt);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+.admin-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.admin-plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-plan-card {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.admin-plan-card--new {
+  margin-top: 12px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.admin-plan-card__info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-plan-card__info h4 {
+  margin: 0 0 4px;
+}
+
+.admin-plan-card__price {
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.admin-plan-card__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.admin-plan-card__actions .danger {
+  color: #c62828;
+}
+
+.plan-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.plan-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.plan-form input,
+.plan-form select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.feedback.success {
+  color: #1b5e20;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+.feedback.error {
+  color: #c62828;
+  margin-top: 10px;
+  font-weight: 700;
+}

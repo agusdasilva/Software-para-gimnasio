@@ -12,7 +12,7 @@
       <div class="horario-header">
         <div>
           <h3>Horario del gym</h3>
-          <p class="muted">Selecciona un día para editar o revisar rápidamente</p>
+          <p class="muted">Selecciona un dia para editar o revisar rapidamente</p>
         </div>
         <div class="header-actions" *ngIf="isAdmin">
           <button class="btn ghost" *ngIf="!editMode" (click)="iniciarEdicionHorario()">Editar</button>
@@ -55,7 +55,7 @@
               <input type="time" [(ngModel)]="diaSeleccionado.horaCierre">
             </label>
             <div class="card-note">
-              Estás editando el horario de <strong>{{ selectedDia }}</strong>.
+              Estas editando el horario de <strong>{{ selectedDia }}</strong>.
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
           </button>
           <button class="btn ghost" (click)="cancelarEdicion()">Salir sin guardar</button>
         </div>
-        <p class="muted">Se enviará una notificación a todos los usuarios.</p>
+        <p class="muted">Se enviara una notificacion a todos los usuarios.</p>
       </ng-container>
 
       <p class="feedback success" *ngIf="updateMessage">{{ updateMessage }}</p>
@@ -138,5 +138,6 @@
         <p class="feedback error" *ngIf="recordatoriosError">{{ recordatoriosError }}</p>
       </div>
     </div>
+
   </div>
 </section>

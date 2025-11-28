@@ -2,20 +2,20 @@
   <div class="status" *ngIf="authService.isAuthenticated()">
     <div class="status__content" *ngIf="membresia; else noMembresia">
       <div>
-        <p class="eyebrow">Tu membresía actual</p>
-        <h2>{{ membresia.nombrePlan || 'Membresía activa' }}</h2>
+        <p class="eyebrow">Tu membresia actual</p>
+        <h2>{{ membresia.nombrePlan || 'Membresia activa' }}</h2>
         <p class="muted">Miembro desde {{ membresia.fechaInicio | date:'mediumDate' }}</p>
       </div>
       <div class="status__badge">
-        <span *ngIf="diasRestantes() !== null">Te quedan {{ diasRestantes() }} días</span>
+        <span *ngIf="diasRestantes() !== null">Te quedan {{ diasRestantes() }} dias</span>
         <small>Fin: {{ membresia.fechaFin | date:'mediumDate' }}</small>
       </div>
     </div>
     <ng-template #noMembresia>
       <div class="status__content">
         <div>
-          <p class="eyebrow">Sin membresía activa</p>
-          <p class="muted">Elige un plan y activa tu próximo mes.</p>
+          <p class="eyebrow">Sin membresia activa</p>
+          <p class="muted">Elige un plan y activa tu proximo mes.</p>
         </div>
       </div>
     </ng-template>
@@ -28,67 +28,110 @@
     <div class="error" *ngIf="error">{{ error }}</div>
   </div>
 
-  <div class="planes__grid">
-    <article class="plan-card">
+  <div class="planes__grid" *ngIf="planes?.length; else sinPlanes">
+    <article class="plan-card" *ngFor="let plan of planes; let idx = index" [class.plan-card--destacado]="esDestacado(plan, idx)">
       <div class="plan-card__top">
-        <h2>Plan por dia</h2>
-        <span class="pill">Probalo</span>
+        <h2>{{ plan.nombre }}</h2>
+        <span class="pill" [class.pill-gold]="esDestacado(plan, idx)" [class.pill-soft]="!esDestacado(plan, idx)">
+          {{ esDestacado(plan, idx) ? 'Mejor valor' : 'Nuevo' }}
+        </span>
       </div>
-      <p class="plan-card__price">$10 <span class="period">/ dia</span></p>
+      <p class="plan-card__price">{{ plan.precio | currency:'ARS':'symbol':'1.0-0' }} <span class="period">/ {{ periodoLabel(plan.periodo) }}</span></p>
       <ul>
-        <li>Acceso al gimnasio 1 dia</li>
-        <li>Uso libre de maquinas y cardio</li>
-        <li>Sin permanencia ni cargos extras</li>
+        <li>Acceso segun periodo: {{ periodoLabel(plan.periodo) }}</li>
+        <li>Gestiona tu asistencia y pagos desde la app</li>
+        <li>Sin letras chicas: cancelas cuando quieras</li>
       </ul>
       <div class="plan-meta">
-        <span>Check-in rapido</span>
-        <span>Locker incluido</span>
+        <span>{{ periodoLabel(plan.periodo) }}</span>
+        <span>Sin permanencia</span>
       </div>
-      <button (click)="choosePlan('dia')" [disabled]="isLoading('dia')">
-        {{ isLoading('dia') ? 'Abriendo pago...' : 'Elegir plan' }}
+      <button (click)="choosePlan(plan)" [disabled]="isLoading(plan)">
+        {{ isLoading(plan) ? 'Abriendo pago...' : 'Elegir plan' }}
       </button>
     </article>
+  </div>
 
-    <article class="plan-card">
-      <div class="plan-card__top">
-        <h2>Plan mensual - 3 dias</h2>
-        <span class="pill pill-soft">Popular</span>
-      </div>
-      <p class="plan-card__price">$80 <span class="period">/ mes</span></p>
-      <ul>
-        <li>Acceso 3 dias a la semana</li>
-        <li>Clases grupales incluidas</li>
-        <li>Seguimiento basico mensual</li>
-        <li>1 evaluacion de composicion corporal</li>
-      </ul>
-      <div class="plan-meta">
-        <span>Soporte por app</span>
-        <span>Invita a 1 amigo/mes</span>
-      </div>
-      <button (click)="choosePlan('mensual-3')" [disabled]="isLoading('mensual-3')">
-        {{ isLoading('mensual-3') ? 'Abriendo pago...' : 'Elegir plan' }}
-      </button>
-    </article>
+  <ng-template #sinPlanes>
+    <p class="muted" *ngIf="!planesLoading">No hay planes configurados todavia.</p>
+    <p class="muted" *ngIf="planesLoading">Cargando planes...</p>
+    <p class="error" *ngIf="planesError">{{ planesError }}</p>
+  </ng-template>
 
-    <article class="plan-card plan-card--destacado">
-      <div class="plan-card__top">
-        <h2>Plan mensual - Full</h2>
-        <span class="pill pill-gold">Mejor valor</span>
+  <div class="admin-panel" *ngIf="isAdmin">
+    <div class="admin-panel__header">
+      <div>
+        <h3>Administrar planes</h3>
+        <p class="muted">Agrega, edita o elimina opciones de membresia</p>
       </div>
-      <p class="plan-card__price">$120 <span class="period">/ mes</span></p>
-      <ul>
-        <li>Acceso todos los dias y sala premium</li>
-        <li>Clases ilimitadas + entrenos personalizados</li>
-        <li>2 evaluaciones y plan de nutricion base</li>
-        <li>Invita a 2 amigos/mes</li>
-      </ul>
-      <div class="plan-meta">
-        <span>Toalla + lock box</span>
-        <span>Soporte 1 a 1</span>
+      <button class="btn ghost" (click)="cargarPlanes()" [disabled]="planesLoading">Refrescar</button>
+    </div>
+
+    <div class="admin-plan-list" *ngIf="planes?.length">
+      <div class="admin-plan-card" *ngFor="let plan of planes">
+        <div *ngIf="editandoPlanId !== plan.id; else editarPlanTpl">
+          <div class="admin-plan-card__info">
+            <div>
+              <h4>{{ plan.nombre }}</h4>
+              <p class="muted">Periodo: {{ periodoLabel(plan.periodo) }}</p>
+            </div>
+            <div class="admin-plan-card__price">{{ plan.precio | currency:'ARS':'symbol':'1.0-0' }}</div>
+          </div>
+          <div class="admin-plan-card__actions">
+            <button class="btn ghost" (click)="empezarEditarPlan(plan)">Editar</button>
+            <button class="btn ghost danger" (click)="eliminarPlan(plan)">Eliminar</button>
+          </div>
+        </div>
+        <ng-template #editarPlanTpl>
+          <div class="plan-form">
+            <label>
+              Descripcion
+              <input type="text" [(ngModel)]="planDraft.nombre" placeholder="Ej: Plan mensual - Full">
+            </label>
+            <label>
+              Precio
+              <input type="number" min="0" step="1" [(ngModel)]="planDraft.precio">
+            </label>
+            <label>
+              Periodo
+              <select [(ngModel)]="planDraft.periodo">
+                <option *ngFor="let p of periodos" [value]="p">{{ periodoLabel(p) }}</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-plan-card__actions">
+            <button class="btn" (click)="guardarPlan()" [disabled]="planesLoading">Guardar</button>
+            <button class="btn ghost" (click)="cancelarEdicionPlan()">Cancelar</button>
+          </div>
+        </ng-template>
       </div>
-      <button (click)="choosePlan('mensual-full')" [disabled]="isLoading('mensual-full')">
-        {{ isLoading('mensual-full') ? 'Abriendo pago...' : 'Elegir plan' }}
-      </button>
-    </article>
+    </div>
+
+    <div class="admin-plan-card admin-plan-card--new">
+      <h4>Nuevo plan</h4>
+      <div class="plan-form">
+        <label>
+          Descripcion
+          <input type="text" [(ngModel)]="nuevoPlanDraft.nombre" placeholder="Ej: Plan semanal">
+        </label>
+        <label>
+          Precio
+          <input type="number" min="0" step="1" [(ngModel)]="nuevoPlanDraft.precio">
+        </label>
+        <label>
+          Periodo
+          <select [(ngModel)]="nuevoPlanDraft.periodo">
+            <option *ngFor="let p of periodos" [value]="p">{{ periodoLabel(p) }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="admin-plan-card__actions">
+        <button class="btn" (click)="crearPlan()" [disabled]="planesLoading">Agregar</button>
+        <button class="btn ghost" (click)="limpiarNuevoPlan()">Limpiar</button>
+      </div>
+    </div>
+
+    <p class="feedback success" *ngIf="planesMessage">{{ planesMessage }}</p>
+    <p class="feedback error" *ngIf="planesError">{{ planesError }}</p>
   </div>
 </section>
