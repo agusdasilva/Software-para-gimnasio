@@ -16,6 +16,12 @@ export class HeaderComponent implements OnInit {
   showNotifications = false;
   cleared = false;
   notifications: Notificacion[] = [];
+  showNotifSettings = false;
+  notifPrefs = {
+    solicitudes: true,
+    mensajes: true,
+    aceptaciones: true
+  };
 
   constructor(
     private authService: AuthService,
@@ -46,6 +52,9 @@ export class HeaderComponent implements OnInit {
 
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
+    if (!this.showNotifications) {
+      this.showNotifSettings = false;
+    }
   }
 
   closeNotifications(): void {
@@ -106,5 +115,13 @@ export class HeaderComponent implements OnInit {
     this.notificacionService.listar(userId).subscribe(list => {
       this.notifications = list;
     });
+  }
+
+  toggleNotifSettings(): void {
+    this.showNotifSettings = !this.showNotifSettings;
+  }
+
+  togglePref(key: 'solicitudes' | 'mensajes' | 'aceptaciones'): void {
+    this.notifPrefs[key] = !this.notifPrefs[key];
   }
 }
