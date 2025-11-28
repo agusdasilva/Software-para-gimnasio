@@ -105,4 +105,54 @@ public class EjercicioDetalleService {
         response.setId(serie.getId());
         return response;
     }
+
+    public void eliminarSerie(int idSerie) {
+        Serie serie = serieRepository.findById(idSerie)
+                .orElseThrow(() -> new RuntimeException("Serie no encontrada"));
+
+        serieRepository.delete(serie);
+    }
+
+    public EjercicioDetalleResponse modificarOrden(int idDetalle, int nuevoOrden) {
+
+        EjercicioDetalle detalle = ejercicioDetalleRepository.findById(idDetalle)
+                .orElseThrow(() -> new RuntimeException("Detalle no encontrado"));
+
+        // ⚠ Se obtiene la RutinaDetalle a donde pertenece
+        RutinaDetalle rutinaDetalle = detalle.getRutinaDetalle();
+
+        // ⚠ Traemos TODOS los ejercicios ordenados actuales
+        List<EjercicioDetalle> ejercicios = rutinaDetalle.getEjercicios();
+
+        // ⚠ Orden previo del ejercicio que vamos a mover
+        int ordenAnterior = detalle.getOrden();
+
+        if (nuevoOrden < 1 || nuevoOrden > ejercicios.size()) {
+            throw new RuntimeException("Nuevo orden fuera de rango");
+        }
+
+        // ===== REORDENAR LISTA =====
+        if (nuevoOrden < ordenAnterior) {
+            // Subió → otros bajan
+            for (EjercicioDetalle e : ejercicios) {
+                if (e.getOrden() >= nuevoOrden && e.getOrden() < ordenAnterior) {
+                    e.setOrden(e.getOrden() + 1);
+                }
+            }
+        } else if (nuevoOrden > ordenAnterior) {
+            // Bajó → otros suben
+            for (EjercicioDetalle e : ejercicios) {
+                if (e.getOrden() <= nuevoOrden && e.getOrden() > ordenAnterior) {
+                    e.setOrden(e.getOrden() - 1);
+                }
+            }
+        }
+
+        // Finalmente actualizamos
+        detalle.setOrden(nuevoOrden);
+
+        ejercicioDetalleRepository.saveAll(ejercicios);
+
+        return convertirARespose(detalle);
+    }
 }
