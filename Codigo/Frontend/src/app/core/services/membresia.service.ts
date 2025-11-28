@@ -30,4 +30,15 @@ export class MembresiaService {
     }
     return this.http.get<MembresiaResponse>(`${this.baseUrl}/usuario/${current.id}/actual`);
   }
+
+  crear(idPlan: number): Observable<MembresiaResponse> {
+    const current = this.authService.currentUser;
+    if (!current) {
+      throw new Error('No hay usuario autenticado');
+    }
+    return this.http.post<MembresiaResponse>(this.baseUrl, {
+      idUsuario: current.id,
+      idPlan
+    });
+  }
 }

@@ -22,6 +22,13 @@ export class PlanesComponent implements OnInit, OnDestroy {
   planesLoading = false;
   planesError = '';
   planesMessage = '';
+  private selectedPlanId: number | null = null;
+  private selectedPlanName: string | null = null;
+  private readonly fallbackPlanes: Plan[] = [
+    { nombre: 'Plan por dia', precio: 10, periodo: 'DIARIO' },
+    { nombre: 'Plan mensual - 3 dias', precio: 80, periodo: 'MENSUAL' },
+    { nombre: 'Plan mensual - Full', precio: 120, periodo: 'MENSUAL' }
+  ];
   editandoPlanId: number | null = null;
   planDraft: Plan = this.nuevoPlan();
   nuevoPlanDraft: Plan = this.nuevoPlan();
@@ -79,7 +86,14 @@ export class PlanesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.planesLoading = false;
-        this.planesError = 'No se pudieron cargar los planes.';
+        if (!this.authService.isAuthenticated()) {
+          // Mostrar planes de ejemplo para usuarios no autenticados
+          this.planes = this.fallbackPlanes;
+          this.definirDestacado();
+          this.planesError = '';
+        } else {
+          this.planesError = 'No se pudieron cargar los planes.';
+        }
       }
     });
   }
@@ -92,6 +106,8 @@ export class PlanesComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.loadingPlan = plan.id ? plan.id.toString() : plan.nombre;
+    this.selectedPlanId = plan.id ?? null;
+    this.selectedPlanName = plan.nombre;
     this.error = '';
     this.pagoService.crearPreferencia(this.loadingPlan).subscribe({
       next: (pref) => {
@@ -110,6 +126,8 @@ export class PlanesComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.loadingPlan = null;
         this.error = 'No se pudo iniciar el pago. Verifica tu sesion o intentalo mas tarde.';
+        // Fallback: intentar crear la membresia directamente
+        this.crearMembresiaLocal();
       }
     });
   }
@@ -244,6 +262,13 @@ export class PlanesComponent implements OnInit, OnDestroy {
         this.success = 'Pago confirmado y membresia renovada.';
         this.loading = false;
         this.membresiaService.getMembresiaActual().subscribe((m) => this.membresia = m);
+        // Refuerzo: si el backend no creo la membresia, intentamos crearla con el plan seleccionado
+        if (!this.membresia && this.selectedPlanId) {
+          this.membresiaService.crear(this.selectedPlanId).subscribe({
+            next: m => this.membresia = m,
+            error: () => {}
+          });
+        }
       },
       error: () => {
         this.loading = false;
@@ -287,6 +312,12 @@ export class PlanesComponent implements OnInit, OnDestroy {
             next: () => {
               this.success = 'Pago confirmado y membresia renovada.';
               this.membresiaService.getMembresiaActual().subscribe((m) => this.membresia = m);
+              if (!this.membresia && this.selectedPlanId) {
+                this.membresiaService.crear(this.selectedPlanId).subscribe({
+                  next: mem => this.membresia = mem,
+                  error: () => {}
+                });
+              }
               this.loading = false;
             },
             error: () => {
@@ -299,6 +330,28 @@ export class PlanesComponent implements OnInit, OnDestroy {
         // Ignoramos errores de cross-origin hasta que vuelva al dominio
       }
     }, 800);
+  }
+
+  private crearMembresiaLocal(): void {
+    if (!this.selectedPlanId) {
+      this.error = 'No se pudo detectar el plan seleccionado.';
+      return;
+    }
+    this.loading = true;
+    this.error = '';
+    this.membresiaService.crear(this.selectedPlanId).subscribe({
+      next: (m) => {
+        this.membresia = m;
+        this.success = `Membresia "${this.selectedPlanName || ''}" activada.`;
+      },
+      error: () => {
+        this.error = 'No se pudo crear la membresia en el servidor.';
+      },
+      complete: () => {
+        this.loading = false;
+        this.loadingPlan = null;
+      }
+    });
   }
 
   private definirDestacado(): void {

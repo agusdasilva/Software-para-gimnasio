@@ -35,7 +35,7 @@
     </nav>
 
     <ng-template #publicNav>
-      <!-- espacio reservado para mantener estructura -->
+      <!-- publico: mantenemos limpia la barra izquierda -->
     </ng-template>
 
     <div class="actions-panel" *ngIf="isAuthenticated(); else publicActions">
@@ -77,9 +77,17 @@
               <span>Aceptaciones a clases</span>
               <span [class.tick]="notifPrefs.aceptaciones" [class.cross]="!notifPrefs.aceptaciones">{{ notifPrefs.aceptaciones ? '✔' : '✖' }}</span>
             </div>
+            <div class="pref-item" (click)="togglePref('dashboard')">
+              <span>Noticias/recordatorios (dashboard)</span>
+              <span [class.tick]="notifPrefs.dashboard" [class.cross]="!notifPrefs.dashboard">{{ notifPrefs.dashboard ? '✔' : '✖' }}</span>
+            </div>
+            <div class="pref-item" (click)="togglePref('planes')">
+              <span>Planes y membresias</span>
+              <span [class.tick]="notifPrefs.planes" [class.cross]="!notifPrefs.planes">{{ notifPrefs.planes ? '✔' : '✖' }}</span>
+            </div>
           </div>
-          <div *ngIf="notifications.length; else emptyNotif">
-            <div *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.leida">
+          <div *ngIf="filteredNotifications.length; else emptyNotif">
+            <div *ngFor="let n of filteredNotifications" class="notif-item" [class.unread]="!n.leida">
               <div class="notif-title">Notificacion</div>
               <p class="notif-message">{{ n.mensaje }}</p>
               <small class="notif-time">{{ n.fecha | date:'short' }}</small>

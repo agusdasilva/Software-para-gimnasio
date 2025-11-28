@@ -29,15 +29,22 @@
     </div>
   </div>
 
-  <div class="detalle-actions">
-    <ng-container *ngIf="puedeUnirse(clase); else accesoPendiente">
-      <button class="btn primary" [disabled]="entrandoClase" (click)="entrarClase(clase)">
-        {{ entrandoClase ? 'Ingresando...' : 'Entrar a la clase' }}
-      </button>
-    </ng-container>
-    <ng-template #accesoPendiente>
-      <span class="muted">Acceso pendiente de aprobacion.</span>
-    </ng-template>
+  <div class="mensajes-section" *ngIf="puedeVerClase(clase)">
+    <h3>Mensajes de la clase</h3>
+    <div class="mensajes">
+      <div class="mensaje" *ngFor="let msg of clase.mensajes">
+        <p class="value">{{ msg.autor }}</p>
+        <p class="muted small">{{ msg.fecha }}</p>
+        <p>{{ msg.texto }}</p>
+      </div>
+      <p class="muted" *ngIf="!clase.mensajes.length">Sin mensajes aun.</p>
+    </div>
+    <div class="mensaje-form" *ngIf="puedeGestionar">
+      <textarea rows="2" [(ngModel)]="nuevoMensaje" placeholder="Enviar anuncio a la clase"></textarea>
+      <div class="crear-actions">
+        <button class="btn primary" (click)="enviarMensaje()">Enviar</button>
+      </div>
+    </div>
   </div>
 
   <div class="gestion" *ngIf="puedeGestionar">
@@ -69,19 +76,5 @@
       <p class="muted">Aun no hay miembros.</p>
     </ng-template>
 
-    <h3>Mensajes a la clase</h3>
-    <div class="mensajes">
-      <div class="mensaje" *ngFor="let msg of clase.mensajes">
-        <p class="value">{{ msg.autor }}</p>
-        <p class="muted small">{{ msg.fecha }}</p>
-        <p>{{ msg.texto }}</p>
-      </div>
-    </div>
-    <div class="mensaje-form">
-      <textarea rows="2" [(ngModel)]="nuevoMensaje" placeholder="Enviar anuncio a la clase"></textarea>
-      <div class="crear-actions">
-        <button class="btn primary" (click)="enviarMensaje()">Enviar</button>
-      </div>
-    </div>
   </div>
 </section>

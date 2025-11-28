@@ -20,8 +20,11 @@ export class HeaderComponent implements OnInit {
   notifPrefs = {
     solicitudes: true,
     mensajes: true,
-    aceptaciones: true
+    aceptaciones: true,
+    dashboard: true,
+    planes: true
   };
+  private PREFS_KEY = 'notif_prefs';
 
   constructor(
     private authService: AuthService,
@@ -33,6 +36,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cargarPrefs();
     const current = this.authService.currentUser;
     if (current) {
       this.cargarNotificaciones(current.id);
@@ -121,7 +125,37 @@ export class HeaderComponent implements OnInit {
     this.showNotifSettings = !this.showNotifSettings;
   }
 
-  togglePref(key: 'solicitudes' | 'mensajes' | 'aceptaciones'): void {
+  togglePref(key: 'solicitudes' | 'mensajes' | 'aceptaciones' | 'dashboard' | 'planes'): void {
     this.notifPrefs[key] = !this.notifPrefs[key];
+    this.guardarPrefs();
+  }
+
+  get filteredNotifications(): Notificacion[] {
+    return this.notifications.filter(n => {
+      const mensaje = (n.mensaje || '').toLowerCase();
+      if (!this.notifPrefs.dashboard && (mensaje.includes('dashboard') || mensaje.includes('noticia') || mensaje.includes('recordatorio'))) {
+        return false;
+      }
+      if (!this.notifPrefs.planes && (mensaje.includes('plan') || mensaje.includes('membresia') || mensaje.includes('membresía'))) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  private guardarPrefs(): void {
+    localStorage.setItem(this.PREFS_KEY, JSON.stringify(this.notifPrefs));
+  }
+
+  private cargarPrefs(): void {
+    try {
+      const saved = localStorage.getItem(this.PREFS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        this.notifPrefs = { ...this.notifPrefs, ...parsed };
+      }
+    } catch {
+      // ignore corrupted prefs
+    }
   }
 }

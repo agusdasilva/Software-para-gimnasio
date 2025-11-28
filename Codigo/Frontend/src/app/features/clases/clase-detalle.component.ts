@@ -35,6 +35,10 @@ export class ClaseDetalleComponent implements OnInit {
       return;
     }
     this.clase = encontrada;
+    if (!this.puedeVerClase(this.clase)) {
+      this.router.navigate(['/clases']);
+      return;
+    }
     this.cargarUsuarios();
   }
 
@@ -82,6 +86,7 @@ export class ClaseDetalleComponent implements OnInit {
     if (!this.clase || !this.puedeGestionar) return;
     this.clasesService.rechazarSolicitud(this.clase.id, nombre);
     this.refrescarClase();
+    this.notificarUsuario(nombre, `Tu solicitud a ${this.clase?.titulo} fue rechazada.`);
   }
 
   remover(nombre: string): void {
@@ -108,6 +113,14 @@ export class ClaseDetalleComponent implements OnInit {
     return usuario?.nombreCompleto || usuario?.username || usuario?.nombre || 'Usuario';
   }
 
+  puedeVerClase(clase: ClaseItem): boolean {
+    if (this.authService.hasRole(['ADMIN', 'ENTRENADOR'])) {
+      return true;
+    }
+    const nombre = this.nombreUsuario();
+    return clase.miembros.some(m => m.nombre === nombre);
+  }
+
   private refrescarClase(): void {
     if (!this.clase) return;
     const actualizada = this.clasesService.buscarPorId(this.clase.id);
@@ -129,6 +142,18 @@ export class ClaseDetalleComponent implements OnInit {
     const id = this.userIdByName[nombre];
     if (id) {
       this.notiService.crear({ idUsuario: id, mensaje }).subscribe({ next: () => {}, error: () => {} });
+    } else {
+      // Fallback: recargar usuarios y reenviar si encontramos match
+      this.authService.getAllUsers().subscribe({
+        next: users => {
+          users.forEach(u => this.userIdByName[u.nombre] = u.id);
+          const encontrado = users.find(u => u.nombre === nombre || u.email === nombre || u.id.toString() === nombre);
+          if (encontrado) {
+            this.notiService.crear({ idUsuario: encontrado.id, mensaje }).subscribe({ next: () => {}, error: () => {} });
+          }
+        },
+        error: () => {}
+      });
     }
   }
 

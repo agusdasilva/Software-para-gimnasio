@@ -4,7 +4,7 @@
     <h1>Entrena con las mejores rutinas grupales</h1>
     <p class="lede">Elige una clase y envia tu solicitud para unirte. Admins y entrenadores pueden crear nuevas.</p>
     <div class="hero-actions">
-      <button class="btn primary" *ngIf="authService.hasRole(['ADMIN'])" (click)="comenzarCrearClase()">Crear clase</button>
+      <button class="btn primary" *ngIf="authService.hasRole(['ENTRENADOR'])" (click)="comenzarCrearClase()">Crear clase</button>
     </div>
   </div>
   <div class="stats">
@@ -162,10 +162,14 @@
       <button class="btn ghost" (click)="verDetalle(clase)">Ver detalle</button>
       <ng-container *ngIf="!isAdminOrTrainer; else adminActions">
         <button class="btn primary"
+                *ngIf="!esMiembro(clase); else yaMiembro"
                 [disabled]="clase.estado !== 'ABIERTA' || solicitudesEnviadas.has(clase.id)"
                 (click)="solicitarUnirse(clase)">
           {{ solicitudesEnviadas.has(clase.id) ? 'Solicitud enviada' : 'Solicitar unirse' }}
         </button>
+        <ng-template #yaMiembro>
+          <span class="muted">Ya eres miembro</span>
+        </ng-template>
       </ng-container>
       <ng-template #adminActions>
         <div class="admin-actions">
