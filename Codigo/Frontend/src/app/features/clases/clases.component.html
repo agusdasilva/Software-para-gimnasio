@@ -159,8 +159,8 @@
       </div>
     </div>
     <div class="row-actions">
-      <button class="btn ghost" (click)="verDetalle(clase)">Ver detalle</button>
-      <ng-container *ngIf="!isAdminOrTrainer; else adminActions">
+      <button class="btn ghost" [disabled]="!puedeVerClase(clase)" (click)="verDetalle(clase)">Ver detalle</button>
+      <ng-container *ngIf="!isAdmin; else adminActions">
         <button class="btn primary"
                 *ngIf="!esMiembro(clase); else yaMiembro"
                 [disabled]="clase.estado !== 'ABIERTA' || solicitudesEnviadas.has(clase.id)"
@@ -173,12 +173,12 @@
       </ng-container>
       <ng-template #adminActions>
         <div class="admin-actions">
-          <button class="btn primary" (click)="iniciarAsignarEntrenadores(clase)">Asignar entrenadores</button>
-          <button class="btn ghost danger" (click)="eliminarClase(clase)">Borrar</button>
+          <button class="btn primary" *ngIf="isAdmin" (click)="iniciarAsignarEntrenadores(clase)">Asignar entrenadores</button>
+          <button class="btn ghost danger" *ngIf="isAdmin" (click)="eliminarClase(clase)">Borrar</button>
         </div>
       </ng-template>
     </div>
-    <div class="asignacion" *ngIf="isAdminOrTrainer && editandoEntrenadoresId === clase.id">
+    <div class="asignacion" *ngIf="isAdmin && editandoEntrenadoresId === clase.id">
       <p class="label">Elige entrenadores a cargo</p>
       <div class="chips-select">
         <button
