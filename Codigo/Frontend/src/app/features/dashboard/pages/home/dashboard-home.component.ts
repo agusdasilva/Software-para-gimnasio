@@ -174,4 +174,7 @@ export class DashboardHomeComponent implements OnInit {
   private normalizarDia(nombre: string): string {
     return (nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   }
+
 }
+
+

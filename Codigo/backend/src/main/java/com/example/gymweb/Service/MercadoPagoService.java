@@ -1,7 +1,9 @@
 package com.example.gymweb.Service;
 
+import com.example.gymweb.Repository.PlanRepository;
 import com.example.gymweb.dto.Response.MercadoPagoPreferenceResponse;
 import com.example.gymweb.dto.Response.MercadoPagoPaymentInfo;
+import com.example.gymweb.model.Plan;
 import com.example.gymweb.model.Usuario;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,6 +19,8 @@ import java.util.Map;
 @Service
 public class MercadoPagoService {
 
+    private final PlanRepository planRepository;
+
     @Value("${mercadopago.access-token:}")
     private String accessToken;
 
@@ -25,19 +29,20 @@ public class MercadoPagoService {
 
     private static final Map<String, PlanInfo> PLANES = new HashMap<>();
     static {
-        PLANES.put("dia", new PlanInfo("Plan por día", new BigDecimal("10")));
-        PLANES.put("mensual-3", new PlanInfo("Plan mensual - 3 días", new BigDecimal("80")));
-        PLANES.put("mensual-full", new PlanInfo("Plan mensual - Full", new BigDecimal("120")));
+        PLANES.put("dia", new PlanInfo("Plan por dia", new BigDecimal("10"), "DIARIO"));
+        PLANES.put("mensual-3", new PlanInfo("Plan mensual - 3 dias", new BigDecimal("80"), "MENSUAL"));
+        PLANES.put("mensual-full", new PlanInfo("Plan mensual - Full", new BigDecimal("120"), "MENSUAL"));
+    }
+
+    public MercadoPagoService(PlanRepository planRepository) {
+        this.planRepository = planRepository;
     }
 
     public MercadoPagoPreferenceResponse crearPreferencia(String planCode, Usuario usuario) {
         if (accessToken == null || accessToken.isBlank()) {
             throw new RuntimeException("Falta configurar mercadopago.access-token");
         }
-        PlanInfo plan = PLANES.get(planCode);
-        if (plan == null) {
-            throw new RuntimeException("Plan inválido");
-        }
+        PlanInfo plan = obtenerPlanInfo(planCode);
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -109,5 +114,19 @@ public class MercadoPagoService {
         return info;
     }
 
-    private record PlanInfo(String nombre, BigDecimal precio) {}
+    private PlanInfo obtenerPlanInfo(String planCode) {
+        PlanInfo plan = PLANES.get(planCode);
+        if (plan != null) {
+            return plan;
+        }
+        if (planCode != null && planCode.matches("\\d+")) {
+            int idPlan = Integer.parseInt(planCode);
+            Plan p = this.planRepository.findById(idPlan)
+                    .orElseThrow(() -> new RuntimeException("Plan invalido"));
+            return new PlanInfo(p.getNombre(), p.getPrecio(), p.getPeriodo());
+        }
+        throw new RuntimeException("Plan invalido");
+    }
+
+    private record PlanInfo(String nombre, BigDecimal precio, String periodo) {}
 }

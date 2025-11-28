@@ -116,6 +116,14 @@
   resize: vertical;
 }
 
+.horario-form select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+}
+
 .horario-actions {
   display: flex;
   justify-content: flex-end;
