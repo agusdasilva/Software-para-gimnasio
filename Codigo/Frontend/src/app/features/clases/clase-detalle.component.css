@@ -1,0 +1,116 @@
+.detalle-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 12px 40px;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+}
+
+.detalle-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.detalle-head h1 {
+  margin: 4px 0 6px;
+}
+
+.descripcion {
+  margin: 10px 0 16px;
+  opacity: 0.9;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.value {
+  margin: 2px 0 0;
+  font-weight: 800;
+}
+
+.gestion {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.solicitud,
+.miembro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.solicitud:last-child,
+.miembro:last-child {
+  border-bottom: none;
+}
+
+.sol-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sol-actions .btn.primary,
+.detalle-actions .btn.primary,
+.mensaje-form .btn.primary {
+  background: linear-gradient(135deg, #ff6a00, #ee0979);
+  border-color: transparent;
+  color: #1a1a1a;
+  box-shadow: 0 10px 24px rgba(238, 9, 121, 0.3);
+  border-radius: 999px;
+  padding-inline: 16px;
+  font-weight: 800;
+}
+
+.sol-actions .btn.primary:hover,
+.detalle-actions .btn.primary:hover,
+.mensaje-form .btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(238, 9, 121, 0.35);
+}
+
+.mensajes {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mensaje {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+}
+
+.mensaje-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.small {
+  font-size: 12px;
+}

@@ -2,10 +2,9 @@
   <div>
     <p class="kicker">Agenda de clases</p>
     <h1>Entrena con las mejores rutinas grupales</h1>
-    <p class="lede">Filtra por nivel o estado y encuentra tu siguiente clase. Preparado para conectar con el back cuando este listo.</p>
+    <p class="lede">Elige una clase y envia tu solicitud para unirte. Admins y entrenadores pueden crear nuevas.</p>
     <div class="hero-actions">
-      <button class="btn primary" [disabled]="!isAdminOrTrainer">Crear clase</button>
-      <button class="btn ghost">Ver calendario</button>
+      <button class="btn primary" *ngIf="authService.hasRole(['ADMIN'])" (click)="comenzarCrearClase()">Crear clase</button>
     </div>
   </div>
   <div class="stats">
@@ -24,6 +23,94 @@
       <span class="stat-value">
         {{ totalDisponibles }}
       </span>
+    </div>
+  </div>
+</section>
+
+<section class="crear-clase" *ngIf="creandoClase && isAdminOrTrainer">
+  <h3>Nueva clase</h3>
+  <div class="form-grid">
+    <label>
+      Titulo
+      <input type="text" [(ngModel)]="nuevaClase.titulo" placeholder="Ej: Full body express">
+    </label>
+    <label>
+      Nivel
+      <select [(ngModel)]="nuevaClase.nivel">
+        <option value="Inicial">Inicial</option>
+        <option value="Intermedio">Intermedio</option>
+        <option value="Avanzado">Avanzado</option>
+      </select>
+    </label>
+    <label>
+      Cupo
+      <input type="number" min="1" [(ngModel)]="nuevaClase.cupo">
+    </label>
+    <label>
+      Duracion (min)
+      <input type="number" min="15" [(ngModel)]="nuevaClase.duracionMin">
+    </label>
+    <label>
+      Horario
+      <input type="text" [(ngModel)]="nuevaClase.horario" placeholder="Ej: Lunes 19:00">
+    </label>
+    <label>
+      Ubicacion
+      <input type="text" [(ngModel)]="nuevaClase.ubicacion" placeholder="Sala Functional">
+    </label>
+    <label class="full">
+      Descripcion
+      <textarea rows="3" [(ngModel)]="nuevaClase.descripcion" placeholder="Cuenta de que trata la clase y que necesitan los alumnos"></textarea>
+    </label>
+    <div class="full">
+      <p class="label">Entrenadores a cargo</p>
+      <div class="chips-select">
+        <button
+          type="button"
+          class="chip-select"
+          *ngFor="let entrenador of entrenadoresDisponibles"
+          [class.active]="nuevaClase.entrenadores?.includes(entrenador)"
+          (click)="toggleEntrenadorSeleccion(entrenador)">
+          {{ entrenador }}
+        </button>
+      </div>
+      <p class="muted">Puedes editar los entrenadores despues de crearla.</p>
+    </div>
+  </div>
+  <div class="crear-actions">
+    <button class="btn primary" (click)="guardarClase()" [disabled]="!nuevaClase.titulo || !nuevaClase.descripcion">Guardar</button>
+    <button class="btn ghost" (click)="cancelarCrearClase()">Cancelar</button>
+  </div>
+</section>
+
+<section class="mis-clases" *ngIf="misClases.length && !authService.hasRole(['ENTRENADOR']) && !authService.hasRole(['ADMIN'])">
+  <div class="mis-header">
+    <h3>Mis clases</h3>
+    <p class="muted">Acceso rapido a las clases donde estas inscripto</p>
+  </div>
+  <div class="mis-grid">
+    <div class="mis-card" *ngFor="let clase of misClases">
+      <div>
+        <h4>{{ clase.titulo }}</h4>
+        <p class="muted">{{ clase.horario }} • {{ clase.ubicacion }}</p>
+      </div>
+      <button class="btn ghost" (click)="router.navigate(['/clases', clase.id])">Ir a la clase</button>
+    </div>
+  </div>
+</section>
+
+<section class="mis-clases" *ngIf="misClasesEntrenador.length && authService.hasRole(['ENTRENADOR'])">
+  <div class="mis-header">
+    <h3>Clases asignadas</h3>
+    <p class="muted">Entrena y gestiona tus clases</p>
+  </div>
+  <div class="mis-grid">
+    <div class="mis-card" *ngFor="let clase of misClasesEntrenador">
+      <div>
+        <h4>{{ clase.titulo }}</h4>
+        <p class="muted">{{ clase.horario }} • {{ clase.ubicacion }}</p>
+      </div>
+      <button class="btn ghost" (click)="router.navigate(['/clases', clase.id])">Ir a la clase</button>
     </div>
   </div>
 </section>
@@ -58,43 +145,53 @@
   </div>
 </section>
 
-<section class="clases-grid" *ngIf="filtradas.length; else emptyState">
-  <article class="clase-card" *ngFor="let clase of filtradas">
-    <div class="card-header">
+<section class="clases-lista" *ngIf="filtradas.length; else emptyState">
+  <div class="clase-row" *ngFor="let clase of filtradas">
+    <div class="row-main">
       <div>
-        <p class="chip nivel" [class.avanzado]="clase.nivel === 'Avanzado'" [class.inicial]="clase.nivel === 'Inicial'">
-          {{ clase.nivel }}
-        </p>
         <h3>{{ clase.titulo }}</h3>
-        <p class="entrenador">{{ clase.entrenador }}</p>
+        <p class="muted">{{ clase.horario }} • {{ clase.ubicacion }}</p>
       </div>
-      <p class="chip estado" [class.llena]="clase.estado === 'LLENA'" [class.cancelada]="clase.estado === 'CANCELADA'">
-        {{ estadoClase(clase) }}
-      </p>
-    </div>
-
-    <p class="descripcion">{{ clase.descripcion }}</p>
-
-    <div class="meta">
-      <span class="pill">{{ clase.duracionMin }} min</span>
-      <span class="pill">Cupo {{ capacidad(clase) }}</span>
-      <span class="pill">{{ clase.ubicacion }}</span>
-    </div>
-
-    <div class="schedule">
-      <div>
-        <p class="label">Horario</p>
-        <p class="value">{{ clase.horario }}</p>
-        <p class="muted">Proxima: {{ clase.proximaFecha }}</p>
+      <div class="row-meta">
+        <span class="pill nivel" [class.avanzado]="clase.nivel === 'Avanzado'" [class.inicial]="clase.nivel === 'Inicial'">{{ clase.nivel }}</span>
+        <span class="pill">{{ ocupacionPorcentaje(clase) }}% lleno</span>
+        <span class="pill estado" [class.llena]="clase.estado === 'LLENA'" [class.cancelada]="clase.estado === 'CANCELADA'">{{ estadoClase(clase) }}</span>
       </div>
-      <div class="tag" *ngIf="clase.etiqueta">{{ clase.etiqueta }}</div>
     </div>
-
-    <div class="card-actions">
-      <button class="btn ghost">Ver detalle</button>
-      <button class="btn primary" [disabled]="clase.estado !== 'ABIERTA'">Reservar</button>
+    <div class="row-actions">
+      <button class="btn ghost" (click)="verDetalle(clase)">Ver detalle</button>
+      <ng-container *ngIf="!isAdminOrTrainer; else adminActions">
+        <button class="btn primary"
+                [disabled]="clase.estado !== 'ABIERTA' || solicitudesEnviadas.has(clase.id)"
+                (click)="solicitarUnirse(clase)">
+          {{ solicitudesEnviadas.has(clase.id) ? 'Solicitud enviada' : 'Solicitar unirse' }}
+        </button>
+      </ng-container>
+      <ng-template #adminActions>
+        <div class="admin-actions">
+          <button class="btn primary" (click)="iniciarAsignarEntrenadores(clase)">Asignar entrenadores</button>
+          <button class="btn ghost danger" (click)="eliminarClase(clase)">Borrar</button>
+        </div>
+      </ng-template>
     </div>
-  </article>
+    <div class="asignacion" *ngIf="isAdminOrTrainer && editandoEntrenadoresId === clase.id">
+      <p class="label">Elige entrenadores a cargo</p>
+      <div class="chips-select">
+        <button
+          type="button"
+          class="chip-select"
+          *ngFor="let entrenador of entrenadoresDisponibles"
+          [class.active]="seleccionEntrenadores.includes(entrenador)"
+          (click)="toggleEntrenadorAsignacion(entrenador)">
+          {{ entrenador }}
+        </button>
+      </div>
+      <div class="crear-actions">
+        <button class="btn primary" (click)="guardarAsignacion(clase)">Guardar asignacion</button>
+        <button class="btn ghost" (click)="cancelarAsignarEntrenadores()">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <ng-template #emptyState>
@@ -105,3 +202,28 @@
     </button>
   </div>
 </ng-template>
+
+<p class="feedback success" *ngIf="mensajeSolicitud">{{ mensajeSolicitud }}</p>
+
+<div class="detalle-overlay" *ngIf="selectedClase">
+  <div class="detalle-card">
+    <div class="detalle-header">
+      <div>
+        <p class="chip nivel" [class.avanzado]="selectedClase.nivel === 'Avanzado'" [class.inicial]="selectedClase.nivel === 'Inicial'">{{ selectedClase.nivel }}</p>
+        <h4>{{ selectedClase.titulo }}</h4>
+      </div>
+      <button class="btn ghost" (click)="cerrarDetalle()">Cerrar</button>
+    </div>
+    <p class="muted">{{ selectedClase.horario }} • {{ selectedClase.ubicacion }}</p>
+    <p class="detalle-desc">{{ selectedClase.descripcion }}</p>
+    <p class="detalle-profes">Profes a cargo: {{ selectedClase.entrenadores.join(', ') || 'A asignar' }}</p>
+    <div class="detalle-actions">
+      <button class="btn primary"
+              *ngIf="puedeUnirse(selectedClase)"
+              [disabled]="entrandoClase"
+              (click)="entrarClase(selectedClase)">
+        {{ entrandoClase ? 'Ingresando...' : 'Entrar a la clase' }}
+      </button>
+    </div>
+  </div>
+</div>

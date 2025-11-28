@@ -151,6 +151,44 @@
   margin-bottom: 10px;
 }
 
+.settings-btn {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.notif-settings {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.settings-title {
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+
+.pref-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.pref-item:last-child {
+  border-bottom: none;
+}
+
+.pref-item .tick {
+  color: #6ae98f;
+}
+
+.pref-item .cross {
+  color: #e57373;
+}
+
 .tick-btn {
   display: inline-flex;
   align-items: center;

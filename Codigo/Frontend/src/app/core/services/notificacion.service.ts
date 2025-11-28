@@ -9,6 +9,11 @@ export interface Notificacion {
   fecha: string;
 }
 
+export interface NotificacionRequest {
+  idUsuario: number;
+  mensaje: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +25,10 @@ export class NotificacionService {
 
   listar(idUsuario: number): Observable<Notificacion[]> {
     return this.http.get<Notificacion[]>(`${this.baseUrl}/${idUsuario}`);
+  }
+
+  crear(req: NotificacionRequest): Observable<Notificacion> {
+    return this.http.post<Notificacion>(this.baseUrl, req);
   }
 
   marcarLeida(id: number): Observable<string> {

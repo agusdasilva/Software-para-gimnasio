@@ -1,0 +1,87 @@
+<section class="detalle-page" *ngIf="clase">
+  <div class="detalle-head">
+    <div>
+      <p class="chip nivel" [class.avanzado]="clase.nivel === 'Avanzado'" [class.inicial]="clase.nivel === 'Inicial'">{{ clase.nivel }}</p>
+      <h1>{{ clase.titulo }}</h1>
+      <p class="muted">{{ clase.horario }} • {{ clase.ubicacion }}</p>
+    </div>
+    <button class="btn ghost" (click)="volver()">Volver</button>
+  </div>
+
+  <p class="descripcion">{{ clase.descripcion }}</p>
+
+  <div class="info-grid">
+    <div>
+      <p class="label">Profes</p>
+      <p class="value">{{ clase.entrenadores.join(', ') || 'A asignar' }}</p>
+    </div>
+    <div>
+      <p class="label">Duracion</p>
+      <p class="value">{{ clase.duracionMin }} min</p>
+    </div>
+    <div>
+      <p class="label">Cupo</p>
+      <p class="value">{{ clase.ocupados }}/{{ clase.cupo }}</p>
+    </div>
+    <div>
+      <p class="label">Estado</p>
+      <p class="value">{{ clase.estado }}</p>
+    </div>
+  </div>
+
+  <div class="detalle-actions">
+    <ng-container *ngIf="puedeUnirse(clase); else accesoPendiente">
+      <button class="btn primary" [disabled]="entrandoClase" (click)="entrarClase(clase)">
+        {{ entrandoClase ? 'Ingresando...' : 'Entrar a la clase' }}
+      </button>
+    </ng-container>
+    <ng-template #accesoPendiente>
+      <span class="muted">Acceso pendiente de aprobacion.</span>
+    </ng-template>
+  </div>
+
+  <div class="gestion" *ngIf="puedeGestionar">
+    <h3>Solicitudes pendientes</h3>
+    <div *ngIf="clase.solicitudesPendientes.length; else noSolicitudes">
+      <div class="solicitud" *ngFor="let sol of clase.solicitudesPendientes">
+        <span>{{ sol }}</span>
+        <div class="sol-actions">
+          <button class="btn primary" (click)="aceptar(sol)">Aceptar</button>
+          <button class="btn ghost danger" (click)="rechazar(sol)">Rechazar</button>
+        </div>
+      </div>
+    </div>
+    <ng-template #noSolicitudes>
+      <p class="muted">No hay solicitudes pendientes.</p>
+    </ng-template>
+
+    <h3>Miembros</h3>
+    <div *ngIf="clase.miembros.length; else sinMiembros">
+      <div class="miembro" *ngFor="let m of clase.miembros">
+        <div>
+          <p class="value">{{ m.nombre }} <small>({{ m.rol }})</small></p>
+          <p class="muted">Ultima vez en linea: {{ m.lastOnline }}</p>
+        </div>
+        <button class="btn ghost danger" (click)="remover(m.nombre)">Sacar</button>
+      </div>
+    </div>
+    <ng-template #sinMiembros>
+      <p class="muted">Aun no hay miembros.</p>
+    </ng-template>
+
+    <h3>Mensajes a la clase</h3>
+    <div class="mensajes">
+      <div class="mensaje" *ngFor="let msg of clase.mensajes">
+        <p class="value">{{ msg.autor }}</p>
+        <p class="muted small">{{ msg.fecha }}</p>
+        <p>{{ msg.texto }}</p>
+      </div>
+    </div>
+    <div class="mensaje-form">
+      <textarea rows="2" [(ngModel)]="nuevoMensaje" placeholder="Enviar anuncio a la clase"></textarea>
+      <div class="crear-actions">
+        <button class="btn primary" (click)="enviarMensaje()">Enviar</button>
+      </div>
+    </div>
+  </div>
+</section>
