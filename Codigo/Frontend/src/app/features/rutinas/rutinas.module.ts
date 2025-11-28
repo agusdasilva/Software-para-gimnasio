@@ -8,6 +8,7 @@ import { CrearRutinaPage } from './pages/crear-rutina/crear-rutina.page';
 import { RutinaCardComponent } from './components/rutina-card/rutina-card.component';
 import { DetalleRutinaPage } from './pages/detalle-rutina/detalle-rutina.page';
 import { EjecutarRutinaPage } from './pages/ejecutar-rutina/ejecutar-rutina.page';
+import { SeleccionarEjerciciosPage } from './pages/seleccionar-ejercicios/seleccionar-ejercicios.page';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { EjecutarRutinaPage } from './pages/ejecutar-rutina/ejecutar-rutina.page
     CrearRutinaPage,
     RutinaCardComponent,
     DetalleRutinaPage,
-    EjecutarRutinaPage
+    EjecutarRutinaPage,
+    SeleccionarEjerciciosPage
   ],
   imports: [
     CommonModule,

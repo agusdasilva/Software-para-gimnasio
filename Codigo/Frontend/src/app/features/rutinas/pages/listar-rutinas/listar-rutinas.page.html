@@ -62,6 +62,7 @@
 </section>
 
 <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+<p class="mensaje" *ngIf="cargando">Cargando rutinas guardadas...</p>
 
 <section class="rutinas-grid" *ngIf="filtradas.length; else emptyState">
   <app-rutina-card

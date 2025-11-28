@@ -1,8 +1,8 @@
 <section class="crear-hero">
   <div>
     <p class="kicker">Nueva rutina</p>
-    <h1>Disena un plan listo para enviar</h1>
-    <p class="lede">Ahora guarda directo en el backend. Ajusta los datos y envia.</p>
+    <h1>Arma ejercicios y series sin bloques</h1>
+    <p class="lede">Edita cada serie por ejercicio y agrega varios a la vez desde el catalogo.</p>
     <div class="hero-actions">
       <a class="btn ghost" routerLink="/rutinas">Volver a listadas</a>
       <button class="btn primary" type="button" (click)="guardar()" [disabled]="cargando">Guardar borrador</button>
@@ -66,119 +66,87 @@
     <textarea name="descripcion" rows="3" [(ngModel)]="rutina.descripcion"></textarea>
   </label>
 
-  <section class="catalogo">
-    <header class="catalogo-header">
+  <section class="ejercicios-panel">
+    <header class="ejercicios-header">
       <div>
-        <p class="kicker">Catalogo de ejercicios</p>
-        <p class="muted">Filtra por nombre, grupo, nivel y equipamiento. Se agrega al bloque destino.</p>
+        <p class="kicker">Ejercicios</p>
+        <p class="muted">Cada ejercicio guarda sus series. Agrega desde el catalogo o manualmente.</p>
       </div>
-      <label class="destino">
-        Bloque destino
-        <select [(ngModel)]="bloqueDestino" name="bloqueDestino">
-          <option *ngFor="let b of rutina.bloques; let i = index" [value]="i">{{ b.nombre || ('Bloque ' + (i + 1)) }}</option>
-        </select>
+      <div class="ejercicios-actions">
+        <button class="btn ghost" type="button" (click)="agregarEjercicioManual()">+ Agregar manual</button>
+        <button class="btn primary" type="button" (click)="irASelector()">+ Agregar ejercicios</button>
+      </div>
+    </header>
+
+    <p class="muted total">Total: {{ totalEjercicios }} ejercicios</p>
+
+    <article class="ejercicio-card" *ngFor="let ej of rutina.ejercicios; let i = index; trackBy: trackByIndex">
+      <div class="ejercicio-head">
+        <div class="avatar">{{ i + 1 }}</div>
+        <div class="ejercicio-meta">
+          <input type="text" [name]="'ejercicio' + i" [(ngModel)]="ej.nombre" placeholder="Nombre del ejercicio">
+          <div class="chips">
+            <select [name]="'grupo' + i" [(ngModel)]="ej.grupoMuscular">
+              <option [ngValue]="undefined">Grupo</option>
+              <option value="Pecho">Pecho</option>
+              <option value="Espalda">Espalda</option>
+              <option value="Piernas">Piernas</option>
+              <option value="Hombros">Hombros</option>
+              <option value="Brazos">Brazos</option>
+              <option value="Core">Core</option>
+              <option value="Fullbody">Fullbody</option>
+              <option value="Cardio">Cardio</option>
+            </select>
+            <select [name]="'nivel' + i" [(ngModel)]="ej.nivel">
+              <option [ngValue]="undefined">Nivel</option>
+              <option value="Principiante">Principiante</option>
+              <option value="Intermedio">Intermedio</option>
+              <option value="Avanzado">Avanzado</option>
+            </select>
+            <select [name]="'equipamiento' + i" [(ngModel)]="ej.equipamiento">
+              <option [ngValue]="undefined">Equipo</option>
+              <option value="Peso corporal">Peso corporal</option>
+              <option value="Mancuernas">Mancuernas</option>
+              <option value="Barra">Barra</option>
+              <option value="Maquina">Maquina</option>
+              <option value="Bandas">Bandas</option>
+              <option value="Kettlebell">Kettlebell</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn ghost tiny" type="button" (click)="quitarEjercicio(i)">Quitar</button>
+      </div>
+
+      <label class="notas">
+        <span>Notas</span>
+        <textarea [name]="'notas' + i" rows="2" [(ngModel)]="ej.notas" placeholder="Ajustes, tempo, tips"></textarea>
       </label>
-    </header>
 
-    <div class="catalogo-filtros">
-      <input type="text" placeholder="Buscar ejercicio" [(ngModel)]="filtroNombre" name="filtroNombre" (ngModelChange)="filtrarCatalogo()">
-      <select [(ngModel)]="filtroGrupo" name="filtroGrupo" (change)="filtrarCatalogo()">
-        <option value="todos">Todos los grupos</option>
-        <option value="Pecho">Pecho</option>
-        <option value="Espalda">Espalda</option>
-        <option value="Piernas">Piernas</option>
-        <option value="Hombros">Hombros</option>
-        <option value="Brazos">Brazos</option>
-        <option value="Core">Core</option>
-        <option value="Fullbody">Fullbody</option>
-        <option value="Cardio">Cardio</option>
-      </select>
-      <select [(ngModel)]="filtroNivel" name="filtroNivel" (change)="filtrarCatalogo()">
-        <option value="todos">Todos los niveles</option>
-        <option value="Principiante">Principiante</option>
-        <option value="Intermedio">Intermedio</option>
-        <option value="Avanzado">Avanzado</option>
-      </select>
-      <select [(ngModel)]="filtroEquipamiento" name="filtroEquipamiento" (change)="filtrarCatalogo()">
-        <option value="todos">Todo equipamiento</option>
-        <option value="Peso corporal">Peso corporal</option>
-        <option value="Mancuernas">Mancuernas</option>
-        <option value="Barra">Barra</option>
-        <option value="Maquina">Maquina</option>
-        <option value="Bandas">Bandas</option>
-        <option value="Kettlebell">Kettlebell</option>
-      </select>
-    </div>
-
-    <div class="catalogo-grid" *ngIf="ejerciciosFiltrados.length; else catalogoVacio">
-      <article class="catalogo-card" *ngFor="let ej of ejerciciosFiltrados">
-        <div>
-          <p class="catalogo-nombre">{{ ej.nombre }}</p>
-          <p class="muted">{{ ej.descripcion || 'Ejercicio base' }}</p>
-          <div class="tags">
-            <span class="tag">{{ ej.grupoMuscular }}</span>
-            <span class="tag">{{ ej.nivel }}</span>
-            <span class="tag">{{ ej.equipamiento }}</span>
-          </div>
+      <div class="series">
+        <div class="serie-row" *ngFor="let serie of ej.series; let s = index; trackBy: trackByIndex">
+          <span class="pill">Serie {{ serie.orden }}</span>
+          <label>
+            Reps
+            <input type="number" min="1" [name]="'reps' + i + '-' + s" [(ngModel)]="serie.repeticiones">
+          </label>
+          <label>
+            Carga / kg
+            <input type="text" [name]="'carga' + i + '-' + s" [(ngModel)]="serie.carga">
+          </label>
+          <label>
+            Descanso (s)
+            <input type="number" min="0" [name]="'descanso' + i + '-' + s" [(ngModel)]="serie.descansoSeg">
+          </label>
+          <button class="btn ghost tiny" type="button" (click)="quitarSerie(i, s)">Quitar</button>
         </div>
-        <button class="btn small" type="button" (click)="agregarDesdeCatalogo(ej)">Agregar</button>
-      </article>
-    </div>
-    <ng-template #catalogoVacio>
-      <p class="muted">No hay ejercicios con estos filtros.</p>
-    </ng-template>
-  </section>
-
-  <section class="bloques">
-    <header class="bloques-header">
-      <div>
-        <p class="kicker">Bloques</p>
-        <p class="muted">Agrupa ejercicios por dia o foco. Se guarda en bloques locales.</p>
-      </div>
-      <button class="btn ghost" type="button" (click)="agregarBloque()">Agregar bloque</button>
-    </header>
-
-    <article class="bloque" *ngFor="let bloque of rutina.bloques; let i = index">
-      <div class="bloque-header">
-        <label>
-          Nombre del bloque
-          <input type="text" [name]="'bloqueNombre' + i" [(ngModel)]="bloque.nombre">
-        </label>
-        <label>
-          Foco
-          <input type="text" [name]="'bloqueFoco' + i" [(ngModel)]="bloque.foco">
-        </label>
-        <button class="btn ghost" type="button" (click)="agregarEjercicio(i)">Agregar manual</button>
-      </div>
-
-      <div class="ejercicios">
-        <div class="ejercicio" *ngFor="let ej of bloque.ejercicios; let j = index">
-          <div class="ejercicio-meta">
-            <p class="ejercicio-nombre">{{ ej.nombre }}</p>
-            <div class="tags">
-              <span class="tag" *ngIf="ej.grupoMuscular">{{ ej.grupoMuscular }}</span>
-              <span class="tag" *ngIf="ej.nivel">{{ ej.nivel }}</span>
-              <span class="tag" *ngIf="ej.equipamiento">{{ ej.equipamiento }}</span>
-            </div>
-          </div>
-          <div class="ejercicio-campos">
-            <label>
-              Series
-              <input type="number" min="1" max="10" [name]="'series' + i + '-' + j" [(ngModel)]="ej.series">
-            </label>
-            <label>
-              Repeticiones
-              <input type="text" [name]="'reps' + i + '-' + j" [(ngModel)]="ej.repeticiones">
-            </label>
-            <label>
-              Descanso
-              <input type="text" [name]="'rest' + i + '-' + j" [(ngModel)]="ej.descanso">
-            </label>
-            <button class="btn tiny" type="button" (click)="quitarEjercicio(i, j)">Quitar</button>
-          </div>
-        </div>
+        <button class="btn small" type="button" (click)="agregarSerie(i)">+ Agregar serie</button>
       </div>
     </article>
+
+    <div class="empty" *ngIf="!rutina.ejercicios.length">
+      <p>No hay ejercicios aun. Usa "Agregar ejercicios" para traer varios a la vez.</p>
+      <button class="btn primary" type="button" (click)="irASelector()">Abrir catalogo</button>
+    </div>
   </section>
 
   <div class="form-actions">
