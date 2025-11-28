@@ -52,7 +52,7 @@
           <p class="muted">{{ ej.grupoMuscular }}</p>
         </div>
       </div>
-      <input type="checkbox" [checked]="seleccion.has(ej.id)" (change)="toggleSeleccion(ej.id)">
+      <input type="checkbox" [checked]="seleccion.has(ej.uid)" (change)="toggleSeleccion(ej.uid)">
     </label>
   </div>
   <ng-template #vacio>

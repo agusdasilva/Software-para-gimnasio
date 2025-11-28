@@ -74,6 +74,13 @@ select {
   cursor: pointer;
 }
 
+.item input[type="checkbox"] {
+  width: 26px;
+  height: 26px;
+  accent-color: #4fa3ff;
+  transform: scale(1.05);
+}
+
 .info {
   display: flex;
   gap: 10px;
