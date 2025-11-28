@@ -94,6 +94,9 @@ export class ClasesService {
   }
 
   asignarEntrenadores(id: number, entrenadores: string[]): void {
+    if (!this.auth.hasRole(['ADMIN'])) {
+      return;
+    }
     const idx = this.clases.findIndex(c => c.id === id);
     if (idx >= 0) {
       this.clases[idx] = { ...this.clases[idx], entrenadores: [...entrenadores] };

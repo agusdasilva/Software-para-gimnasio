@@ -24,6 +24,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
   mensajeSolicitud = '';
 
   isAdminOrTrainer = false;
+  isAdmin = false;
   creandoClase = false;
   nuevaClase: Partial<ClaseItem> = { entrenadores: [], nivel: 'Inicial', duracionMin: 45, cupo: 15, estado: 'ABIERTA' };
   entrenadoresDisponibles: string[] = [];
@@ -44,8 +45,8 @@ export class ClasesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const user = this.authService.currentUser;
-    this.isAdminOrTrainer = !!user && user.roles?.some(r => r === 'ADMIN' || r === 'ENTRENADOR');
+    this.isAdmin = this.authService.hasRole(['ADMIN']);
+    this.isAdminOrTrainer = this.authService.hasRole(['ADMIN', 'ENTRENADOR']);
 
     this.subClases = this.clasesService.obtenerClases().subscribe(clases => {
       this.clases = clases;
@@ -172,6 +173,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   iniciarAsignarEntrenadores(clase: ClaseItem): void {
+    if (!this.isAdmin) return;
     this.editandoEntrenadoresId = clase.id;
     this.seleccionEntrenadores = [...clase.entrenadores];
   }
@@ -182,12 +184,14 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   guardarAsignacion(clase: ClaseItem): void {
+    if (!this.isAdmin) return;
     this.clasesService.asignarEntrenadores(clase.id, this.seleccionEntrenadores);
     this.editandoEntrenadoresId = null;
     this.aplicarFiltros();
   }
 
   toggleEntrenadorAsignacion(nombre: string): void {
+    if (!this.isAdmin) return;
     const lista = this.seleccionEntrenadores || [];
     if (lista.includes(nombre)) {
       this.seleccionEntrenadores = lista.filter(t => t !== nombre);
@@ -197,6 +201,9 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   verDetalle(clase: ClaseItem): void {
+    if (!this.puedeVerClase(clase)) {
+      return;
+    }
     this.selectedClase = clase;
   }
 
@@ -206,7 +213,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   eliminarClase(clase: ClaseItem): void {
-    if (!this.isAdminOrTrainer) {
+    if (!this.isAdmin) {
       return;
     }
     const confirmar = window.confirm(`Eliminar la clase "${clase.titulo}"?`);
@@ -265,6 +272,15 @@ export class ClasesComponent implements OnInit, OnDestroy {
   esMiembro(clase: ClaseItem): boolean {
     const nombre = this.nombreUsuario();
     return clase.miembros.some(m => m.nombre === nombre);
+  }
+
+  puedeVerClase(clase: ClaseItem): boolean {
+    const nombre = this.nombreUsuario();
+    if (this.isAdmin) return true;
+    if (this.authService.hasRole(['ENTRENADOR'])) {
+      return clase.entrenadores.includes(nombre) || this.esMiembro(clase);
+    }
+    return true;
   }
 
   private cargarUsuariosReales(): void {

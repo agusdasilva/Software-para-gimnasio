@@ -114,8 +114,9 @@ export class ClaseDetalleComponent implements OnInit {
   }
 
   puedeVerClase(clase: ClaseItem): boolean {
-    if (this.authService.hasRole(['ADMIN', 'ENTRENADOR'])) {
-      return true;
+    if (this.authService.hasRole(['ADMIN'])) return true;
+    if (this.authService.hasRole(['ENTRENADOR'])) {
+      return clase.entrenadores.includes(this.nombreUsuario()) || clase.miembros.some(m => m.nombre === this.nombreUsuario());
     }
     const nombre = this.nombreUsuario();
     return clase.miembros.some(m => m.nombre === nombre);
