@@ -1,0 +1,63 @@
+<section class="runner">
+  <header class="runner__header">
+    <div>
+      <p class="kicker">Ejecutar rutina</p>
+      <h1 *ngIf="rutina; else cargandoTpl">{{ rutina.nombre }}</h1>
+      <ng-template #cargandoTpl><h1>Cargando rutina...</h1></ng-template>
+      <p class="meta" *ngIf="rutina">Descanso: {{ rutina.detalle.descanso_seg || 0 }}s</p>
+    </div>
+    <div class="acciones">
+      <button class="btn ghost" type="button" (click)="volver()">Volver</button>
+      <button class="btn" type="button" (click)="reiniciar()" [disabled]="!totalSeries">Reiniciar</button>
+    </div>
+  </header>
+
+  <p class="alert error" *ngIf="error">{{ error }}</p>
+  <p class="alert muted" *ngIf="cargando && !error">Preparando rutina...</p>
+
+  <section *ngIf="rutina as r" class="runner__grid">
+    <div class="panel resumen">
+      <div class="progress">
+        <div class="progress__bar">
+          <div class="progress__fill" [style.width.%]="progresoPorc"></div>
+        </div>
+        <p class="muted">{{ seriesCompletadas }} / {{ totalSeries }} series completadas ({{ progresoPorc }}%)</p>
+      </div>
+      <div class="stats">
+        <div>
+          <p class="label">Creador</p>
+          <p class="value">{{ r.creador }}</p>
+        </div>
+        <div>
+          <p class="label">Descanso</p>
+          <p class="value">{{ r.detalle.descanso_seg || 0 }}s</p>
+        </div>
+        <div>
+          <p class="label">Ejercicios</p>
+          <p class="value">{{ r.detalle.ejercicios.length || 0 }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel pasos">
+      <header class="subheader">
+        <h3>Sesiones</h3>
+        <span class="muted">Marca series a medida que las completas.</span>
+      </header>
+      <div class="ejercicio" *ngFor="let ej of r.detalle.ejercicios">
+        <div>
+          <p class="ejercicio__nombre">{{ ej.ejercicio }}</p>
+          <p class="muted">Series: {{ ej.series.length || 0 }}</p>
+        </div>
+        <div class="series">
+          <label class="serie" *ngFor="let s of ej.series; let i = index" [class.done]="isSerieCompletada(ej.id, i)">
+            <input #chk type="checkbox" [checked]="isSerieCompletada(ej.id, i)" (change)="toggleSerie(ej.id, i, chk.checked)">
+            <span>{{ s.repeticiones }} reps - {{ s.carga }}</span>
+            <small class="muted">Orden {{ s.orden }}</small>
+          </label>
+        </div>
+      </div>
+      <p class="muted" *ngIf="!r.detalle.ejercicios.length">No hay ejercicios para esta rutina.</p>
+    </div>
+  </section>
+</section>
