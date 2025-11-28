@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RutinaResumen } from '../../components/rutina-card/rutina-card.component';
+import { RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
 
 type NivelFiltro = 'todos' | RutinaResumen['nivel'];
 type EstadoFiltro = 'todos' | RutinaResumen['estado'];
@@ -20,12 +21,12 @@ export class ListarRutinasPage implements OnInit {
   filtroEstado: EstadoFiltro = 'todos';
 
   mensaje = '';
+  cargando = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private rutinaService: RutinaService) {}
 
   ngOnInit(): void {
-    this.cargarMock();
-    this.aplicarFiltros();
+    this.cargarRutinas();
   }
 
   aplicarFiltros(): void {
@@ -74,6 +75,29 @@ export class ListarRutinasPage implements OnInit {
     }
     const total = this.filtradas.reduce((acc, r) => acc + r.frecuencia, 0);
     return Math.round((total / this.filtradas.length) * 10) / 10;
+  }
+
+  private cargarRutinas(): void {
+    this.cargando = true;
+    this.mensaje = '';
+    this.rutinaService.listarRutinas().subscribe({
+      next: (res: RutinaResponse[]) => {
+        this.rutinas = res.map(r => this.mapearRutina(r));
+        this.aplicarFiltros();
+        if (!this.rutinas.length) {
+          this.mensaje = 'No hay rutinas guardadas aun. Usa las precargadas de ejemplo.';
+          this.cargarMock();
+          this.aplicarFiltros();
+        }
+        this.cargando = false;
+      },
+      error: () => {
+        this.cargarMock();
+        this.aplicarFiltros();
+        this.mensaje = 'Mostrando rutinas pre cargadas. No se pudieron cargar las guardadas.';
+        this.cargando = false;
+      }
+    });
   }
 
   private cargarMock(): void {
@@ -162,5 +186,31 @@ export class ListarRutinasPage implements OnInit {
         ]
       }
     ];
+  }
+
+  private mapearRutina(r: RutinaResponse): RutinaResumen {
+    const ejercicios = r.detalle?.ejercicios || [];
+    const primerEjercicio = ejercicios[0];
+    return {
+      id: r.id,
+      titulo: r.nombre,
+      objetivo: r.detalle?.descripcion || 'Sin descripcion',
+      nivel: 'Intermedio',
+      estado: ejercicios.length ? 'ACTIVA' : 'BORRADOR',
+      semanas: Math.max(1, ejercicios.length || 4),
+      frecuencia: Math.max(1, Math.min(7, ejercicios.length || 3)),
+      duracionMin: 60,
+      calorias: undefined,
+      avance: 0,
+      entrenador: r.creador || 'Sin datos',
+      proximaSesion: primerEjercicio ? 'Siguiente: ' + primerEjercicio.ejercicio : 'Define tus sesiones',
+      tags: [r.esGlobal ? 'Global' : 'Local', `Descanso ${r.detalle?.descanso_seg || 0}s`],
+      bloques: ejercicios.map(ej => ({
+        nombre: ej.ejercicio,
+        foco: `Series ${ej.series?.length || 0}`,
+        detalle: ej.series?.map(s => `${s.repeticiones} reps - ${s.carga}`).join(' | ') || 'Sin series'
+      })),
+      actualizado: 'Reciente'
+    };
   }
 }
