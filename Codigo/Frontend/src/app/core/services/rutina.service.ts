@@ -48,6 +48,13 @@ export interface ModificarRutinaDetalleRequest {
   descanso_seg?: number;
 }
 
+export interface ActualizarRutinaRequest {
+  nombre?: string;
+  descripcion?: string;
+  imagen?: string;
+  descanso_seg?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -79,6 +86,10 @@ export class RutinaService {
 
   modificarDetalle(idRutina: number, data: ModificarRutinaDetalleRequest): Observable<RutinaResponse> {
     return this.http.put<RutinaResponse>(`${this.baseUrl}/${idRutina}/detalle`, data);
+  }
+
+  actualizarRutina(idRutina: number, data: ActualizarRutinaRequest): Observable<RutinaResponse> {
+    return this.http.put<RutinaResponse>(`${this.baseUrl}/${idRutina}`, data);
   }
 
   eliminarRutina(id: number): Observable<void> {
