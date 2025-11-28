@@ -1,35 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CrearRutinaRequest, RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
+import { CatalogoEjercicio, EjercicioForm, Nivel, SerieForm } from '../../models/ejercicios.model';
 
-type Nivel = 'Principiante' | 'Intermedio' | 'Avanzado';
 type Estado = 'ACTIVA' | 'BORRADOR';
-type GrupoMuscular = 'Pecho' | 'Espalda' | 'Piernas' | 'Hombros' | 'Brazos' | 'Core' | 'Fullbody' | 'Cardio';
-type Equipamiento = 'Peso corporal' | 'Mancuernas' | 'Barra' | 'Maquina' | 'Bandas' | 'Kettlebell';
-
-interface CatalogoEjercicio {
-  id: number;
-  nombre: string;
-  grupoMuscular: GrupoMuscular;
-  nivel: Nivel;
-  equipamiento: Equipamiento;
-  descripcion?: string;
-}
-
-interface EjercicioForm {
-  nombre: string;
-  series: number;
-  repeticiones: string;
-  descanso: string;
-  grupoMuscular?: GrupoMuscular;
-  equipamiento?: Equipamiento;
-  nivel?: Nivel;
-}
-
-interface BloqueForm {
-  nombre: string;
-  foco: string;
-  ejercicios: EjercicioForm[];
-}
 
 interface RutinaForm {
   titulo: string;
@@ -43,7 +17,7 @@ interface RutinaForm {
   descansoSeg: number;
   imagen: string;
   esGlobal: boolean;
-  bloques: BloqueForm[];
+  ejercicios: EjercicioForm[];
 }
 
 @Component({
@@ -51,36 +25,11 @@ interface RutinaForm {
   templateUrl: './crear-rutina.page.html',
   styleUrls: ['./crear-rutina.page.css']
 })
-export class CrearRutinaPage {
+export class CrearRutinaPage implements OnInit {
 
   mensaje = '';
   error = '';
   cargando = false;
-  bloqueDestino = 0;
-
-  filtroNombre = '';
-  filtroGrupo: 'todos' | GrupoMuscular = 'todos';
-  filtroNivel: 'todos' | Nivel = 'todos';
-  filtroEquipamiento: 'todos' | Equipamiento = 'todos';
-
-  catalogoEjercicios: CatalogoEjercicio[] = [
-    { id: 1, nombre: 'Press banca', grupoMuscular: 'Pecho', nivel: 'Intermedio', equipamiento: 'Barra', descripcion: 'Press en banco plano con barra' },
-    { id: 2, nombre: 'Fondos en paralelas', grupoMuscular: 'Pecho', nivel: 'Intermedio', equipamiento: 'Peso corporal', descripcion: 'Trabajo de pecho y triceps' },
-    { id: 3, nombre: 'Dominadas pronas', grupoMuscular: 'Espalda', nivel: 'Intermedio', equipamiento: 'Peso corporal', descripcion: 'Dominadas agarre prono' },
-    { id: 4, nombre: 'Remo con barra', grupoMuscular: 'Espalda', nivel: 'Intermedio', equipamiento: 'Barra', descripcion: 'Remo inclinado' },
-    { id: 5, nombre: 'Sentadilla trasera', grupoMuscular: 'Piernas', nivel: 'Intermedio', equipamiento: 'Barra', descripcion: 'Sentadilla con barra' },
-    { id: 6, nombre: 'Zancadas caminando', grupoMuscular: 'Piernas', nivel: 'Principiante', equipamiento: 'Mancuernas', descripcion: 'Lunges alternos' },
-    { id: 7, nombre: 'Press militar', grupoMuscular: 'Hombros', nivel: 'Intermedio', equipamiento: 'Barra', descripcion: 'Press de hombro estricto' },
-    { id: 8, nombre: 'Elevaciones laterales', grupoMuscular: 'Hombros', nivel: 'Principiante', equipamiento: 'Mancuernas', descripcion: 'Aislamiento de deltoide medio' },
-    { id: 9, nombre: 'Curl biceps', grupoMuscular: 'Brazos', nivel: 'Principiante', equipamiento: 'Mancuernas', descripcion: 'Curl alterno' },
-    { id: 10, nombre: 'Triceps en polea', grupoMuscular: 'Brazos', nivel: 'Principiante', equipamiento: 'Maquina', descripcion: 'Extension en polea' },
-    { id: 11, nombre: 'Plancha', grupoMuscular: 'Core', nivel: 'Principiante', equipamiento: 'Peso corporal', descripcion: 'Isometrico' },
-    { id: 12, nombre: 'Mountain climbers', grupoMuscular: 'Cardio', nivel: 'Principiante', equipamiento: 'Peso corporal', descripcion: 'Cardio + core' },
-    { id: 13, nombre: 'Kettlebell swing', grupoMuscular: 'Fullbody', nivel: 'Intermedio', equipamiento: 'Kettlebell', descripcion: 'Potencia y acondicionamiento' },
-    { id: 14, nombre: 'Peso muerto rumano', grupoMuscular: 'Piernas', nivel: 'Intermedio', equipamiento: 'Barra', descripcion: 'Femoral y gluteo' },
-    { id: 15, nombre: 'Face pull', grupoMuscular: 'Hombros', nivel: 'Principiante', equipamiento: 'Bandas', descripcion: 'Estabilidad escapular' }
-  ];
-  ejerciciosFiltrados: CatalogoEjercicio[] = [];
 
   rutina: RutinaForm = {
     titulo: 'Rutina personalizada',
@@ -89,33 +38,45 @@ export class CrearRutinaPage {
     semanas: 6,
     frecuencia: 4,
     duracionMin: 60,
-    descripcion: 'Estructura push/pull/legs + acondicionamiento. Ajusta antes de enviar al cliente.',
+    descripcion: 'Estructura lista para editar. Ajusta ejercicios, series y peso.',
     estado: 'BORRADOR',
     descansoSeg: 90,
     imagen: '',
     esGlobal: false,
-    bloques: [
+    ejercicios: [
       {
-        nombre: 'Push',
-        foco: 'Pecho/hombro/triceps',
-        ejercicios: [
-          { nombre: 'Press banca', series: 4, repeticiones: '6-8', descanso: '120s', grupoMuscular: 'Pecho', equipamiento: 'Barra', nivel: 'Intermedio' },
-          { nombre: 'Fondos en paralelas', series: 3, repeticiones: '8-10', descanso: '90s', grupoMuscular: 'Pecho', equipamiento: 'Peso corporal', nivel: 'Intermedio' }
+        nombre: 'Press banca',
+        grupoMuscular: 'Pecho',
+        equipamiento: 'Barra',
+        nivel: 'Intermedio',
+        notas: 'Controla el arco y el tempo.',
+        series: [
+          { orden: 1, repeticiones: 8, carga: '40 kg', descansoSeg: 90 },
+          { orden: 2, repeticiones: 8, carga: '40 kg', descansoSeg: 90 },
+          { orden: 3, repeticiones: 10, carga: '35 kg', descansoSeg: 90 }
         ]
       },
       {
-        nombre: 'Pull',
-        foco: 'Espalda/biceps',
-        ejercicios: [
-          { nombre: 'Dominadas pronas', series: 4, repeticiones: '6-10', descanso: '120s', grupoMuscular: 'Espalda', equipamiento: 'Peso corporal', nivel: 'Intermedio' },
-          { nombre: 'Remo con barra', series: 3, repeticiones: '8-10', descanso: '90s', grupoMuscular: 'Espalda', equipamiento: 'Barra', nivel: 'Intermedio' }
+        nombre: 'Remo con barra',
+        grupoMuscular: 'Espalda',
+        equipamiento: 'Barra',
+        nivel: 'Intermedio',
+        notas: 'Espalda neutra y codos pegados.',
+        series: [
+          { orden: 1, repeticiones: 10, carga: '35 kg', descansoSeg: 75 },
+          { orden: 2, repeticiones: 10, carga: '35 kg', descansoSeg: 75 }
         ]
       }
     ]
   };
 
-  constructor(private rutinaService: RutinaService) {
-    this.ejerciciosFiltrados = [...this.catalogoEjercicios];
+  constructor(private rutinaService: RutinaService, private router: Router) {}
+
+  ngOnInit(): void {
+    const state = (history.state || {}) as { nuevosEjercicios?: CatalogoEjercicio[] };
+    if (state.nuevosEjercicios?.length) {
+      this.insertarSeleccion(state.nuevosEjercicios);
+    }
   }
 
   guardar(): void {
@@ -173,55 +134,68 @@ export class CrearRutinaPage {
     });
   }
 
-  agregarBloque(): void {
-    this.rutina.bloques.push({
-      nombre: 'Nuevo bloque',
-      foco: 'Foco',
-      ejercicios: [
-        { nombre: 'Ejercicio base', series: 3, repeticiones: '10-12', descanso: '90s' }
-      ]
-    });
-    this.bloqueDestino = this.rutina.bloques.length - 1;
-  }
-
-  agregarEjercicio(index: number): void {
-    this.rutina.bloques[index].ejercicios.push({
-      nombre: 'Ejercicio extra',
-      series: 3,
-      repeticiones: '12-15',
-      descanso: '60s'
+  irASelector(): void {
+    this.router.navigate(['/rutinas/crear/ejercicios'], {
+      state: { preseleccion: this.rutina.ejercicios.map(e => e.nombre) }
     });
   }
 
-  filtrarCatalogo(): void {
-    const nombre = this.filtroNombre.toLowerCase().trim();
-    this.ejerciciosFiltrados = this.catalogoEjercicios.filter(ej => {
-      const coincideNombre = !nombre || ej.nombre.toLowerCase().includes(nombre);
-      const coincideGrupo = this.filtroGrupo === 'todos' || ej.grupoMuscular === this.filtroGrupo;
-      const coincideNivel = this.filtroNivel === 'todos' || ej.nivel === this.filtroNivel;
-      const coincideEq = this.filtroEquipamiento === 'todos' || ej.equipamiento === this.filtroEquipamiento;
-      return coincideNombre && coincideGrupo && coincideNivel && coincideEq;
+  agregarEjercicioManual(): void {
+    this.rutina.ejercicios.push({
+      nombre: 'Nuevo ejercicio',
+      notas: '',
+      grupoMuscular: 'Fullbody',
+      equipamiento: 'Peso corporal',
+      nivel: 'Principiante',
+      series: [this.crearSerie(1)]
     });
   }
 
-  agregarDesdeCatalogo(ej: CatalogoEjercicio): void {
-    const destino = this.rutina.bloques[this.bloqueDestino] || this.rutina.bloques[0];
-    if (!destino) {
-      this.error = 'Crea un bloque antes de agregar ejercicios.';
-      return;
-    }
-    destino.ejercicios.push({
-      nombre: ej.nombre,
-      series: 3,
-      repeticiones: '10-12',
-      descanso: (this.rutina.descansoSeg || 90) + 's',
-      grupoMuscular: ej.grupoMuscular,
-      equipamiento: ej.equipamiento,
-      nivel: ej.nivel
+  insertarSeleccion(lista: CatalogoEjercicio[]): void {
+    lista.forEach(ej => {
+      this.rutina.ejercicios.push({
+        nombre: ej.nombre,
+        notas: ej.descripcion || '',
+        grupoMuscular: ej.grupoMuscular,
+        equipamiento: ej.equipamiento,
+        nivel: ej.nivel,
+        series: [this.crearSerie(1)]
+      });
     });
   }
 
-  quitarEjercicio(indexBloque: number, indexEjercicio: number): void {
-    this.rutina.bloques[indexBloque].ejercicios.splice(indexEjercicio, 1);
+  quitarEjercicio(index: number): void {
+    this.rutina.ejercicios.splice(index, 1);
+  }
+
+  agregarSerie(indexEjercicio: number): void {
+    const destino = this.rutina.ejercicios[indexEjercicio];
+    if (!destino) return;
+    const orden = (destino.series?.length || 0) + 1;
+    destino.series = [...(destino.series || []), this.crearSerie(orden)];
+  }
+
+  quitarSerie(indexEjercicio: number, indexSerie: number): void {
+    const destino = this.rutina.ejercicios[indexEjercicio];
+    if (!destino || !destino.series?.length) return;
+    destino.series.splice(indexSerie, 1);
+    destino.series = destino.series.map((s, i) => ({ ...s, orden: i + 1 }));
+  }
+
+  private crearSerie(orden: number, repeticiones = 12, carga = '15 kg'): SerieForm {
+    return {
+      orden,
+      repeticiones,
+      carga,
+      descansoSeg: this.rutina.descansoSeg
+    };
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  get totalEjercicios(): number {
+    return this.rutina.ejercicios.length;
   }
 }

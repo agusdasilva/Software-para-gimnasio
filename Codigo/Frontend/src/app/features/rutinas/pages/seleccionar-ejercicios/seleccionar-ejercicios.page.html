@@ -1,0 +1,65 @@
+<section class="selector">
+  <header class="selector__header">
+    <button class="link" type="button" (click)="cancelar()">Cancelar</button>
+    <h1>Agregar ejercicio</h1>
+    <button class="link" type="button" (click)="crearPropio()">+</button>
+  </header>
+
+  <div class="buscador">
+    <input
+      type="text"
+      placeholder="Buscar ejercicio"
+      [(ngModel)]="filtroNombre"
+      (ngModelChange)="filtrar()">
+    <div class="filtros">
+      <select [(ngModel)]="filtroEquipamiento" (change)="filtrar()">
+        <option value="todos">Todo equipamiento</option>
+        <option value="Peso corporal">Peso corporal</option>
+        <option value="Mancuernas">Mancuernas</option>
+        <option value="Barra">Barra</option>
+        <option value="Maquina">Maquina</option>
+        <option value="Bandas">Bandas</option>
+        <option value="Kettlebell">Kettlebell</option>
+      </select>
+      <select [(ngModel)]="filtroGrupo" (change)="filtrar()">
+        <option value="todos">Todos Musculos</option>
+        <option value="Pecho">Pecho</option>
+        <option value="Espalda">Espalda</option>
+        <option value="Piernas">Piernas</option>
+        <option value="Hombros">Hombros</option>
+        <option value="Brazos">Brazos</option>
+        <option value="Core">Core</option>
+        <option value="Fullbody">Fullbody</option>
+        <option value="Cardio">Cardio</option>
+      </select>
+      <select [(ngModel)]="filtroNivel" (change)="filtrar()">
+        <option value="todos">Todos Niveles</option>
+        <option value="Principiante">Principiante</option>
+        <option value="Intermedio">Intermedio</option>
+        <option value="Avanzado">Avanzado</option>
+      </select>
+    </div>
+  </div>
+
+  <p class="sub">Ejercicios recientes</p>
+
+  <div class="lista" *ngIf="filtrados.length; else vacio">
+    <label class="item" *ngFor="let ej of filtrados">
+      <div class="info">
+        <div class="thumb"></div>
+        <div>
+          <p class="titulo">{{ ej.nombre }}</p>
+          <p class="muted">{{ ej.grupoMuscular }}</p>
+        </div>
+      </div>
+      <input type="checkbox" [checked]="seleccion.has(ej.id)" (change)="toggleSeleccion(ej.id)">
+    </label>
+  </div>
+  <ng-template #vacio>
+    <p class="muted">No hay ejercicios con estos filtros.</p>
+  </ng-template>
+
+  <button class="cta" type="button" (click)="confirmar()" [disabled]="!totalSeleccionados">
+    Agrega {{ totalSeleccionados || '0' }} ejercicios
+  </button>
+</section>
