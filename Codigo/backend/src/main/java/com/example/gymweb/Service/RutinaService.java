@@ -3,6 +3,7 @@ package com.example.gymweb.Service;
 import com.example.gymweb.Repository.RutinaDetalleRepository;
 import com.example.gymweb.Repository.RutinaRepository;
 import com.example.gymweb.Repository.UsuarioRepository;
+import com.example.gymweb.dto.Request.ActualizarRutinaRequest;
 import com.example.gymweb.dto.Request.ModificarRutinaDetalleRequest;
 import com.example.gymweb.dto.Request.RutinaRequest;
 import com.example.gymweb.dto.Response.RutinaDetalleResponse;
@@ -104,6 +105,7 @@ public class RutinaService {
     public List<RutinaResponse> listarTodas() {
         return this.rutinaRepository.findAll().stream().map(this::convertirAResponse).toList();
     }
+
     public RutinaResponse modificarDetalle(Integer idRutina, ModificarRutinaDetalleRequest request) {
 
         Rutina rutina = rutinaRepository.findById(idRutina)
@@ -124,6 +126,35 @@ public class RutinaService {
         if (request.getDescanso_seg() != null)
             detalle.setDescanso_seg(request.getDescanso_seg());
 
+        rutinaDetalleRepository.save(detalle);
+
+        return convertirAResponse(rutina);
+    }
+
+    public RutinaResponse actualizarRutina(Integer idRutina, ActualizarRutinaRequest request) {
+        Rutina rutina = rutinaRepository.findById(idRutina)
+                .orElseThrow(() -> new RuntimeException("Rutina no encontrada"));
+
+        if (request.getNombre() != null && !request.getNombre().isBlank()) {
+            rutina.setNombre(request.getNombre());
+        }
+
+        RutinaDetalle detalle = rutina.getRutinaDetalle();
+        if (detalle == null) {
+            throw new RuntimeException("La rutina no posee detalle asociado.");
+        }
+
+        if (request.getDescripcion() != null) {
+            detalle.setDescripcion(request.getDescripcion());
+        }
+        if (request.getImagen() != null) {
+            detalle.setImagen(request.getImagen());
+        }
+        if (request.getDescanso_seg() != null) {
+            detalle.setDescanso_seg(request.getDescanso_seg());
+        }
+
+        rutinaRepository.save(rutina);
         rutinaDetalleRepository.save(detalle);
 
         return convertirAResponse(rutina);
