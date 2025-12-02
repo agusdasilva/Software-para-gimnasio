@@ -7,10 +7,10 @@ import com.example.gymweb.dto.Response.AuthResponse;
 import com.example.gymweb.model.Estado;
 import com.example.gymweb.model.Rol;
 import com.example.gymweb.model.Usuario;
-
 import java.util.Date;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class AuthenticationService {
@@ -34,8 +34,8 @@ public class AuthenticationService {
             usuario.setPassword_hash(this.passwordEncoder.encode(request.getPassword()));
             usuario.setFechaAlta(new Date());
             usuario.setEstado(Estado.PENDIENTE);
-            Rol rol = request.getRol() != null ? request.getRol() : Rol.CLIENTE;
-            usuario.setRol(rol);
+            // Rol controlado por el servidor: registro público siempre CLIENTE
+            usuario.setRol(Rol.CLIENTE);
             this.usuarioRepository.save(usuario);
             String token = this.jwtService.generarToken(usuario.getEmail());
             AuthResponse response = new AuthResponse();
@@ -48,7 +48,8 @@ public class AuthenticationService {
     }
 
     public AuthResponse login(UsuarioLoginRequest request) {
-        Usuario usuario = (Usuario)this.usuarioRepository.findByEmailIgnoreCase(request.getEmail()).orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
+        Usuario usuario = this.usuarioRepository.findByEmailIgnoreCase(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
         if (!this.passwordEncoder.matches(request.getPassword(), usuario.getPassword_hash())) {
             throw new RuntimeException("Credenciales inválidas");
         } else if (usuario.getEstado() == Estado.BLOQUEADO) {
@@ -65,8 +66,9 @@ public class AuthenticationService {
     }
 
     public void activarCuentaPorMembresia(Integer idUsuario, String codigoMembresia) {
-        Usuario usuario = (Usuario)this.usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        if (codigoMembresia != null && !codigoMembresia.isBlank()) {
+        Usuario usuario = this.usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (StringUtils.hasText(codigoMembresia)) {
             usuario.setEstado(Estado.ACTIVO);
             this.usuarioRepository.save(usuario);
         } else {

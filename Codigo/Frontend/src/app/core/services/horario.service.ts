@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface HorarioDia {
   id?: number;
@@ -13,7 +14,7 @@ export interface HorarioDia {
   providedIn: 'root'
 })
 export class HorarioService {
-  private baseUrl = 'http://localhost:8080/api/horario';
+  private baseUrl = `${environment.apiBaseUrl}/horario`;
 
   constructor(private http: HttpClient) {}
 

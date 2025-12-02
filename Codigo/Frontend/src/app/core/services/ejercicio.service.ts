@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { CatalogoEjercicio, Equipamiento, GrupoMuscular, Nivel } from '../../features/rutinas/models/ejercicios.model';
+import { environment } from '../../../environments/environment';
 
 interface EjercicioResponse {
   id: number;
@@ -23,7 +24,7 @@ export interface CrearEjercicioRequest {
 })
 export class EjercicioService {
 
-  private baseUrl = 'http://localhost:8080/api/ejercicio';
+  private baseUrl = `${environment.apiBaseUrl}/ejercicio`;
 
   constructor(private http: HttpClient) {}
 

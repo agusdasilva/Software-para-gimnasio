@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map, tap, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 export type UserRole = 'ADMIN' | 'ENTRENADOR' | 'CLIENTE';
 export type UserState = 'ACTIVO' | 'PENDIENTE' | 'BLOQUEADO';
@@ -78,8 +79,8 @@ export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(this.getUserFromStorage());
 
-  private authBaseUrl = 'http://localhost:8080/api/auth';
-  private usersBaseUrl = 'http://localhost:8080/api/usuarios';
+  private authBaseUrl = `${environment.apiBaseUrl}/auth`;
+  private usersBaseUrl = `${environment.apiBaseUrl}/usuarios`;
 
   constructor(private http: HttpClient) {}
 
