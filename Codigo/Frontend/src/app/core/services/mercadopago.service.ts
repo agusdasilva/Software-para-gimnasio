@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface MercadoPagoPreferenceResponse {
   preferenceId: string;
@@ -12,7 +13,7 @@ export interface MercadoPagoPreferenceResponse {
 })
 export class MercadoPagoService {
 
-  private baseUrl = 'http://localhost:8080/api/mercadopago';
+  private baseUrl = `${environment.apiBaseUrl}/mercadopago`;
 
   constructor(private http: HttpClient) {}
 

@@ -6,6 +6,7 @@ import com.example.gymweb.dto.Request.UsuarioLoginRequest;
 import com.example.gymweb.dto.Request.UsuarioRegisterRequest;
 import com.example.gymweb.dto.Response.AuthResponse;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,12 +23,12 @@ public class AuthController {
     }
 
     @PostMapping({"/register"})
-    public ResponseEntity<AuthResponse> register(@RequestBody UsuarioRegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody UsuarioRegisterRequest request) {
         return ResponseEntity.ok(this.authService.register(request));
     }
 
     @PostMapping({"/login"})
-    public ResponseEntity<AuthResponse> login(@RequestBody UsuarioLoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody UsuarioLoginRequest request) {
         return ResponseEntity.ok(this.authService.login(request));
     }
 

@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PagoController {
     private PagoService pagoService;
     private MercadoPagoService mercadoPagoService;
+    @Value("${pagos.webhook-token:}")
+    private String webhookToken;
 
     @Autowired
     public PagoController(PagoService pagoService, MercadoPagoService mercadoPagoService) {
@@ -63,7 +66,20 @@ public class PagoController {
     }
 
     @PostMapping({"/mercadopago/confirmar"})
-    public ResponseEntity<MembresiaResponse> confirmarPago(@RequestParam Long paymentId) {
+    public ResponseEntity<MembresiaResponse> confirmarPago(@RequestParam Long paymentId,
+                                                           @RequestParam(name = "token", required = false) String token,
+                                                           @org.springframework.web.bind.annotation.RequestHeader(name = "X-Webhook-Token", required = false) String headerToken) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean tieneSesion = auth != null && auth.getPrincipal() instanceof Usuario;
+
+        String provided = headerToken != null ? headerToken : token;
+        if (!tieneSesion) {
+            if (webhookToken != null && !webhookToken.isBlank()) {
+                if (provided == null || !webhookToken.equals(provided)) {
+                    return ResponseEntity.status(401).build();
+                }
+            }
+        }
         return ResponseEntity.ok(this.pagoService.procesarPagoMercadoPago(paymentId));
     }
 }

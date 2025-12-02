@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class MercadoPagoService {
         }
         PlanInfo plan = obtenerPlanInfo(planCode);
 
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = restTemplate();
 
         Map<String, Object> item = new HashMap<>();
         item.put("title", plan.nombre());
@@ -86,7 +87,7 @@ public class MercadoPagoService {
             throw new RuntimeException("Falta configurar mercadopago.access-token");
         }
 
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = restTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
@@ -129,4 +130,11 @@ public class MercadoPagoService {
     }
 
     private record PlanInfo(String nombre, BigDecimal precio, String periodo) {}
+
+    private RestTemplate restTemplate() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(5000);
+        return new RestTemplate(factory);
+    }
 }
