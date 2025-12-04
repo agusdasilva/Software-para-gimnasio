@@ -114,3 +114,25 @@
 .small {
   font-size: 12px;
 }
+
+@media (max-width: 700px) {
+  .detalle-page {
+    padding: 16px 12px 28px;
+  }
+
+  .detalle-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .solicitud,
+  .miembro {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sol-actions .btn,
+  .miembro .btn {
+    width: 100%;
+  }
+}

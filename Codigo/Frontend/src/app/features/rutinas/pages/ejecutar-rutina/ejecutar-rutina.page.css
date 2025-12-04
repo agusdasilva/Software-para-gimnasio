@@ -246,3 +246,37 @@ h1 {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+@media (max-width: 720px) {
+  .runner__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .serie-row {
+    grid-template-columns: 1fr;
+  }
+
+  .serie-actions {
+    justify-content: flex-start;
+  }
+
+  .descanso {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .descanso .btn {
+    width: 100%;
+  }
+}

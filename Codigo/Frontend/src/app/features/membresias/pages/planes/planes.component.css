@@ -299,3 +299,61 @@
   margin-top: 10px;
   font-weight: 700;
 }
+
+@media (max-width: 768px) {
+  .planes {
+    padding: 28px 14px 60px;
+  }
+
+  .status__content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status__badge {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .planes__header h1 {
+    font-size: 26px;
+  }
+
+  .plan-card {
+    padding: 16px;
+  }
+
+  .admin-panel__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-plan-card__info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-plan-card__actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 540px) {
+  .status {
+    padding: 12px;
+  }
+
+  .plan-card__top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-plan-card__actions {
+    flex-direction: column;
+  }
+
+  .admin-plan-card__actions .btn {
+    width: 100%;
+  }
+}

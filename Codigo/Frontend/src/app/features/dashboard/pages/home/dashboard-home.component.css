@@ -208,3 +208,34 @@
 .wide-card {
   margin-top: 10px;
 }
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 16px 10px 40px;
+    gap: 14px;
+  }
+
+  .dashboard__hero {
+    padding: 16px;
+  }
+
+  .dashboard__hero h1 {
+    font-size: 22px;
+  }
+
+  .horario-card .horario-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .horario-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

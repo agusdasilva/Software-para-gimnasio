@@ -9,3 +9,9 @@
   color: var(--color-text);
   min-height: inherit;
 }
+
+@media (max-width: 640px) {
+  .content {
+    padding: 12px;
+  }
+}

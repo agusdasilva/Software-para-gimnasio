@@ -11,6 +11,7 @@ import java.util.Date;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthenticationService {
@@ -24,6 +25,7 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
 
+    @Transactional
     public AuthResponse register(UsuarioRegisterRequest request) {
         if (this.usuarioRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new RuntimeException("Ya existe un usuario con ese email");
