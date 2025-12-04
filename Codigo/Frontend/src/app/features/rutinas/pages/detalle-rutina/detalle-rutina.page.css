@@ -193,3 +193,14 @@ h1 {
     justify-content: flex-end;
   }
 }
+
+@media (max-width: 600px) {
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones .btn {
+    width: 100%;
+  }
+}
