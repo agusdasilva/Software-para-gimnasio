@@ -219,17 +219,45 @@ body.theme-light .subtitle {
 }
 
 @media (max-width: 800px) {
-  .table-head,
+  .usuarios {
+    padding: 1.25rem 1rem;
+  }
+
+  .table-head {
+    display: none;
+  }
+
   .table-row {
     grid-template-columns: 1fr;
     align-items: start;
+    padding: 12px;
+    gap: 12px;
   }
 
-  .actions-title {
-    text-align: left;
+  .table-row .cell {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .table-row .cell::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    padding-right: 8px;
+  }
+
+  body.theme-light .table-row .cell::before {
+    color: #333;
   }
 
   .actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .actions .btn {
     width: 100%;
   }
 }

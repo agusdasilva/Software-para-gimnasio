@@ -267,3 +267,30 @@ textarea {
     align-items: stretch;
   }
 }
+
+@media (max-width: 600px) {
+  .crear-hero h1 {
+    font-size: 22px;
+  }
+
+  .crear-form {
+    padding: 12px;
+  }
+
+  .ejercicio-head {
+    grid-template-columns: 1fr;
+  }
+
+  .orden-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .ejercicios-actions {
+    width: 100%;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}

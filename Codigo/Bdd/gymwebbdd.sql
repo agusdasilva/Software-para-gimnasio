@@ -71,10 +71,10 @@ CREATE TABLE usuarioxclase (
 -------------------------------------------------------
 -- INVITACIONES A CLASE
 -------------------------------------------------------
-CREATE TABLE invitacionclase (
+CREATE TABLE invitacion_clase (
   id_invitacion INT NOT NULL AUTO_INCREMENT,
   usu_clase_id INT NOT NULL,
-  estado ENUM('pendiente','aceptada','rechazada') DEFAULT 'pendiente',
+  estado TINYINT DEFAULT 0,
   fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id_invitacion),
   FOREIGN KEY (usu_clase_id) REFERENCES usuarioxclase(id_usu_clase)
@@ -87,7 +87,7 @@ CREATE TABLE mensajeclase (
   id_mensaje INT NOT NULL AUTO_INCREMENT,
   clase_id INT NOT NULL,
   fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-  contenido VARCHAR(500),
+  mensaje VARCHAR(500),
   PRIMARY KEY (id_mensaje),
   FOREIGN KEY (clase_id) REFERENCES clase(id_clase)
 );
@@ -139,7 +139,7 @@ CREATE TABLE pago (
   membresia_id INT NOT NULL,
   fecha DATETIME(6),
   monto DECIMAL(10,2),
-  estado ENUM('pendiente','completado','fallido') DEFAULT 'pendiente',
+  estado ENUM('PENDIENTE','COMPLETADO','FALLIDO') DEFAULT 'PENDIENTE',
   comprobante_url VARCHAR(255),
   PRIMARY KEY (id_pago),
   FOREIGN KEY (membresia_id) REFERENCES membresia(id_membresia)
@@ -209,6 +209,27 @@ CREATE TABLE serie (
   repeticiones INT,
   PRIMARY KEY (id_serie),
   FOREIGN KEY (ejercicioDetalle_id) REFERENCES ejerciciodetalle(id_ejec_det)
+);
+
+-------------------------------------------------------
+-- CONFIGURACIÓN DE DASHBOARD
+-------------------------------------------------------
+CREATE TABLE config_dashboard (
+  id_config INT NOT NULL AUTO_INCREMENT,
+  noticias LONGTEXT,
+  recordatorios LONGTEXT,
+  PRIMARY KEY (id_config)
+);
+
+-------------------------------------------------------
+-- HORARIO DEL GIMNASIO
+-------------------------------------------------------
+CREATE TABLE horario_gym (
+  id_horario INT NOT NULL AUTO_INCREMENT,
+  dia VARCHAR(50) UNIQUE,
+  hora_apertura VARCHAR(20),
+  hora_cierre VARCHAR(20),
+  PRIMARY KEY (id_horario)
 );
 
 -------------------------------------------------------

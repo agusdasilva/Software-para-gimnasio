@@ -3,13 +3,11 @@ package com.example.gymweb.Config;
 import com.example.gymweb.Auth.JwtAuthenticationFilter;
 import com.example.gymweb.Auth.JwtService;
 import com.example.gymweb.Repository.UsuarioRepository;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,11 +34,29 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) ->
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                            // Confirmación de pago: validamos token de webhook en el controlador
                             .requestMatchers(HttpMethod.POST, "/api/pagos/mercadopago/confirmar").permitAll()
+                            // Administración general
+                            .requestMatchers(HttpMethod.POST, "/api/usuarios/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PATCH, "/api/usuarios/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
+                            // Perfil y obtención de usuario: cualquier autenticado, control de dueño/rol en controlador
+                            .requestMatchers(HttpMethod.GET, "/api/usuarios/**").authenticated()
+                            .requestMatchers(HttpMethod.PUT, "/api/usuarios/*/perfil").authenticated()
+                            .requestMatchers(HttpMethod.POST, "/api/planes/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PUT, "/api/planes/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.DELETE, "/api/planes/**").hasRole("ADMIN")
+                            // Clases y rutinas: solo staff puede crear/editar/eliminar
+                            .requestMatchers(HttpMethod.POST, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
+                            .requestMatchers(HttpMethod.PUT, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
+                            .requestMatchers(HttpMethod.DELETE, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
+                            .requestMatchers(HttpMethod.POST, "/api/rutina/**").hasAnyRole("ADMIN", "ENTRENADOR")
+                            .requestMatchers(HttpMethod.PUT, "/api/rutina/**").hasAnyRole("ADMIN", "ENTRENADOR")
+                            .requestMatchers(HttpMethod.DELETE, "/api/rutina/**").hasAnyRole("ADMIN", "ENTRENADOR")
                             .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        return (SecurityFilterChain)http.build();
+        return http.build();
     }
 
     @Bean
@@ -51,8 +67,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Desarrollo: habilitamos cualquier origen (útil si corres el front en otro puerto)
-        config.setAllowedOriginPatterns(java.util.List.of("*"));
+        // Limitar orígenes conocidos. Se puede extender con spring.web.cors.allowed-origins
+        config.setAllowedOriginPatterns(java.util.List.of("http://localhost:4200"));
         config.setAllowedMethods(java.util.List.of("*"));
         config.setAllowedHeaders(java.util.List.of("*"));
         config.setAllowCredentials(true);

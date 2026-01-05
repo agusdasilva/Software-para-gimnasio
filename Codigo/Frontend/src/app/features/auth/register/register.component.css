@@ -92,3 +92,13 @@
   font-weight: 700;
   text-align: center;
 }
+
+@media (max-width: 520px) {
+  .auth {
+    padding: 32px 12px 60px;
+  }
+
+  .auth-card {
+    padding: 18px;
+  }
+}

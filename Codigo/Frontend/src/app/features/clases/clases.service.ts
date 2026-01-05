@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, throwError } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
+import { environment } from '../../../environments/environment';
 
 export type ClaseEstado = 'ABIERTA' | 'LLENA' | 'CANCELADA';
 
@@ -41,7 +42,7 @@ export interface ClaseItem {
 })
 export class ClasesService {
   private clases: ClaseItem[] = [];
-  private baseUrl = 'http://localhost:8080/api/clases';
+  private baseUrl = `${environment.apiBaseUrl}/clases`;
 
   private clasesSubject = new BehaviorSubject<ClaseItem[]>([...this.clases]);
   private joinedIds = new Set<number>();

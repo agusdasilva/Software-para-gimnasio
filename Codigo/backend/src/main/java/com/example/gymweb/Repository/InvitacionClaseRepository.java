@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InvitacionClaseRepository extends JpaRepository<InvitacionClase, Integer> {
     List<InvitacionClase> findByUsuarioClase_Usuario_Id(int idUsuario);
+
+    List<InvitacionClase> findByUsuarioClase_Clase_Id(int idClase);
 }
