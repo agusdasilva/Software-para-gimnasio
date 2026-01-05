@@ -111,3 +111,28 @@ body.theme-light .subtitle {
   background: rgba(239, 68, 68, 0.12);
   border-color: rgba(239, 68, 68, 0.2);
 }
+
+@media (max-width: 640px) {
+  .perfil {
+    padding: 1.25rem 1rem;
+  }
+
+  .perfil-card {
+    padding: 1.4rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
+}

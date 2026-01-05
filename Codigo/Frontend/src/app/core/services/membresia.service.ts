@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface MembresiaResponse {
   id: number;
@@ -19,7 +20,7 @@ export interface MembresiaResponse {
 })
 export class MembresiaService {
 
-  private baseUrl = 'http://localhost:8080/api/membresias';
+  private baseUrl = `${environment.apiBaseUrl}/membresias`;
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 

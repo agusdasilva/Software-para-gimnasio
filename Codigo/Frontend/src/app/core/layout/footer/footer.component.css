@@ -50,3 +50,10 @@
   opacity: 1;
   transform: translate(-50%, -8px) scale(1);
 }
+
+@media (max-width: 640px) {
+  .app-footer {
+    padding: 14px 16px;
+    font-size: 12px;
+  }
+}

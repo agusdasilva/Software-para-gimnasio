@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Plan {
   id?: number;
@@ -13,7 +14,7 @@ export interface Plan {
   providedIn: 'root'
 })
 export class PlanService {
-  private baseUrl = 'http://localhost:8080/api/planes';
+  private baseUrl = `${environment.apiBaseUrl}/planes`;
 
   constructor(private http: HttpClient) {}
 

@@ -15,6 +15,7 @@ export class HeaderComponent implements OnInit {
   user$: Observable<AuthUser | null>;
   showNotifications = false;
   cleared = false;
+  mobileNavOpen = false;
   notifications: Notificacion[] = [];
   showNotifSettings = false;
   notifPrefs = {
@@ -59,6 +60,7 @@ export class HeaderComponent implements OnInit {
     if (!this.showNotifications) {
       this.showNotifSettings = false;
     }
+    this.mobileNavOpen = false;
   }
 
   closeNotifications(): void {
@@ -83,9 +85,13 @@ export class HeaderComponent implements OnInit {
     if (target && !target.closest('.notif-wrapper')) {
       this.closeNotifications();
     }
+    if (this.mobileNavOpen && target && !target.closest('.app-header')) {
+      this.mobileNavOpen = false;
+    }
   }
 
   logout(): void {
+    this.mobileNavOpen = false;
     this.authService.logout();
     this.router.navigate(['/login']);
   }
@@ -157,5 +163,16 @@ export class HeaderComponent implements OnInit {
     } catch {
       // ignore corrupted prefs
     }
+  }
+
+  toggleMobileNav(): void {
+    this.mobileNavOpen = !this.mobileNavOpen;
+    if (this.mobileNavOpen) {
+      this.closeNotifications();
+    }
+  }
+
+  closeMobileNav(): void {
+    this.mobileNavOpen = false;
   }
 }

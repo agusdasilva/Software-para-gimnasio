@@ -1,27 +1,29 @@
 package com.example.gymweb.Auth;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET =
-            "esta_es_una_clave_super_larga_para_jwt_que_debe_tener_muchos_caracteres_1234567890";
+    @Value("${jwt.secret:}")
+    private String secret;
 
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    private SecretKey getKey() {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("Falta configurar JWT_SECRET (jwt.secret)");
+        }
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generarToken(String subject) {
-
         Date ahora = new Date();
         Date expiracion = new Date(ahora.getTime() + 86400000L); // 1 día
 
@@ -29,7 +31,7 @@ public class JwtService {
                 .setSubject(subject)
                 .setIssuedAt(ahora)
                 .setExpiration(expiracion)
-                .signWith(key)
+                .signWith(getKey())
                 .compact();
     }
 
@@ -48,7 +50,7 @@ public class JwtService {
 
     private Jws<Claims> parseClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token);
     }

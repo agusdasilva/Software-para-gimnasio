@@ -4,31 +4,42 @@
       <span class="logo-main">Gimnasio <span class="logo-red">F86</span></span>
     </div>
 
-    <nav class="nav primary-nav">
+    <button
+      class="mobile-menu-btn"
+      type="button"
+      (click)="toggleMobileNav()"
+      [class.open]="mobileNavOpen"
+      aria-label="Abrir menú de navegación">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav primary-nav" [class.open]="mobileNavOpen">
       <ng-container *ngIf="isAuthenticated(); else publicNav">
 
         <!-- ADMIN -->
         <ng-container *ngIf="isAdmin()">
-          <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-          <a routerLink="/usuarios" routerLinkActive="active">Usuarios</a>
-          <a routerLink="/clases" routerLinkActive="active">Clases</a>
-          <a routerLink="/rutinas" routerLinkActive="active">Rutinas</a>
-          <a routerLink="/membresias" routerLinkActive="active">Membresias</a>
+          <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileNav()">Dashboard</a>
+          <a routerLink="/usuarios" routerLinkActive="active" (click)="closeMobileNav()">Usuarios</a>
+          <a routerLink="/clases" routerLinkActive="active" (click)="closeMobileNav()">Clases</a>
+          <a routerLink="/rutinas" routerLinkActive="active" (click)="closeMobileNav()">Rutinas</a>
+          <a routerLink="/membresias" routerLinkActive="active" (click)="closeMobileNav()">Membresias</a>
         </ng-container>
 
         <!-- ENTRENADOR -->
         <ng-container *ngIf="!isAdmin() && isTrainer()">
-          <a routerLink="/dashboard" routerLinkActive="active">Inicio</a>
-          <a routerLink="/clases" routerLinkActive="active">Mis Clases</a>
-          <a routerLink="/rutinas" routerLinkActive="active">Rutinas</a>
+          <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileNav()">Inicio</a>
+          <a routerLink="/clases" routerLinkActive="active" (click)="closeMobileNav()">Mis Clases</a>
+          <a routerLink="/rutinas" routerLinkActive="active" (click)="closeMobileNav()">Rutinas</a>
         </ng-container>
 
         <!-- SOCIO -->
         <ng-container *ngIf="!isAdmin() && !isTrainer() && isMember()">
-          <a routerLink="/dashboard" routerLinkActive="active">Inicio</a>
-          <a routerLink="/clases" routerLinkActive="active">Mis Clases</a>
-          <a routerLink="/rutinas" routerLinkActive="active">Mis Rutinas</a>
-          <a routerLink="/membresias" routerLinkActive="active">Membresias</a>
+          <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileNav()">Inicio</a>
+          <a routerLink="/clases" routerLinkActive="active" (click)="closeMobileNav()">Mis Clases</a>
+          <a routerLink="/rutinas" routerLinkActive="active" (click)="closeMobileNav()">Mis Rutinas</a>
+          <a routerLink="/membresias" routerLinkActive="active" (click)="closeMobileNav()">Membresias</a>
         </ng-container>
 
       </ng-container>
@@ -38,7 +49,7 @@
       <!-- publico: mantenemos limpia la barra izquierda -->
     </ng-template>
 
-    <div class="actions-panel" *ngIf="isAuthenticated(); else publicActions">
+    <div class="actions-panel" [class.open]="mobileNavOpen" *ngIf="isAuthenticated(); else publicActions">
       <div class="notif-wrapper">
         <button class="icon-btn" type="button" (click)="toggleNotifications()" [class.active]="showNotifications">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -98,7 +109,7 @@
           </ng-template>
         </div>
       </div>
-      <a class="action-link" routerLink="/perfil" routerLinkActive="active">Perfil</a>
+      <a class="action-link" routerLink="/perfil" routerLinkActive="active" (click)="closeMobileNav()">Perfil</a>
       <span class="username" *ngIf="(user$ | async) as user">
         {{ user.username }}
       </span>
@@ -106,10 +117,11 @@
     </div>
 
     <ng-template #publicActions>
-      <div class="actions-panel">
-        <a class="action-link" routerLink="/login">Iniciar Sesion</a>
-        <a class="action-link vip-link" routerLink="/membresias">Membresia</a>
+      <div class="actions-panel" [class.open]="mobileNavOpen">
+        <a class="action-link" routerLink="/login" (click)="closeMobileNav()">Iniciar Sesion</a>
+        <a class="action-link vip-link" routerLink="/membresias" (click)="closeMobileNav()">Membresia</a>
       </div>
     </ng-template>
   </div>
+  <div class="nav-backdrop" *ngIf="mobileNavOpen" (click)="closeMobileNav()"></div>
 </header>

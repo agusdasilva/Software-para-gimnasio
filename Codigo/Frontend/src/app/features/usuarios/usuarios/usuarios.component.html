@@ -40,17 +40,17 @@
       </div>
 
       <div class="table-row" *ngFor="let user of filteredUsers">
-        <span class="link" (click)="goToProfile(user.id)">{{ user.nombre }}</span>
-        <span>{{ user.email }}</span>
-        <span class="roles"><span class="chip">{{ user.rol }}</span></span>
-        <span>
+        <span class="link cell" data-label="Nombre" (click)="goToProfile(user.id)">{{ user.nombre }}</span>
+        <span class="cell" data-label="Email">{{ user.email }}</span>
+        <span class="roles cell" data-label="Rol"><span class="chip">{{ user.rol }}</span></span>
+        <span class="cell" data-label="Estado">
           <span class="chip state" [ngClass]="user.estado.toLowerCase()">{{ user.estado }}</span>
         </span>
-        <span>
+        <span class="cell" data-label="Membresía">
           <span class="chip membership" [ngClass]="user.miembroActivo ? 'activo' : 'inactivo'">{{ miembroLabel(user) }}</span>
           <small class="plan" *ngIf="user.nombrePlan && user.miembroActivo">{{ user.nombrePlan }}</small>
         </span>
-        <span class="actions">
+        <span class="actions cell" data-label="Acciones">
           <button class="btn ghost" (click)="promote(user.id)" [disabled]="user.rol === 'ADMIN'">
             Ascender a entrenador
           </button>

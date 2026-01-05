@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface DashboardConfig {
   noticias: string[];
@@ -11,7 +12,7 @@ export interface DashboardConfig {
   providedIn: 'root'
 })
 export class DashboardConfigService {
-  private baseUrl = 'http://localhost:8080/api/dashboard-config';
+  private baseUrl = `${environment.apiBaseUrl}/dashboard-config`;
 
   constructor(private http: HttpClient) {}
 

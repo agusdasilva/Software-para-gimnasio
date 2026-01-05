@@ -161,3 +161,21 @@
     width: 100%;
   }
 }
+
+@media (max-width: 600px) {
+  .rutinas-hero h1 {
+    font-size: 24px;
+  }
+
+  .rutinas-hero {
+    padding: 18px 6px 8px;
+  }
+
+  .rutinas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .selects {
+    width: 100%;
+  }
+}

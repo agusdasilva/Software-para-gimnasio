@@ -13,10 +13,12 @@
 
 .header-shell {
   width: 100%;
+  max-width: 1200px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  position: relative;
 }
 
 .logo-panel {
@@ -317,36 +319,122 @@
   color: var(--color-header-bg);
 }
 
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.mobile-menu-btn span {
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+  display: block;
+  border-radius: 999px;
+}
+
+.mobile-menu-btn.open {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.nav-backdrop {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .header-shell {
     flex-wrap: wrap;
     gap: 12px;
   }
 
+  .mobile-menu-btn {
+    display: inline-flex;
+    color: var(--color-header-text);
+  }
+
   .nav {
-    order: 3;
-    width: 100%;
-    padding: 6px 0;
+    display: none;
+  }
+
+  .primary-nav.open {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--color-header-bg);
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
+    z-index: 15;
   }
 
   .actions-panel {
-    order: 2;
+    order: 3;
     width: 100%;
     justify-content: flex-end;
+    display: none;
+    margin-left: 0;
+  }
+
+  .actions-panel.open {
+    display: flex;
   }
 
   .logo-panel {
     order: 1;
   }
+
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: var(--color-overlay-dark);
+    z-index: 8;
+  }
 }
 
 @media (max-width: 640px) {
+  .app-header {
+    padding: 10px 10px 14px;
+  }
+
+  .logo-panel {
+    padding: 10px 12px;
+  }
+
   .actions-panel {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 8px;
+  }
+
+  .primary-nav.open {
+    top: calc(100% + 6px);
+  }
+
+  .notif-panel {
+    width: min(320px, 90vw);
+    right: -4px;
+  }
+
+  .actions-panel .username {
+    width: 100%;
+    text-align: center;
   }
 
   .primary-nav a {
     padding: 6px 8px;
+    width: 100%;
   }
 }

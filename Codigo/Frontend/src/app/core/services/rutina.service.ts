@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface EjercicioDetalleResponse {
   id: number;
@@ -60,7 +61,7 @@ export interface ActualizarRutinaRequest {
 })
 export class RutinaService {
 
-  private baseUrl = 'http://localhost:8080/api/rutina';
+  private baseUrl = `${environment.apiBaseUrl}/rutina`;
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
