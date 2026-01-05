@@ -6,14 +6,14 @@
   color: var(--color-header-text);
   position: relative;
   z-index: 10;
-  padding: 14px 6px;
+  padding: 12px 2px;
   border-bottom: 2px solid #e53935;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
 .header-shell {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1320px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -62,7 +62,7 @@
   color: var(--color-header-text);
   opacity: 0.88;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   padding: 8px 10px;
   border-radius: 8px;
@@ -269,6 +269,7 @@
   transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
   display: inline-flex;
   align-items: center;
+  font-size: 17px;
 }
 
 .action-link:hover {
@@ -294,7 +295,7 @@
 }
 
 .username {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--color-header-text);
   padding: 6px 10px;
@@ -310,7 +311,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: 0.2s;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -367,16 +368,14 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 8px);
+    position: static;
+    width: 100%;
+    order: 2;
     background: var(--color-header-bg);
     padding: 14px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
-    z-index: 15;
   }
 
   .actions-panel {
@@ -396,11 +395,7 @@
   }
 
   .nav-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: var(--color-overlay-dark);
-    z-index: 8;
+    display: none;
   }
 }
 
@@ -425,7 +420,7 @@
 
   .notif-panel {
     width: min(320px, 90vw);
-    right: -4px;
+    right: 8px;
   }
 
   .actions-panel .username {

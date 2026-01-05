@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '../../../../core/auth/auth.service';
 
 @Component({
@@ -51,11 +51,13 @@ export class DashboardPublicComponent implements OnInit, OnDestroy {
   reviewsPerPage = 5;
   currentReviewSlide = 0;
   private reviewTimer?: any;
+  private readonly mobileReviewBreakpoint = 768;
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     this.startBannerRotation();
+    this.updateReviewsPerPage();
     this.startReviewRotation();
   }
 
@@ -66,6 +68,11 @@ export class DashboardPublicComponent implements OnInit, OnDestroy {
     if (this.reviewTimer) {
       clearInterval(this.reviewTimer);
     }
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateReviewsPerPage();
   }
 
   isAuthenticated(): boolean {
@@ -136,5 +143,18 @@ export class DashboardPublicComponent implements OnInit, OnDestroy {
     this.reviewTimer = setInterval(() => {
       this.currentReviewSlide = (this.currentReviewSlide + 1) % totalSlides;
     }, 6000);
+  }
+
+  private updateReviewsPerPage(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const nextPerPage = window.innerWidth <= this.mobileReviewBreakpoint ? 1 : 5;
+    if (this.reviewsPerPage !== nextPerPage) {
+      this.reviewsPerPage = nextPerPage;
+      this.currentReviewSlide = 0;
+      this.startReviewRotation();
+    }
   }
 }
