@@ -58,9 +58,9 @@ El objetivo es permitir la gestión de usuarios, rutinas, clases grupales, invit
 
 ### Frontend
 - Angular 17
-- Standalone Components
-- RxJS
-- HTML, SCSS
+- Arquitectura basada en NgModules, no Standalone
+- Modulos de forms habilitamos Template y Reactive
+- HTML, CSS y TS
 
 ## 🏗 Arquitectura del Proyecto
 
