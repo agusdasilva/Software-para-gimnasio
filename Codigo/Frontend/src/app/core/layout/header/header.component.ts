@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService, AuthUser, UserRole } from '../../auth/auth.service';
 import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
 import { NotificacionService, Notificacion } from '../../services/notificacion.service';
 
@@ -42,6 +42,12 @@ export class HeaderComponent implements OnInit {
     if (current) {
       this.cargarNotificaciones(current.id);
     }
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.mobileNavOpen = false;
+        this.showNotifications = false;
+      }
+    });
     this.user$.subscribe(user => {
       if (user) {
         this.cargarNotificaciones(user.id);
