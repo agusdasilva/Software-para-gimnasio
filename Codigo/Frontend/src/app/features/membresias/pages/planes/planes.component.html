@@ -28,28 +28,32 @@
     <div class="error" *ngIf="error">{{ error }}</div>
   </div>
 
-  <div class="planes__grid" *ngIf="planes?.length; else sinPlanes">
-    <article class="plan-card" *ngFor="let plan of planes; let idx = index" [class.plan-card--destacado]="esDestacado(plan, idx)">
-      <div class="plan-card__top">
-        <h2>{{ plan.nombre }}</h2>
-        <span class="pill" [class.pill-gold]="esDestacado(plan, idx)" [class.pill-soft]="!esDestacado(plan, idx)">
-          {{ esDestacado(plan, idx) ? 'Mejor valor' : 'Nuevo' }}
-        </span>
-      </div>
-      <p class="plan-card__price">{{ plan.precio | currency:'ARS':'symbol':'1.0-0' }} <span class="period">/ {{ periodoLabel(plan.periodo) }}</span></p>
-      <ul>
-        <li>Acceso segun periodo: {{ periodoLabel(plan.periodo) }}</li>
-        <li>Gestiona tu asistencia y pagos desde la app</li>
-        <li>Sin letras chicas: cancelas cuando quieras</li>
-      </ul>
-      <div class="plan-meta">
-        <span>{{ periodoLabel(plan.periodo) }}</span>
-        <span>Sin permanencia</span>
-      </div>
-      <button (click)="choosePlan(plan)" [disabled]="isLoading(plan)">
-        {{ isLoading(plan) ? 'Abriendo pago...' : 'Elegir plan' }}
-      </button>
-    </article>
+  <div class="planes-carousel" *ngIf="planes?.length; else sinPlanes">
+    <button class="carousel-btn left" type="button" (click)="scrollPlans(-1)">&#10094;</button>
+    <div class="planes__grid" #planesTrack>
+      <article class="plan-card" *ngFor="let plan of planes; let idx = index" [class.plan-card--destacado]="esDestacado(plan, idx)">
+        <div class="plan-card__top">
+          <h2>{{ plan.nombre }}</h2>
+          <span class="pill" [class.pill-gold]="esDestacado(plan, idx)" [class.pill-soft]="!esDestacado(plan, idx)">
+            {{ esDestacado(plan, idx) ? 'Mejor valor' : 'Nuevo' }}
+          </span>
+        </div>
+        <p class="plan-card__price">{{ plan.precio | currency:'ARS':'symbol':'1.0-0' }} <span class="period">/ {{ periodoLabel(plan.periodo) }}</span></p>
+        <ul>
+          <li>Acceso segun periodo: {{ periodoLabel(plan.periodo) }}</li>
+          <li>Gestiona tu asistencia y pagos desde la app</li>
+          <li>Sin letras chicas: cancelas cuando quieras</li>
+        </ul>
+        <div class="plan-meta">
+          <span>{{ periodoLabel(plan.periodo) }}</span>
+          <span>Sin permanencia</span>
+        </div>
+        <button (click)="choosePlan(plan)" [disabled]="isLoading(plan)">
+          {{ isLoading(plan) ? 'Abriendo pago...' : 'Elegir plan' }}
+        </button>
+      </article>
+    </div>
+    <button class="carousel-btn right" type="button" (click)="scrollPlans(1)">&#10095;</button>
   </div>
 
   <ng-template #sinPlanes>

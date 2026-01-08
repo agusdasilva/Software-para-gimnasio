@@ -1,9 +1,16 @@
 <section class="dashboard">
   <div class="dashboard__hero">
     <div>
-      <p class="kicker">Gimnasio F86</p>
-      <h1>Tu progreso empieza aqui</h1>
-      <p class="lede">Accede rapido a las proximas clases, estado de membresia y recordatorios.</p>
+      <div class="member-summary">
+        <div class="member-logo">F86</div>
+        <div class="member-info">
+          <p class="member-name">{{ displayName }}</p>
+          <p class="member-status" [class.active]="isMemberActive" [class.inactive]="!isMemberActive">
+            {{ isMemberActive ? 'Activo✓' : 'Inactivo✕' }}
+          </p>
+          <p class="member-plan"><span>Plan</span> {{ planName }}</p>
+        </div>
+      </div>
     </div>
   </div>
 
