@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../../../core/auth/auth.service';
+import { AuthService, UsuarioResponse } from '../../../../core/auth/auth.service';
 import { HorarioService, HorarioDia } from '../../../../core/services/horario.service';
 import { DashboardConfigService, DashboardConfig } from '../../../../core/services/dashboard-config.service';
 
@@ -26,6 +26,7 @@ export class DashboardHomeComponent implements OnInit {
   noticiasString = '';
   recordatoriosString = '';
   readonly diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+  userProfile: UsuarioResponse | null = null;
 
   constructor(
     private horarioService: HorarioService,
@@ -36,10 +37,37 @@ export class DashboardHomeComponent implements OnInit {
   ngOnInit(): void {
     this.cargarHorario();
     this.cargarContenido();
+    this.cargarPerfil();
   }
 
   get isAdmin(): boolean {
     return this.authService.hasRole(['ADMIN']);
+  }
+
+  get displayName(): string {
+    return this.userProfile?.nombre || this.authService.currentUser?.username || 'Cliente';
+  }
+
+  get isMemberActive(): boolean {
+    const profile = this.userProfile;
+    if (!profile) {
+      return false;
+    }
+    if (typeof profile.miembroActivo === 'boolean') {
+      return profile.miembroActivo;
+    }
+    const estadoMembresia = (profile.estadoMembresia || '').toLowerCase();
+    if (estadoMembresia) {
+      return estadoMembresia === 'activo';
+    }
+    return profile.estado === 'ACTIVO';
+  }
+
+  get planName(): string {
+    if (!this.isMemberActive) {
+      return 'Sin plan';
+    }
+    return this.userProfile?.nombrePlan || 'Sin plan';
   }
 
   cargarHorario(): void {
@@ -87,6 +115,17 @@ export class DashboardHomeComponent implements OnInit {
       error: () => {
         this.noticiasError = 'No se pudo cargar las noticias.';
         this.recordatoriosError = 'No se pudieron cargar los recordatorios.';
+      }
+    });
+  }
+
+  private cargarPerfil(): void {
+    this.authService.getProfile().subscribe({
+      next: user => {
+        this.userProfile = user;
+      },
+      error: () => {
+        this.userProfile = null;
       }
     });
   }

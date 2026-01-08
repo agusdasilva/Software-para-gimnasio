@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MembresiaService, MembresiaResponse } from '../../../../core/services/membresia.service';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -24,6 +24,7 @@ export class PlanesComponent implements OnInit, OnDestroy {
   planesMessage = '';
   private selectedPlanId: number | null = null;
   private selectedPlanName: string | null = null;
+  @ViewChild('planesTrack', { static: false }) planesTrack?: ElementRef<HTMLDivElement>;
   private readonly fallbackPlanes: Plan[] = [
     { nombre: 'Plan por dia', precio: 10, periodo: 'DIARIO' },
     { nombre: 'Plan mensual - 3 dias', precio: 80, periodo: 'MENSUAL' },
@@ -130,6 +131,17 @@ export class PlanesComponent implements OnInit, OnDestroy {
         this.crearMembresiaLocal();
       }
     });
+  }
+
+  scrollPlans(direction: number): void {
+    const track = this.planesTrack?.nativeElement;
+    if (!track) {
+      return;
+    }
+    const card = track.querySelector<HTMLElement>('.plan-card');
+    const gap = 18;
+    const scrollAmount = card ? card.offsetWidth + gap : 240;
+    track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
   }
 
   isLoading(plan: Plan): boolean {
