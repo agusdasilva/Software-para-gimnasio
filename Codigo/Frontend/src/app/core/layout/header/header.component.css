@@ -49,6 +49,18 @@
   color: var(--color-accent);
 }
 
+.logo-word {
+  margin-right: 6px;
+}
+
+.logo-letter {
+  color: var(--color-accent);
+}
+
+.mobile-notif {
+  display: none;
+}
+
 .nav {
   display: flex;
   gap: 16px;
@@ -353,6 +365,30 @@
   .header-shell {
     flex-wrap: wrap;
     gap: 12px;
+    justify-content: flex-start;
+  }
+
+  .logo-word {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    order: 0;
+  }
+
+  .mobile-notif {
+    display: flex;
+    order: 1;
+    margin-left: 8px;
+  }
+
+  .actions-panel .notif-wrapper {
+    display: none;
+  }
+
+  .logo-panel {
+    order: 2;
+    margin-left: auto;
   }
 
   .mobile-menu-btn {
@@ -384,18 +420,31 @@
     justify-content: flex-end;
     display: none;
     margin-left: 0;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .actions-panel.open {
     display: flex;
   }
 
-  .logo-panel {
-    order: 1;
-  }
-
   .nav-backdrop {
     display: none;
+  }
+
+  .logo-letter {
+    color: var(--color-accent);
+  }
+
+  .logo-red {
+    color: var(--color-header-text);
+  }
+
+  .mobile-notif .notif-panel {
+    left: 0;
+    right: auto;
+    width: min(240px, calc(100vw - 16px));
+    max-width: calc(100vw - 24px);
   }
 }
 
@@ -412,6 +461,7 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
+    padding: 10px 8px;
   }
 
   .primary-nav.open {
@@ -431,5 +481,11 @@
   .primary-nav a {
     padding: 6px 8px;
     width: 100%;
+  }
+
+  .action-link,
+  .username,
+  .logout-btn {
+    font-size: 14px;
   }
 }
