@@ -1,7 +1,68 @@
 <header class="app-header">
   <div class="header-shell">
+    <div class="mobile-notif" *ngIf="isAuthenticated()">
+      <div class="notif-wrapper">
+        <button class="icon-btn" type="button" (click)="toggleNotifications()" [class.active]="showNotifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+        </button>
+        <div class="notif-panel" *ngIf="showNotifications">
+          <div class="notif-actions">
+            <button type="button" class="tick-btn" (click)="clearNotifications()" [class.cleared]="cleared">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Limpiar notificaciones</span>
+            </button>
+            <button type="button" class="icon-btn settings-btn" (click)="toggleNotifSettings()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.33.46.52 1.02.52 1.6 0 .58-.19 1.14-.52 1.6z"></path>
+              </svg>
+            </button>
+            <small class="mini-hint" *ngIf="cleared">Notificaciones limpiadas</small>
+          </div>
+          <div class="notif-settings" *ngIf="showNotifSettings">
+            <p class="settings-title">Preferencias</p>
+            <div class="pref-item" (click)="togglePref('solicitudes')">
+              <span>Solicitudes de acceso</span>
+              <span [class.tick]="notifPrefs.solicitudes" [class.cross]="!notifPrefs.solicitudes">{{ notifPrefs.solicitudes ? '✓' : '✕' }}</span>
+            </div>
+            <div class="pref-item" (click)="togglePref('mensajes')">
+              <span>Mensajes en mis clases</span>
+              <span [class.tick]="notifPrefs.mensajes" [class.cross]="!notifPrefs.mensajes">{{ notifPrefs.mensajes ? '✓' : '✕' }}</span>
+            </div>
+            <div class="pref-item" (click)="togglePref('aceptaciones')">
+              <span>Aceptaciones a clases</span>
+              <span [class.tick]="notifPrefs.aceptaciones" [class.cross]="!notifPrefs.aceptaciones">{{ notifPrefs.aceptaciones ? '✓' : '✕' }}</span>
+            </div>
+            <div class="pref-item" (click)="togglePref('dashboard')">
+              <span>Noticias/recordatorios (dashboard)</span>
+              <span [class.tick]="notifPrefs.dashboard" [class.cross]="!notifPrefs.dashboard">{{ notifPrefs.dashboard ? '✓' : '✕' }}</span>
+            </div>
+            <div class="pref-item" (click)="togglePref('planes')">
+              <span>Planes y membresias</span>
+              <span [class.tick]="notifPrefs.planes" [class.cross]="!notifPrefs.planes">{{ notifPrefs.planes ? '✓' : '✕' }}</span>
+            </div>
+          </div>
+          <div *ngIf="filteredNotifications.length; else emptyNotif">
+            <div *ngFor="let n of filteredNotifications" class="notif-item" [class.unread]="!n.leida">
+              <div class="notif-title">Notificacion</div>
+              <p class="notif-message">{{ n.mensaje }}</p>
+              <small class="notif-time">{{ n.fecha | date:'short' }}</small>
+            </div>
+          </div>
+          <ng-template #emptyNotif>
+            <p class="notif-empty">Sin notificaciones</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
     <div class="logo-panel" (click)="router.navigate(['/'])">
-      <span class="logo-main">Gimnasio <span class="logo-red">F86</span></span>
+      <span class="logo-main"><span class="logo-word">Gimnasio</span><span class="logo-letter">F</span><span class="logo-red">86</span></span>
     </div>
 
     <button
@@ -15,8 +76,7 @@
       <span></span>
     </button>
 
-    <nav class="nav primary-nav" [class.open]="mobileNavOpen">
-      <ng-container *ngIf="isAuthenticated(); else publicNav">
+    <nav class="nav primary-nav" [class.open]="mobileNavOpen" *ngIf="isAuthenticated()">
 
         <!-- ADMIN -->
         <ng-container *ngIf="isAdmin()">
@@ -42,12 +102,7 @@
           <a routerLink="/membresias" routerLinkActive="active" (click)="closeMobileNav()">Membresias</a>
         </ng-container>
 
-      </ng-container>
     </nav>
-
-    <ng-template #publicNav>
-      <!-- publico: mantenemos limpia la barra izquierda -->
-    </ng-template>
 
     <div class="actions-panel" [class.open]="mobileNavOpen" *ngIf="isAuthenticated(); else publicActions">
       <div class="notif-wrapper">
