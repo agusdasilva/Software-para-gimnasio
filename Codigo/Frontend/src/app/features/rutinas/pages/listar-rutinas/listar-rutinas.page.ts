@@ -192,6 +192,7 @@ export class ListarRutinasPage implements OnInit {
     const ejercicios = r.detalle?.ejercicios || [];
     const primerEjercicio = ejercicios[0];
     const progresoLocal = this.leerProgresoLocal(r.id);
+    const nivelLocal = this.leerNivelLocal(r.id);
     const avanceCalc = progresoLocal.total
       ? Math.round((progresoLocal.completadas / progresoLocal.total) * 100)
       : 0;
@@ -199,7 +200,7 @@ export class ListarRutinasPage implements OnInit {
       id: r.id,
       titulo: r.nombre,
       objetivo: r.detalle?.descripcion || 'Sin descripcion',
-      nivel: 'Intermedio',
+      nivel: nivelLocal || 'Intermedio',
       estado: 'ACTIVA',
       semanas: Math.max(1, ejercicios.length || 4),
       frecuencia: Math.max(1, Math.min(7, ejercicios.length || 3)),
@@ -216,6 +217,20 @@ export class ListarRutinasPage implements OnInit {
       })),
       actualizado: 'Reciente'
     };
+  }
+
+  private leerNivelLocal(id: number): RutinaResumen['nivel'] | null {
+    try {
+      const raw = localStorage.getItem('rutina-form-' + id);
+      if (!raw) return null;
+      const data = JSON.parse(raw) as { nivel?: RutinaResumen['nivel'] };
+      if (data?.nivel === 'Principiante' || data?.nivel === 'Intermedio' || data?.nivel === 'Avanzado') {
+        return data.nivel;
+      }
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   private leerProgresoLocal(id: number): { completadas: number; total: number } {
