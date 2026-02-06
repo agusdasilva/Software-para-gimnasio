@@ -95,7 +95,7 @@ h1 {
 .ejercicio-card {
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-bg-alt);
   padding: 12px;
 }
 
@@ -137,7 +137,7 @@ h1 {
   padding: 10px;
   border-radius: 10px;
   border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-bg);
 }
 
 .serie-row.done {

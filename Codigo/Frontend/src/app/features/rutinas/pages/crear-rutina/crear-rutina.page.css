@@ -83,8 +83,8 @@ textarea {
   gap: 12px;
   padding: 12px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
 }
 
 .ejercicios-header {
@@ -108,8 +108,8 @@ textarea {
 .ejercicio-card {
   padding: 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -168,14 +168,14 @@ textarea {
   padding: 10px;
   border: 1px dashed rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-bg);
 }
 
 .pill {
   padding: 8px 10px;
   border-radius: 12px;
   border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--color-bg);
   font-weight: 800;
   text-align: center;
 }
@@ -184,7 +184,7 @@ textarea {
   padding: 12px;
   border-radius: 10px;
   border: 1px dashed rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-bg);
 }
 
 .muted {

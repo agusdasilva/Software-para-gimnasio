@@ -2,9 +2,9 @@
   <div>
     <p class="kicker">Agenda de clases</p>
     <h1>Entrena con las mejores rutinas grupales</h1>
-    <p class="lede">Elige una clase y envia tu solicitud para unirte. Admins y entrenadores pueden crear nuevas.</p>
+    <p class="lede">Elige una clase y envia tu solicitud para unirte. Solo el admin puede crear nuevas.</p>
     <div class="hero-actions">
-      <button class="btn primary" *ngIf="authService.hasRole(['ENTRENADOR'])" (click)="comenzarCrearClase()">Crear clase</button>
+      <button class="btn primary" *ngIf="isAdmin" (click)="comenzarCrearClase()">Crear clase</button>
     </div>
   </div>
   <div class="stats">
@@ -27,7 +27,7 @@
   </div>
 </section>
 
-<section class="crear-clase" *ngIf="creandoClase && isAdminOrTrainer">
+<section class="crear-clase" *ngIf="creandoClase && isAdmin">
   <h3>Nueva clase</h3>
   <div class="form-grid">
     <label>
@@ -160,22 +160,27 @@
     </div>
     <div class="row-actions">
       <button class="btn ghost" [disabled]="!puedeVerClase(clase)" (click)="verDetalle(clase)">Ver detalle</button>
-      <ng-container *ngIf="!isAdmin; else adminActions">
-        <button class="btn primary"
-                *ngIf="!esMiembro(clase); else yaMiembro"
-                [disabled]="clase.estado !== 'ABIERTA' || solicitudesEnviadas.has(clase.id)"
-                (click)="solicitarUnirse(clase)">
-          {{ solicitudesEnviadas.has(clase.id) ? 'Solicitud enviada' : 'Solicitar unirse' }}
-        </button>
-        <ng-template #yaMiembro>
-          <span class="muted">Ya eres miembro</span>
-        </ng-template>
-      </ng-container>
-      <ng-template #adminActions>
+      <ng-container *ngIf="isAdmin; else noAdminActions">
         <div class="admin-actions">
-          <button class="btn primary" *ngIf="isAdmin" (click)="iniciarAsignarEntrenadores(clase)">Asignar entrenadores</button>
-          <button class="btn ghost danger" *ngIf="isAdmin" (click)="eliminarClase(clase)">Borrar</button>
+          <button class="btn primary" (click)="iniciarAsignarEntrenadores(clase)">Asignar entrenadores</button>
+          <button class="btn ghost danger" (click)="eliminarClase(clase)">Borrar</button>
         </div>
+      </ng-container>
+      <ng-template #noAdminActions>
+        <ng-container *ngIf="authService.hasRole(['ENTRENADOR']) && clase.entrenadores.includes(nombreUsuario()); else clienteActions">
+          <button class="btn primary" (click)="verDetalle(clase)">Gestionar solicitudes</button>
+        </ng-container>
+        <ng-template #clienteActions>
+          <button class="btn primary"
+                  *ngIf="!esMiembro(clase); else yaMiembro"
+                  [disabled]="clase.estado !== 'ABIERTA' || solicitudesEnviadas.has(clase.id)"
+                  (click)="solicitarUnirse(clase)">
+            {{ solicitudesEnviadas.has(clase.id) ? 'Solicitud enviada' : 'Solicitar unirse' }}
+          </button>
+          <ng-template #yaMiembro>
+            <span class="muted">Ya eres miembro</span>
+          </ng-template>
+        </ng-template>
       </ng-template>
     </div>
     <div class="asignacion" *ngIf="isAdmin && editandoEntrenadoresId === clase.id">
@@ -221,6 +226,19 @@
     <p class="muted">{{ selectedClase.horario }} • {{ selectedClase.ubicacion }}</p>
     <p class="detalle-desc">{{ selectedClase.descripcion }}</p>
     <p class="detalle-profes">Profes a cargo: {{ selectedClase.entrenadores.join(', ') || 'A asignar' }}</p>
+    <div class="solicitudes" *ngIf="puedeGestionarSolicitudes(selectedClase)">
+      <p class="label">Solicitudes pendientes</p>
+      <div *ngIf="selectedClase.solicitudesPendientes.length; else noSolicitudes">
+        <div class="sol-row" *ngFor="let sol of selectedClase.solicitudesPendientes">
+          <span>{{ sol }}</span>
+          <div class="sol-actions">
+            <button class="btn primary" (click)="aceptarSolicitudUI(selectedClase, sol)">Aceptar</button>
+            <button class="btn ghost" (click)="rechazarSolicitudUI(selectedClase, sol)">Rechazar</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noSolicitudes><p class="muted">No hay solicitudes pendientes.</p></ng-template>
+    </div>
     <div class="detalle-actions">
       <button class="btn primary"
               *ngIf="puedeUnirse(selectedClase)"

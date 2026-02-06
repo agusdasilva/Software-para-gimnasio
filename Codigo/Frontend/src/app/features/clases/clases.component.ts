@@ -50,6 +50,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
 
     this.subClases = this.clasesService.obtenerClases().subscribe(clases => {
       this.clases = clases;
+      this.asegurarAdminMiembro();
       this.aplicarFiltros();
       this.actualizarMisClases();
     });
@@ -104,6 +105,10 @@ export class ClasesComponent implements OnInit, OnDestroy {
     if (clase.estado !== 'ABIERTA' || this.esMiembro(clase)) {
       return;
     }
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/clases' } });
+      return;
+    }
     const nombre = this.nombreUsuario();
     this.clasesService.agregarSolicitud(clase.id, nombre);
     this.solicitudesEnviadas.add(clase.id);
@@ -112,6 +117,10 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   comenzarCrearClase(): void {
+    if (!this.isAdmin) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/clases' } });
+      return;
+    }
     this.creandoClase = true;
     const entrenadorActual = this.nombreUsuario();
     this.nuevaClase = { entrenadores: [entrenadorActual], nivel: 'Inicial', duracionMin: 45, cupo: 15, estado: 'ABIERTA' };
@@ -126,8 +135,8 @@ export class ClasesComponent implements OnInit, OnDestroy {
     if (!this.nuevaClase.titulo || !this.nuevaClase.descripcion) {
       return;
     }
-    if (!this.authService.hasRole(['ENTRENADOR'])) {
-      this.mensajeSolicitud = 'Solo un entrenador puede crear clases.';
+    if (!this.isAdmin) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/clases' } });
       return;
     }
     const nueva: ClaseItem = {
@@ -232,15 +241,12 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   puedeUnirse(clase: ClaseItem): boolean {
+    if (this.isAdmin) return true;
     const nombreUsuario = this.nombreUsuario();
-    if (this.authService.hasRole(['ADMIN'])) {
-      return true;
-    }
     if (this.authService.hasRole(['ENTRENADOR'])) {
-      return clase.entrenadores.includes(nombreUsuario);
+      return clase.entrenadores.includes(nombreUsuario) || this.esMiembro(clase);
     }
-    const esMiembro = clase.miembros.some(m => m.nombre === nombreUsuario);
-    return esMiembro;
+    return this.esMiembro(clase);
   }
 
   entrarClase(clase: ClaseItem): void {
@@ -281,6 +287,37 @@ export class ClasesComponent implements OnInit, OnDestroy {
       return clase.entrenadores.includes(nombre) || this.esMiembro(clase);
     }
     return true;
+  }
+
+  puedeGestionarSolicitudes(clase: ClaseItem): boolean {
+    if (this.isAdmin) return true;
+    if (this.authService.hasRole(['ENTRENADOR'])) {
+      return clase.entrenadores.includes(this.nombreUsuario());
+    }
+    return false;
+  }
+
+  aceptarSolicitudUI(clase: ClaseItem, nombre: string): void {
+    if (!this.puedeGestionarSolicitudes(clase)) return;
+    const rol: any = this.isAdmin ? 'ADMIN' : 'ENTRENADOR';
+    this.clasesService.aceptarSolicitud(clase.id, nombre, rol);
+    this.actualizarMisClases();
+  }
+
+  rechazarSolicitudUI(clase: ClaseItem, nombre: string): void {
+    if (!this.puedeGestionarSolicitudes(clase)) return;
+    this.clasesService.rechazarSolicitud(clase.id, nombre);
+  }
+
+  private asegurarAdminMiembro(): void {
+    if (!this.isAdmin) return;
+    const adminNombre = this.nombreUsuario();
+    this.clases.forEach(c => {
+      const ya = c.miembros.some(m => m.nombre === adminNombre);
+      if (!ya) {
+        this.clasesService.registrarIngreso(c.id, true, adminNombre, 'ADMIN');
+      }
+    });
   }
 
   private cargarUsuariosReales(): void {

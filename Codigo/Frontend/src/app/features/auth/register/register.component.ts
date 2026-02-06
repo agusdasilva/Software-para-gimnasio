@@ -40,6 +40,11 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
+    if (this.password.length < 6) {
+      this.error = 'La contraseña debe tener al menos 6 caracteres.';
+      return;
+    }
+
     if (this.password !== this.confirmPassword) {
       this.error = 'Las contrasenas no coinciden.';
       return;
