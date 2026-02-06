@@ -25,11 +25,6 @@ export class PlanesComponent implements OnInit, OnDestroy {
   private selectedPlanId: number | null = null;
   private selectedPlanName: string | null = null;
   @ViewChild('planesTrack', { static: false }) planesTrack?: ElementRef<HTMLDivElement>;
-  private readonly fallbackPlanes: Plan[] = [
-    { nombre: 'Plan por dia', precio: 10, periodo: 'DIARIO' },
-    { nombre: 'Plan mensual - 3 dias', precio: 80, periodo: 'MENSUAL' },
-    { nombre: 'Plan mensual - Full', precio: 120, periodo: 'MENSUAL' }
-  ];
   editandoPlanId: number | null = null;
   planDraft: Plan = this.nuevoPlan();
   nuevoPlanDraft: Plan = this.nuevoPlan();
@@ -87,14 +82,8 @@ export class PlanesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.planesLoading = false;
-        if (!this.authService.isAuthenticated()) {
-          // Mostrar planes de ejemplo para usuarios no autenticados
-          this.planes = this.fallbackPlanes;
-          this.definirDestacado();
-          this.planesError = '';
-        } else {
-          this.planesError = 'No se pudieron cargar los planes.';
-        }
+        this.planesError = 'No se pudieron cargar los planes.';
+        this.planes = [];
       }
     });
   }

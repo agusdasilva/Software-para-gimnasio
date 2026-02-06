@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) ->
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/planes/**").permitAll()
                             // Confirmación de pago: validamos token de webhook en el controlador
                             .requestMatchers(HttpMethod.POST, "/api/pagos/mercadopago/confirmar").permitAll()
                             // Administración general
@@ -46,13 +47,13 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/planes/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.PUT, "/api/planes/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE, "/api/planes/**").hasRole("ADMIN")
-                            // Clases y rutinas: solo staff puede crear/editar/eliminar
-                            .requestMatchers(HttpMethod.POST, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
+                            // Clases y rutinas
+                            .requestMatchers(HttpMethod.POST, "/api/clases/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.PUT, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
-                            .requestMatchers(HttpMethod.DELETE, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
-                            .requestMatchers(HttpMethod.POST, "/api/rutina/**").hasAnyRole("ADMIN", "ENTRENADOR")
-                            .requestMatchers(HttpMethod.PUT, "/api/rutina/**").hasAnyRole("ADMIN", "ENTRENADOR")
-                            .requestMatchers(HttpMethod.DELETE, "/api/rutina/**").hasAnyRole("ADMIN", "ENTRENADOR")
+                            .requestMatchers(HttpMethod.DELETE, "/api/clases/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.POST, "/api/rutina/**").authenticated()
+                            .requestMatchers(HttpMethod.PUT, "/api/rutina/**").authenticated()
+                            .requestMatchers(HttpMethod.DELETE, "/api/rutina/**").authenticated()
                             .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
