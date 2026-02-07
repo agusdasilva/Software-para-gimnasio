@@ -49,9 +49,11 @@
       <input type="text" name="imagen" placeholder="https://..." [(ngModel)]="rutina.imagen">
     </label>
     <label class="checkbox-label">
-      Disponible como plantilla
-      <input type="checkbox" name="esGlobal" [(ngModel)]="rutina.esGlobal">
+      Disponible como plantilla pública
+      <input type="checkbox" name="esGlobal" [(ngModel)]="rutina.esGlobal" [disabled]="esCliente || forceGlobal">
     </label>
+    <p class="muted" *ngIf="esCliente" style="margin:0 0 8px 0;">Como cliente, tus rutinas son privadas.</p>
+    <p class="muted" *ngIf="forceGlobal" style="margin:0 0 8px 0;">Esta rutina se publicará para todos.</p>
   </div>
 
   <label class="full">

@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { RutinaResumen } from '../../components/rutina-card/rutina-card.component';
 import { RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 type NivelFiltro = 'todos' | RutinaResumen['nivel'];
 type EstadoFiltro = 'todos' | RutinaResumen['estado'];
+type ModoVista = 'publicas' | 'mias';
 
 @Component({
   selector: 'app-listar-rutinas-page',
@@ -13,8 +15,11 @@ type EstadoFiltro = 'todos' | RutinaResumen['estado'];
 })
 export class ListarRutinasPage implements OnInit {
 
-  rutinas: RutinaResumen[] = [];
-  filtradas: RutinaResumen[] = [];
+  rutinas: (RutinaResumen & { esGlobal: boolean })[] = [];
+  filtradas: (RutinaResumen & { esGlobal: boolean })[] = [];
+  modo: ModoVista = 'publicas';
+  privadasGuardadas = new Set<number>();
+  currentUserName = '';
 
   filtroTexto = '';
   filtroNivel: NivelFiltro = 'todos';
@@ -23,9 +28,13 @@ export class ListarRutinasPage implements OnInit {
   mensaje = '';
   cargando = false;
 
-  constructor(private router: Router, private rutinaService: RutinaService) {}
+  constructor(private router: Router, private ruta: ActivatedRoute, private rutinaService: RutinaService, public authService: AuthService) {}
 
   ngOnInit(): void {
+    this.modo = (this.ruta.snapshot.data['modo'] as ModoVista) || 'publicas';
+    const user = (this.rutinaService as any).authService?.currentUser;
+    this.currentUserName = user?.nombre || user?.username || user?.email || '';
+    this.cargarGuardadas();
     this.cargarRutinas();
   }
 
@@ -57,6 +66,21 @@ export class ListarRutinasPage implements OnInit {
     this.router.navigate(['/rutinas/ejecutar', id]);
   }
 
+  crearNueva(): void {
+    if (this.modo === 'publicas') {
+      this.router.navigate(['/rutinas/crear'], { state: { esGlobalForced: true } });
+    } else {
+      this.router.navigate(['/rutinas/crear']);
+    }
+  }
+
+  puedeCrear(): boolean {
+    if (this.modo === 'publicas') {
+      return this.authService.hasRole(['ADMIN', 'ENTRENADOR']);
+    }
+    return this.authService.isAuthenticated();
+  }
+
   get totalActivas(): number {
     return this.filtradas.filter(r => r.estado === 'ACTIVA').length;
   }
@@ -77,15 +101,41 @@ export class ListarRutinasPage implements OnInit {
     return Math.round((total / this.filtradas.length) * 10) / 10;
   }
 
+  toggleGuardar(rutina: RutinaResumen): void {
+    if (!this.currentUserName) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/rutinas/publicas' } });
+      return;
+    }
+    if (this.estaGuardada(rutina.id)) {
+      this.privadasGuardadas.delete(rutina.id);
+    } else {
+      this.privadasGuardadas.add(rutina.id);
+    }
+    this.persistirGuardadas();
+    if (this.modo === 'mias') {
+      this.rutinas = this.rutinas.filter(r => this.esMia(r));
+      this.aplicarFiltros();
+    }
+  }
+
+  estaGuardada(id: number): boolean {
+    return this.privadasGuardadas.has(id);
+  }
+
   private cargarRutinas(): void {
     this.cargando = true;
     this.mensaje = '';
     this.rutinaService.listarRutinas().subscribe({
       next: (res: RutinaResponse[]) => {
-        this.rutinas = res.map(r => this.mapearRutina(r));
+        const mapeadas = res.map(r => this.mapearRutina(r));
+        this.rutinas = this.modo === 'publicas'
+          ? mapeadas.filter(r => r.esGlobal)
+          : mapeadas.filter(r => this.esMia(r));
         this.aplicarFiltros();
         if (!this.rutinas.length) {
-          this.mensaje = 'No hay rutinas guardadas todavía.';
+          this.mensaje = this.modo === 'publicas'
+            ? 'No hay rutinas públicas disponibles.'
+            : 'No tienes rutinas aún. Crea una o guarda alguna pública.';
         }
         this.cargando = false;
       },
@@ -98,7 +148,7 @@ export class ListarRutinasPage implements OnInit {
     });
   }
 
-  private mapearRutina(r: RutinaResponse): RutinaResumen {
+  private mapearRutina(r: RutinaResponse): RutinaResumen & { esGlobal: boolean } {
     const ejercicios = r.detalle?.ejercicios || [];
     const primerEjercicio = ejercicios[0];
     const progresoLocal = this.leerProgresoLocal(r.id);
@@ -119,13 +169,14 @@ export class ListarRutinasPage implements OnInit {
       avance: avanceCalc,
       entrenador: r.creador || 'Sin datos',
       proximaSesion: primerEjercicio ? 'Siguiente: ' + primerEjercicio.ejercicio : 'Define tus sesiones',
-      tags: [r.esGlobal ? 'Global' : 'Local', `Descanso ${r.detalle?.descanso_seg || 0}s`],
+      tags: [r.esGlobal ? 'Pública' : 'Privada', `Descanso ${r.detalle?.descanso_seg || 0}s`],
       bloques: ejercicios.map(ej => ({
         nombre: ej.ejercicio,
         foco: `Series ${ej.series?.length || 0}`,
         detalle: ej.series?.map(s => `${s.repeticiones} reps - ${s.carga}`).join(' | ') || 'Sin series'
       })),
-      actualizado: 'Reciente'
+      actualizado: 'Reciente',
+      esGlobal: r.esGlobal
     };
   }
 
@@ -151,5 +202,31 @@ export class ListarRutinasPage implements OnInit {
     } catch {
       return { completadas: 0, total: 0 };
     }
+  }
+
+  private cargarGuardadas(): void {
+    try {
+      const raw = localStorage.getItem('rutinas-guardadas');
+      if (!raw) return;
+      const ids = JSON.parse(raw) as number[];
+      this.privadasGuardadas = new Set(ids);
+    } catch {
+      this.privadasGuardadas = new Set();
+    }
+  }
+
+  private persistirGuardadas(): void {
+    try {
+      localStorage.setItem('rutinas-guardadas', JSON.stringify(Array.from(this.privadasGuardadas)));
+    } catch {
+      // ignore
+    }
+  }
+
+  private esMia(r: RutinaResumen & { esGlobal: boolean }): boolean {
+    const esAutor = !!(this.currentUserName && r.entrenador?.toLowerCase() === this.currentUserName.toLowerCase());
+    const esGuardada = this.estaGuardada(r.id);
+    const esPrivadaPropia = !r.esGlobal && esAutor;
+    return esAutor || esGuardada || esPrivadaPropia;
   }
 }

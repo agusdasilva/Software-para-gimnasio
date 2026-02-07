@@ -5,6 +5,7 @@ public class ActualizarRutinaRequest {
     private String descripcion;
     private String imagen;
     private Integer descanso_seg;
+    private Boolean esGlobal;
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
@@ -17,4 +18,7 @@ public class ActualizarRutinaRequest {
 
     public Integer getDescanso_seg() { return descanso_seg; }
     public void setDescanso_seg(Integer descanso_seg) { this.descanso_seg = descanso_seg; }
+
+    public Boolean getEsGlobal() { return esGlobal; }
+    public void setEsGlobal(Boolean esGlobal) { this.esGlobal = esGlobal; }
 }

@@ -83,7 +83,13 @@
           <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileNav()">Dashboard</a>
           <a routerLink="/usuarios" routerLinkActive="active" (click)="closeMobileNav()">Usuarios</a>
           <a routerLink="/clases" routerLinkActive="active" (click)="closeMobileNav()">Clases</a>
-          <a routerLink="/rutinas" routerLinkActive="active" (click)="closeMobileNav()">Rutinas</a>
+          <div class="nav-dropdown" (mouseenter)="mobileNavOpen=false">
+            <span class="drop-label">Rutinas</span>
+            <div class="dropdown-menu">
+              <a routerLink="/rutinas/mias" routerLinkActive="active" (click)="closeMobileNav()">Mis rutinas</a>
+              <a routerLink="/rutinas/publicas" routerLinkActive="active" (click)="closeMobileNav()">Rutinas públicas</a>
+            </div>
+          </div>
           <a routerLink="/membresias" routerLinkActive="active" (click)="closeMobileNav()">Membresias</a>
         </ng-container>
 
@@ -91,14 +97,26 @@
         <ng-container *ngIf="!isAdmin() && isTrainer()">
           <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileNav()">Inicio</a>
           <a routerLink="/clases" routerLinkActive="active" (click)="closeMobileNav()">Mis Clases</a>
-          <a routerLink="/rutinas" routerLinkActive="active" (click)="closeMobileNav()">Rutinas</a>
+          <div class="nav-dropdown" (mouseenter)="mobileNavOpen=false">
+            <span class="drop-label">Rutinas</span>
+            <div class="dropdown-menu">
+              <a routerLink="/rutinas/mias" routerLinkActive="active" (click)="closeMobileNav()">Mis rutinas</a>
+              <a routerLink="/rutinas/publicas" routerLinkActive="active" (click)="closeMobileNav()">Rutinas públicas</a>
+            </div>
+          </div>
         </ng-container>
 
         <!-- SOCIO -->
         <ng-container *ngIf="!isAdmin() && !isTrainer() && isMember()">
           <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileNav()">Inicio</a>
           <a routerLink="/clases" routerLinkActive="active" (click)="closeMobileNav()">Mis Clases</a>
-          <a routerLink="/rutinas" routerLinkActive="active" (click)="closeMobileNav()">Mis Rutinas</a>
+          <div class="nav-dropdown" (mouseenter)="mobileNavOpen=false">
+            <span class="drop-label">Rutinas</span>
+            <div class="dropdown-menu">
+              <a routerLink="/rutinas/mias" routerLinkActive="active" (click)="closeMobileNav()">Mis rutinas</a>
+              <a routerLink="/rutinas/publicas" routerLinkActive="active" (click)="closeMobileNav()">Rutinas públicas</a>
+            </div>
+          </div>
           <a routerLink="/membresias" routerLinkActive="active" (click)="closeMobileNav()">Membresias</a>
         </ng-container>
 

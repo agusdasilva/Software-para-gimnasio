@@ -34,6 +34,7 @@ public class RutinaService {
         Rutina rutina = new Rutina();
         rutina.setNombre(request.getNombre());
         rutina.setCreador(creador);
+        rutina.setEsGlobal(Boolean.TRUE.equals(request.getEsGlobal()));
         this.rutinaRepository.save(rutina);
         RutinaDetalle detalle = new RutinaDetalle();
         detalle.setRutina(rutina);
@@ -48,6 +49,7 @@ public class RutinaService {
         response.setId(rutina.getId());
         response.setNombre(rutina.getNombre());
         response.setCreador(rutina.getCreador().getNombre());
+        response.setEsGlobal(rutina.isEsGlobal());
         RutinaDetalleResponse det = new RutinaDetalleResponse();
         det.setId(detalle.getId());
         det.setRutina(rutina.getNombre());
@@ -69,6 +71,7 @@ public class RutinaService {
         response.setId(rutina.getId());
         response.setNombre(rutina.getNombre());
         response.setCreador(rutina.getCreador().getNombre());
+        response.setEsGlobal(rutina.isEsGlobal());
         RutinaDetalleResponse detRes = new RutinaDetalleResponse();
         detRes.setId(detalle.getId());
         detRes.setRutina(rutina.getNombre());
@@ -137,6 +140,9 @@ public class RutinaService {
 
         if (request.getNombre() != null && !request.getNombre().isBlank()) {
             rutina.setNombre(request.getNombre());
+        }
+        if (request.getEsGlobal() != null) {
+            rutina.setEsGlobal(request.getEsGlobal());
         }
 
         RutinaDetalle detalle = rutina.getRutinaDetalle();

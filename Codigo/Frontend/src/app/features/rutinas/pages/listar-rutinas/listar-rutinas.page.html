@@ -1,13 +1,12 @@
 <section class="rutinas-hero">
   <div>
-    <p class="kicker">Biblioteca de rutinas</p>
-    <h1>Comparte, adapta y lanza planes de entrenamiento</h1>
-    <p class="lede">
-      Usa los filtros para encontrar planes listos para clientes o para inspirarte.
-      Todo mockeado hasta conectar con el back.
-    </p>
+    <p class="kicker">{{ modo === 'publicas' ? 'Rutinas públicas' : 'Mis rutinas' }}</p>
+    <h1 *ngIf="modo === 'publicas'">Explora y guarda plantillas</h1>
+    <h1 *ngIf="modo === 'mias'">Tus rutinas privadas y guardadas</h1>
+    <p class="lede" *ngIf="modo === 'publicas'">Guarda lo que te guste y úsalo de base.</p>
+    <p class="lede" *ngIf="modo === 'mias'">Solo tú ves tus privadas; las guardadas se muestran aquí.</p>
     <div class="hero-actions">
-      <a class="btn primary" routerLink="/rutinas/crear">Crear rutina</a>
+      <button class="btn primary" type="button" *ngIf="puedeCrear()" (click)="crearNueva()">Crear rutina</button>
       <button class="btn ghost" type="button" (click)="resetFiltros()">Limpiar filtros</button>
     </div>
   </div>
@@ -66,6 +65,9 @@
   <app-rutina-card
     *ngFor="let rutina of filtradas"
     [rutina]="rutina"
+    [mostrarGuardar]="modo === 'publicas'"
+    [guardada]="estaGuardada(rutina.id)"
+    (guardar)="toggleGuardar(rutina)"
     (ver)="verRutina($event)"
     (arrancar)="arrancarRutina($event)">
   </app-rutina-card>

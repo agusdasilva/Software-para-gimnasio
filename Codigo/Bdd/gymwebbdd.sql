@@ -151,6 +151,7 @@ CREATE TABLE pago (
 CREATE TABLE rutina (
   id_rutina INT NOT NULL AUTO_INCREMENT,
   nombre VARCHAR(255),
+  es_global TINYINT(1) DEFAULT 0,
   creador_id INT,
   PRIMARY KEY (id_rutina),
   FOREIGN KEY (creador_id) REFERENCES usuario(id_usuario)
