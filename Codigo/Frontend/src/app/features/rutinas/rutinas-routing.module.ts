@@ -8,7 +8,9 @@ import { SeleccionarEjerciciosPage } from './pages/seleccionar-ejercicios/selecc
 import { CrearEjercicioPage } from './pages/crear-ejercicio/crear-ejercicio.page';
 
 const routes: Routes = [
-  { path: '', component: ListarRutinasPage },
+  { path: '', redirectTo: 'publicas', pathMatch: 'full' },
+  { path: 'publicas', component: ListarRutinasPage, data: { modo: 'publicas' } },
+  { path: 'mias', component: ListarRutinasPage, data: { modo: 'mias' } },
   { path: 'crear/ejercicios/nuevo', component: CrearEjercicioPage },
   { path: 'crear/ejercicios', component: SeleccionarEjerciciosPage },
   { path: 'crear', component: CrearRutinaPage },

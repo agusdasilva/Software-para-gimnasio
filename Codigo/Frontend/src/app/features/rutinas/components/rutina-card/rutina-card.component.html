@@ -56,5 +56,8 @@
   <footer class="card-actions">
     <button class="btn ghost" type="button" (click)="onVerDetalle(); $event.stopPropagation()">Ver detalle</button>
     <button class="btn primary" type="button" (click)="onArrancar(); $event.stopPropagation()">Iniciar hoy</button>
+    <button class="btn ghost" *ngIf="mostrarGuardar" type="button" (click)="onGuardar($event)">
+      {{ guardada ? 'Guardada' : 'Guardar' }}
+    </button>
   </footer>
 </article>

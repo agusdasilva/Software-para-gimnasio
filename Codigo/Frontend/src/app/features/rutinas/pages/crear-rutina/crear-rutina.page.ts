@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActualizarRutinaRequest, CrearRutinaRequest, RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
 import { CatalogoEjercicio, EjercicioForm, Nivel, SerieForm } from '../../models/ejercicios.model';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 interface RutinaForm {
   id?: number;
@@ -29,6 +30,7 @@ export class CrearRutinaPage implements OnInit {
   error = '';
   cargando = false;
   private draftKey = 'rutina-form-borrador';
+  forceGlobal = false;
 
   rutina: RutinaForm = {
     titulo: '',
@@ -44,10 +46,18 @@ export class CrearRutinaPage implements OnInit {
     ejercicios: []
   };
 
-  constructor(private rutinaService: RutinaService, private router: Router) {}
+  constructor(private rutinaService: RutinaService, private router: Router, private auth: AuthService) {}
+
+  get esAdmin(): boolean { return this.auth.hasRole(['ADMIN']); }
+  get esTrainer(): boolean { return this.auth.hasRole(['ENTRENADOR']); }
+  get esCliente(): boolean { return !this.esAdmin && !this.esTrainer; }
 
   ngOnInit(): void {
-    const state = (history.state || {}) as { nuevosEjercicios?: CatalogoEjercicio[]; rutinaBase?: RutinaResponse; rutinaId?: number; rutinaForm?: RutinaForm };
+    const state = (history.state || {}) as { nuevosEjercicios?: CatalogoEjercicio[]; rutinaBase?: RutinaResponse; rutinaId?: number; rutinaForm?: RutinaForm; esGlobalForced?: boolean };
+    this.forceGlobal = !!state.esGlobalForced;
+    if (this.esCliente || this.forceGlobal) {
+      this.rutina.esGlobal = this.forceGlobal;
+    }
     if (state.rutinaForm) {
       this.rutina = state.rutinaForm;
     } else {
@@ -240,7 +250,7 @@ export class CrearRutinaPage implements OnInit {
       descripcion: this.getDescripcionFinal(),
       descanso_seg: this.rutina.descansoSeg,
       imagen: this.rutina.imagen || '',
-      esGlobal: this.rutina.esGlobal,
+      esGlobal: this.forceGlobal ? true : (this.esCliente ? false : this.rutina.esGlobal),
       idCreador
     };
 
@@ -251,7 +261,8 @@ export class CrearRutinaPage implements OnInit {
         this.persistirRutinaLocal(res.id);
         this.borrarDraft();
         this.cargando = false;
-        this.router.navigate(['/rutinas'], { state: { mensaje: this.mensaje } });
+        const destino = payload.esGlobal ? '/rutinas/publicas' : '/rutinas/mias';
+        this.router.navigate([destino], { state: { mensaje: this.mensaje } });
       },
       error: (err: unknown) => {
         const mensaje = (err as { error?: { message?: string } })?.error?.message;
@@ -276,7 +287,8 @@ export class CrearRutinaPage implements OnInit {
         this.persistirRutinaLocal(this.rutina!.id!);
         this.borrarDraft();
         this.cargando = false;
-        this.router.navigate(['/rutinas'], { state: { mensaje: this.mensaje } });
+        const destino = this.esCliente ? '/rutinas/mias' : (this.rutina.esGlobal ? '/rutinas/publicas' : '/rutinas/mias');
+        this.router.navigate([destino], { state: { mensaje: this.mensaje } });
       },
       error: (err: unknown) => {
         const mensaje = (err as { error?: { message?: string } })?.error?.message;

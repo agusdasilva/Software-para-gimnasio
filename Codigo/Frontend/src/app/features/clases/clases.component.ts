@@ -270,7 +270,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
     this.misClasesEntrenador = this.clases.filter(c => c.entrenadores.includes(nombre));
   }
 
-  private nombreUsuario(): string {
+  nombreUsuario(): string {
     const usuario = this.authService.currentUser as any;
     return usuario?.nombreCompleto || usuario?.username || usuario?.nombre || 'Usuario';
   }

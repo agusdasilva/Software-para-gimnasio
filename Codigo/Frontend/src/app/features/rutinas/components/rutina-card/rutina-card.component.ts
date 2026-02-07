@@ -25,6 +25,7 @@ export interface RutinaResumen {
   tags: string[];
   bloques: RutinaBloque[];
   actualizado: string;
+  esGlobal?: boolean;
 }
 
 @Component({
@@ -34,8 +35,11 @@ export interface RutinaResumen {
 })
 export class RutinaCardComponent {
   @Input() rutina!: RutinaResumen;
+  @Input() mostrarGuardar = false;
+  @Input() guardada = false;
   @Output() ver = new EventEmitter<number>();
   @Output() arrancar = new EventEmitter<number>();
+  @Output() guardar = new EventEmitter<void>();
 
   onVerDetalle(): void {
     if (this.rutina?.id) {
@@ -47,6 +51,11 @@ export class RutinaCardComponent {
     if (this.rutina?.id) {
       this.arrancar.emit(this.rutina.id);
     }
+  }
+
+  onGuardar(event: Event): void {
+    event.stopPropagation();
+    this.guardar.emit();
   }
 
   estadoLabel(estado: RutinaEstado): string {

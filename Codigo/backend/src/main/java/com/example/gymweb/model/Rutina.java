@@ -24,6 +24,8 @@ public class Rutina {
     )
     private int id;
     private String nombre;
+    @Column(name = "es_global", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean esGlobal = false;
     @OneToOne(
             mappedBy = "rutina",
             cascade = {CascadeType.ALL}
@@ -66,6 +68,14 @@ public class Rutina {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public boolean isEsGlobal() {
+        return esGlobal;
+    }
+
+    public void setEsGlobal(boolean esGlobal) {
+        this.esGlobal = esGlobal;
     }
 
     public Usuario getCreador() {
