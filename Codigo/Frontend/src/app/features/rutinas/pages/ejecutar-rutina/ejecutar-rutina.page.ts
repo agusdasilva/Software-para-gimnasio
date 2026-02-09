@@ -142,7 +142,7 @@ export class EjecutarRutinaPage implements OnInit, OnDestroy {
       this.mensaje = 'Progreso guardado en memoria.';
     }
     this.detenerDescanso();
-    this.router.navigate(['/rutinas'], { state: { mensaje: this.mensaje } });
+    this.router.navigate(['/rutinas/mias'], { state: { mensaje: this.mensaje } });
   }
 
   iniciarDescanso(): void {

@@ -18,8 +18,7 @@ export class ListarRutinasPage implements OnInit {
   rutinas: (RutinaResumen & { esGlobal: boolean })[] = [];
   filtradas: (RutinaResumen & { esGlobal: boolean })[] = [];
   modo: ModoVista = 'publicas';
-  privadasGuardadas = new Set<number>();
-  currentUserName = '';
+  privadasGuardadas = new Map<number, number>();
 
   filtroTexto = '';
   filtroNivel: NivelFiltro = 'todos';
@@ -32,8 +31,10 @@ export class ListarRutinasPage implements OnInit {
 
   ngOnInit(): void {
     this.modo = (this.ruta.snapshot.data['modo'] as ModoVista) || 'publicas';
-    const user = (this.rutinaService as any).authService?.currentUser;
-    this.currentUserName = user?.nombre || user?.username || user?.email || '';
+    const stateMsg = history.state?.mensaje as string | undefined;
+    if (stateMsg) {
+      this.mensaje = stateMsg;
+    }
     this.cargarGuardadas();
     this.cargarRutinas();
   }
@@ -102,20 +103,25 @@ export class ListarRutinasPage implements OnInit {
   }
 
   toggleGuardar(rutina: RutinaResumen): void {
-    if (!this.currentUserName) {
+    if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/rutinas/publicas' } });
       return;
     }
     if (this.estaGuardada(rutina.id)) {
-      this.privadasGuardadas.delete(rutina.id);
-    } else {
-      this.privadasGuardadas.add(rutina.id);
+      return;
     }
-    this.persistirGuardadas();
-    if (this.modo === 'mias') {
-      this.rutinas = this.rutinas.filter(r => this.esMia(r));
-      this.aplicarFiltros();
-    }
+    this.rutinaService.suscribirRutina(rutina.id).subscribe({
+      next: (res) => {
+        this.privadasGuardadas.set(rutina.id, res.id);
+        this.persistirGuardadas();
+        if (this.modo === 'publicas') {
+          this.router.navigate(['/rutinas/mias'], { state: { mensaje: 'Rutina guardada en tus rutinas' } });
+        }
+      },
+      error: () => {
+        this.mensaje = 'No se pudo guardar la rutina.';
+      }
+    });
   }
 
   estaGuardada(id: number): boolean {
@@ -125,12 +131,13 @@ export class ListarRutinasPage implements OnInit {
   private cargarRutinas(): void {
     this.cargando = true;
     this.mensaje = '';
-    this.rutinaService.listarRutinas().subscribe({
+    const fuente = this.modo === 'publicas'
+      ? this.rutinaService.listarGlobales()
+      : this.rutinaService.listarMias();
+    fuente.subscribe({
       next: (res: RutinaResponse[]) => {
         const mapeadas = res.map(r => this.mapearRutina(r));
-        this.rutinas = this.modo === 'publicas'
-          ? mapeadas.filter(r => r.esGlobal)
-          : mapeadas.filter(r => this.esMia(r));
+        this.rutinas = mapeadas;
         this.aplicarFiltros();
         if (!this.rutinas.length) {
           this.mensaje = this.modo === 'publicas'
@@ -149,7 +156,9 @@ export class ListarRutinasPage implements OnInit {
   }
 
   private mapearRutina(r: RutinaResponse): RutinaResumen & { esGlobal: boolean } {
-    const ejercicios = r.detalle?.ejercicios || [];
+    const ejercicios = (r.detalle?.ejercicios && r.detalle.ejercicios.length)
+      ? r.detalle.ejercicios
+      : this.leerEjerciciosLocal(r.id);
     const primerEjercicio = ejercicios[0];
     const progresoLocal = this.leerProgresoLocal(r.id);
     const nivelLocal = this.leerNivelLocal(r.id);
@@ -168,7 +177,7 @@ export class ListarRutinasPage implements OnInit {
       calorias: undefined,
       avance: avanceCalc,
       entrenador: r.creador || 'Sin datos',
-      proximaSesion: primerEjercicio ? 'Siguiente: ' + primerEjercicio.ejercicio : 'Define tus sesiones',
+      proximaSesion: primerEjercicio ? primerEjercicio.ejercicio : 'Define tus sesiones',
       tags: [r.esGlobal ? 'Pública' : 'Privada', `Descanso ${r.detalle?.descanso_seg || 0}s`],
       bloques: ejercicios.map(ej => ({
         nombre: ej.ejercicio,
@@ -178,6 +187,17 @@ export class ListarRutinasPage implements OnInit {
       actualizado: 'Reciente',
       esGlobal: r.esGlobal
     };
+  }
+
+  private leerEjerciciosLocal(idRutina: number): RutinaResponse['detalle']['ejercicios'] {
+    try {
+      const raw = localStorage.getItem('rutina-ejercicios-' + idRutina);
+      if (!raw) return [];
+      const data = JSON.parse(raw) as RutinaResponse['detalle']['ejercicios'];
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
   }
 
   private leerNivelLocal(id: number): RutinaResumen['nivel'] | null {
@@ -206,27 +226,35 @@ export class ListarRutinasPage implements OnInit {
 
   private cargarGuardadas(): void {
     try {
-      const raw = localStorage.getItem('rutinas-guardadas');
+      const key = this.guardadasKey();
+      if (!key) {
+        this.privadasGuardadas = new Map();
+        return;
+      }
+      const raw = localStorage.getItem(key);
       if (!raw) return;
-      const ids = JSON.parse(raw) as number[];
-      this.privadasGuardadas = new Set(ids);
+      const entries = JSON.parse(raw) as Array<[number, number]>;
+      this.privadasGuardadas = new Map(entries);
     } catch {
-      this.privadasGuardadas = new Set();
+      this.privadasGuardadas = new Map();
     }
   }
 
   private persistirGuardadas(): void {
     try {
-      localStorage.setItem('rutinas-guardadas', JSON.stringify(Array.from(this.privadasGuardadas)));
+      const key = this.guardadasKey();
+      if (!key) return;
+      localStorage.setItem(key, JSON.stringify(Array.from(this.privadasGuardadas.entries())));
     } catch {
       // ignore
     }
   }
 
-  private esMia(r: RutinaResumen & { esGlobal: boolean }): boolean {
-    const esAutor = !!(this.currentUserName && r.entrenador?.toLowerCase() === this.currentUserName.toLowerCase());
-    const esGuardada = this.estaGuardada(r.id);
-    const esPrivadaPropia = !r.esGlobal && esAutor;
-    return esAutor || esGuardada || esPrivadaPropia;
+  private guardadasKey(): string | null {
+    const userId = this.authService.currentUser?.id;
+    if (!userId) return null;
+    return `rutinas-guardadas-${userId}`;
   }
+
 }
+

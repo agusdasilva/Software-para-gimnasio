@@ -5,14 +5,16 @@ public class ClaseResponse {
     private String titulo;
     private String descripcion;
     private int cupo;
+    private int ocupados;
     private Integer creadorId;
     private String creadorNombre;
 
-    public ClaseResponse(int id, String titulo, String descripcion, int cupo, Integer creadorId, String creadorNombre) {
+    public ClaseResponse(int id, String titulo, String descripcion, int cupo, int ocupados, Integer creadorId, String creadorNombre) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.cupo = cupo;
+        this.ocupados = ocupados;
         this.creadorId = creadorId;
         this.creadorNombre = creadorNombre;
     }
@@ -34,6 +36,14 @@ public class ClaseResponse {
 
     public void setCupo(int cupo) {
         this.cupo = cupo;
+    }
+
+    public int getOcupados() {
+        return ocupados;
+    }
+
+    public void setOcupados(int ocupados) {
+        this.ocupados = ocupados;
     }
 
     public int getId() {

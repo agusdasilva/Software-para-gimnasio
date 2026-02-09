@@ -287,8 +287,7 @@ export class CrearRutinaPage implements OnInit {
         this.persistirRutinaLocal(this.rutina!.id!);
         this.borrarDraft();
         this.cargando = false;
-        const destino = this.esCliente ? '/rutinas/mias' : (this.rutina.esGlobal ? '/rutinas/publicas' : '/rutinas/mias');
-        this.router.navigate([destino], { state: { mensaje: this.mensaje } });
+        this.router.navigate(['/rutinas/mias'], { state: { mensaje: this.mensaje } });
       },
       error: (err: unknown) => {
         const mensaje = (err as { error?: { message?: string } })?.error?.message;

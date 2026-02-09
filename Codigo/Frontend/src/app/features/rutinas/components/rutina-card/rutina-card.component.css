@@ -1,4 +1,5 @@
 .rutina-card {
+  position: relative;
   background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
   border-radius: 14px;
@@ -9,6 +10,7 @@
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
 }
 
 .rutina-card:hover {
@@ -91,10 +93,27 @@
   font-size: 12px;
 }
 
+.pill.small {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.muted-pill {
+  opacity: 0.7;
+}
+
 .metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 8px;
+}
+
+.metrics > div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .label {
@@ -111,6 +130,21 @@
   font-size: 18px;
 }
 
+.value.small {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.quick-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .bloques {
   display: flex;
   flex-direction: column;
@@ -123,8 +157,31 @@
   gap: 10px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.bloque.placeholder {
+  background: rgba(255, 255, 255, 0.02);
+  border-style: dashed;
+  opacity: 0.9;
+}
+
+.ejercicios-lista {
+  display: grid;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.ejercicios-lista ul {
+  margin: 0;
+  padding: 0 0 0 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.ejercicios-lista li {
+  opacity: 0.9;
 }
 
 .bloque-nombre {
@@ -202,6 +259,13 @@
 .btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
 }
 
 .card-actions .btn {

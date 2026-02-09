@@ -30,6 +30,14 @@
   gap: 12px;
 }
 
+.profesor-line {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .label {
   margin: 0;
   text-transform: uppercase;
@@ -109,6 +117,53 @@
   border: 1px solid var(--color-border);
   background: var(--color-bg);
   color: var(--color-text);
+}
+
+.btn.minimal {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.btn.primary.minimal {
+  background: linear-gradient(135deg, #ff6a00, #ee0979);
+  border-color: transparent;
+  color: #1a1a1a;
+  box-shadow: 0 10px 24px rgba(238, 9, 121, 0.3);
+}
+
+.rutinas-clase {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.rutina-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rutina-row:last-child {
+  border-bottom: none;
+}
+
+.assign-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.assign-row select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-width: 220px;
 }
 
 .small {

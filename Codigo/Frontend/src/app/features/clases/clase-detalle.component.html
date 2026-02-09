@@ -5,16 +5,12 @@
       <h1>{{ clase.titulo }}</h1>
       <p class="muted">{{ clase.horario }} • {{ clase.ubicacion }}</p>
     </div>
-    <button class="btn ghost" (click)="volver()">Volver</button>
+    <button class="btn primary minimal" (click)="volver()">Volver</button>
   </div>
 
   <p class="descripcion">{{ clase.descripcion }}</p>
 
   <div class="info-grid">
-    <div>
-      <p class="label">Profes</p>
-      <p class="value">{{ clase.entrenadores.join(', ') || 'A asignar' }}</p>
-    </div>
     <div>
       <p class="label">Duracion</p>
       <p class="value">{{ clase.duracionMin }} min</p>
@@ -29,6 +25,11 @@
     </div>
   </div>
 
+  <div class="profesor-line">
+    <p class="label">Profesor</p>
+    <p class="value">{{ clase.entrenadores.join(', ') || 'A asignar' }}</p>
+  </div>
+
   <div class="mensajes-section" *ngIf="puedeVerClase(clase)">
     <h3>Mensajes de la clase</h3>
     <div class="mensajes">
@@ -39,7 +40,7 @@
       </div>
       <p class="muted" *ngIf="!clase.mensajes.length">Sin mensajes aun.</p>
     </div>
-    <div class="mensaje-form" *ngIf="puedeGestionar">
+    <div class="mensaje-form" *ngIf="puedeEnviarMensaje()">
       <textarea rows="2" [(ngModel)]="nuevoMensaje" placeholder="Enviar anuncio a la clase"></textarea>
       <div class="crear-actions">
         <button class="btn primary" (click)="enviarMensaje()">Enviar</button>
@@ -47,14 +48,38 @@
     </div>
   </div>
 
+  <div class="rutinas-clase" *ngIf="rutinasClase.length || puedeGestionar">
+    <h3>Rutinas de la clase</h3>
+    <p class="muted" *ngIf="!rutinasClase.length">Aun no hay rutinas asignadas.</p>
+    <div class="rutina-row" *ngFor="let r of rutinasClase">
+      <div>
+        <p class="value">{{ r.nombre }}</p>
+        <p class="muted small">Creada por {{ r.creador }}</p>
+      </div>
+      <button class="btn primary minimal" type="button" (click)="guardarRutina(r)">Guardar</button>
+    </div>
+    <p class="muted small" *ngIf="mensajeRutinas">{{ mensajeRutinas }}</p>
+    <div class="rutina-assign" *ngIf="puedeGestionar">
+      <p class="label">Asignar rutina</p>
+      <div class="assign-row">
+        <select [(ngModel)]="rutinaSeleccionadaId">
+          <option [ngValue]="undefined">Selecciona una rutina</option>
+          <option *ngFor="let r of rutinasDisponibles" [ngValue]="r.id">{{ r.nombre }}</option>
+        </select>
+        <button class="btn primary" type="button" (click)="asignarRutinaClase()">Agregar</button>
+      </div>
+      <p class="muted small" *ngIf="mensajeRutinas">{{ mensajeRutinas }}</p>
+    </div>
+  </div>
+
   <div class="gestion" *ngIf="puedeGestionar">
     <h3>Solicitudes pendientes</h3>
-    <div *ngIf="clase.solicitudesPendientes.length; else noSolicitudes">
-      <div class="solicitud" *ngFor="let sol of clase.solicitudesPendientes">
-        <span>{{ sol }}</span>
+    <div *ngIf="invitacionesPendientes.length; else noSolicitudes">
+      <div class="solicitud" *ngFor="let sol of invitacionesPendientes">
+        <span>{{ sol.nombre }}</span>
         <div class="sol-actions">
-          <button class="btn primary" (click)="aceptar(sol)">Aceptar</button>
-          <button class="btn ghost danger" (click)="rechazar(sol)">Rechazar</button>
+          <button class="btn primary" (click)="aceptar(sol.nombre)">Aceptar</button>
+          <button class="btn ghost danger" (click)="rechazar(sol.nombre)">Rechazar</button>
         </div>
       </div>
     </div>
@@ -69,7 +94,7 @@
           <p class="value">{{ m.nombre }} <small>({{ m.rol }})</small></p>
           <p class="muted">Ultima vez en linea: {{ m.lastOnline }}</p>
         </div>
-        <button class="btn ghost danger" (click)="remover(m.nombre)">Sacar</button>
+        <button class="btn ghost danger minimal" (click)="remover(m.nombre, m.id)">Sacar</button>
       </div>
     </div>
     <ng-template #sinMiembros>

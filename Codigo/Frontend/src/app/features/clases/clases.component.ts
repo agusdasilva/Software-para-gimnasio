@@ -34,6 +34,8 @@ export class ClasesComponent implements OnInit, OnDestroy {
   selectedClase: ClaseItem | null = null;
   entrandoClase = false;
   userIdByName: Record<string, number> = {};
+  userNameById: Record<number, string> = {};
+  solicitudesDetalle: Array<{ id: number; nombre: string }> = [];
 
   private subClases?: Subscription;
 
@@ -110,14 +112,25 @@ export class ClasesComponent implements OnInit, OnDestroy {
       return;
     }
     const nombre = this.nombreUsuario();
-    this.clasesService.agregarSolicitud(clase.id, nombre);
-    this.solicitudesEnviadas.add(clase.id);
-    this.mensajeSolicitud = `Solicitud enviada para ${clase.titulo}. Un entrenador revisara tu pedido.`;
-    this.notificarATrainers(clase, `${nombre} solicito unirse a ${clase.titulo}`);
+    this.clasesService.solicitarUnirseBackend(clase.id).subscribe({
+      next: (res: any) => {
+        this.solicitudesEnviadas.add(clase.id);
+        const msg = typeof res === 'string' && res.trim().length ? res : `Solicitud enviada para ${clase.titulo}. Un entrenador revisara tu pedido.`;
+        this.mensajeSolicitud = msg;
+        this.notificarATrainers(clase, `${nombre} solicito unirse a ${clase.titulo}`);
+        if (this.puedeGestionarSolicitudes(clase)) {
+          this.cargarInvitacionesClase(clase);
+        }
+      },
+      error: err => {
+        const msg = err?.error;
+        this.mensajeSolicitud = typeof msg === 'string' ? msg : 'No se pudo enviar la solicitud.';
+      }
+    });
   }
 
   comenzarCrearClase(): void {
-    if (!this.isAdmin) {
+    if (!this.isAdminOrTrainer) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/clases' } });
       return;
     }
@@ -135,7 +148,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
     if (!this.nuevaClase.titulo || !this.nuevaClase.descripcion) {
       return;
     }
-    if (!this.isAdmin) {
+    if (!this.isAdminOrTrainer) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/clases' } });
       return;
     }
@@ -214,6 +227,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedClase = clase;
+    this.cargarInvitacionesClase(clase);
   }
 
   cerrarDetalle(): void {
@@ -249,6 +263,15 @@ export class ClasesComponent implements OnInit, OnDestroy {
     return this.esMiembro(clase);
   }
 
+  puedeEntrarDirecto(clase: ClaseItem): boolean {
+    if (this.isAdmin) return true;
+    const nombreUsuario = this.nombreUsuario();
+    if (this.authService.hasRole(['ENTRENADOR'])) {
+      return clase.entrenadores.includes(nombreUsuario) || this.esMiembro(clase);
+    }
+    return this.esMiembro(clase);
+  }
+
   entrarClase(clase: ClaseItem): void {
     if (!this.puedeUnirse(clase)) {
       return;
@@ -256,7 +279,7 @@ export class ClasesComponent implements OnInit, OnDestroy {
     this.entrandoClase = true;
     const esStaff = this.authService.hasRole(['ADMIN']) || this.authService.hasRole(['ENTRENADOR']);
     const rol: any = this.authService.hasRole(['ADMIN']) ? 'ADMIN' : this.authService.hasRole(['ENTRENADOR']) ? 'ENTRENADOR' : 'USER';
-    this.clasesService.registrarIngreso(clase.id, esStaff, this.nombreUsuario(), rol);
+    this.clasesService.registrarIngreso(clase.id, esStaff, this.nombreUsuario(), rol, this.currentUserId());
     this.actualizarMisClases();
     this.selectedClase = null;
     this.router.navigate(['/clases', clase.id]);
@@ -264,10 +287,15 @@ export class ClasesComponent implements OnInit, OnDestroy {
 
   private actualizarMisClases(): void {
     const nombre = this.nombreUsuario();
-    this.misClases = this.clasesService.misClasesDelUsuario(nombre);
+    const userId = this.currentUserId();
+    this.misClases = this.clasesService.misClasesDelUsuario(userId, nombre);
     // Si ya es miembro, limpiamos cualquier bandera de solicitud previa
     this.misClases.forEach(c => this.solicitudesEnviadas.delete(c.id));
     this.misClasesEntrenador = this.clases.filter(c => c.entrenadores.includes(nombre));
+  }
+
+  private currentUserId(): number {
+    return this.authService.currentUser?.id || 0;
   }
 
   nombreUsuario(): string {
@@ -276,8 +304,9 @@ export class ClasesComponent implements OnInit, OnDestroy {
   }
 
   esMiembro(clase: ClaseItem): boolean {
+    const userId = this.currentUserId();
     const nombre = this.nombreUsuario();
-    return clase.miembros.some(m => m.nombre === nombre);
+    return clase.miembros.some(m => (userId ? m.id === userId : false) || m.nombre === nombre);
   }
 
   puedeVerClase(clase: ClaseItem): boolean {
@@ -299,14 +328,35 @@ export class ClasesComponent implements OnInit, OnDestroy {
 
   aceptarSolicitudUI(clase: ClaseItem, nombre: string): void {
     if (!this.puedeGestionarSolicitudes(clase)) return;
-    const rol: any = this.isAdmin ? 'ADMIN' : 'ENTRENADOR';
-    this.clasesService.aceptarSolicitud(clase.id, nombre, rol);
-    this.actualizarMisClases();
+    const inv = this.solicitudesDetalle.find(s => s.nombre === nombre);
+    if (!inv) return;
+    this.clasesService.responderInvitacion(inv.id, true).subscribe({
+      next: () => {
+        this.cargarInvitacionesClase(clase);
+        this.clasesService.refrescarMiembros(clase.id).subscribe({
+          next: () => this.actualizarMisClases(),
+          error: () => this.actualizarMisClases()
+        });
+      },
+      error: () => {
+        this.mensajeSolicitud = 'No se pudo aceptar la solicitud.';
+      }
+    });
   }
 
   rechazarSolicitudUI(clase: ClaseItem, nombre: string): void {
     if (!this.puedeGestionarSolicitudes(clase)) return;
-    this.clasesService.rechazarSolicitud(clase.id, nombre);
+    const inv = this.solicitudesDetalle.find(s => s.nombre === nombre);
+    if (!inv) return;
+    this.clasesService.responderInvitacion(inv.id, false).subscribe({
+      next: () => {
+        this.cargarInvitacionesClase(clase);
+        this.clasesService.refrescarMiembros(clase.id).subscribe({ next: () => {}, error: () => {} });
+      },
+      error: () => {
+        this.mensajeSolicitud = 'No se pudo rechazar la solicitud.';
+      }
+    });
   }
 
   private asegurarAdminMiembro(): void {
@@ -325,13 +375,31 @@ export class ClasesComponent implements OnInit, OnDestroy {
       next: usuarios => {
         const entrenadores = usuarios.filter(u => u.rol === 'ENTRENADOR').map(u => u.nombre);
         const clientes = usuarios.filter(u => u.rol !== 'ENTRENADOR').map(u => u.nombre);
-        usuarios.forEach(u => this.userIdByName[u.nombre] = u.id);
+        usuarios.forEach(u => {
+          this.userIdByName[u.nombre] = u.id;
+          this.userNameById[u.id] = u.nombre;
+        });
         const setEntrenadores = new Set([...this.entrenadoresDisponibles, ...entrenadores]);
         this.entrenadoresDisponibles = Array.from(setEntrenadores).filter(Boolean);
         this.usuariosDisponibles = clientes;
       },
       error: () => {
         // mantener listas locales si falla
+      }
+    });
+  }
+
+  private cargarInvitacionesClase(clase: ClaseItem): void {
+    this.clasesService.obtenerInvitaciones(clase.id).subscribe({
+      next: invs => {
+        const pendientes = Array.isArray(invs) ? invs.filter(i => i.estado === 'PENDIENTE') : [];
+        this.solicitudesDetalle = pendientes.map((i: any) => ({
+          id: i.idInvitacion,
+          nombre: i.nombreUsuario || this.userNameById[i.idUsuario] || 'Usuario'
+        }));
+      },
+      error: () => {
+        this.solicitudesDetalle = [];
       }
     });
   }

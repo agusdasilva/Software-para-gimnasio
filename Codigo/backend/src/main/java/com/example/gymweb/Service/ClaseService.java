@@ -1,4 +1,4 @@
-package com.example.gymweb.Service;
+﻿package com.example.gymweb.Service;
 
 import com.example.gymweb.Repository.ClaseRepository;
 import com.example.gymweb.Repository.InvitacionClaseRepository;
@@ -42,6 +42,8 @@ public class ClaseService {
     private RutinaRepository rutinaRepository;
     @Autowired
     private MensajeClaseRepository mensajeClaseRepository;
+    @Autowired
+    private RutinaService rutinaService;
 
     public ClaseService(ClaseRepository claseRepository, UsuarioRepository usuarioRepository, UsuarioXClaseRepository usuarioXClaseRepository, InvitacionClaseRepository invitacionClaseRepository, RutinaRepository rutinaRepository, MensajeClaseRepository mensajeClaseRepository) {
         this.claseRepository = claseRepository;
@@ -62,7 +64,7 @@ public class ClaseService {
 
     private void assertStaff(Usuario user) {
         if (user.getRol() != Rol.ADMIN && user.getRol() != Rol.ENTRENADOR) {
-            throw new RuntimeException("Solo entrenadores o administradores pueden realizar esta acción");
+            throw new RuntimeException("Solo entrenadores o administradores pueden realizar esta acciÃ³n");
         }
     }
 
@@ -86,6 +88,11 @@ public class ClaseService {
         res.setTitulo(clase.getTitulo());
         res.setDescripcion(clase.getDescripcion());
         res.setCupo(clase.getCupo());
+        int ocupados = 0;
+        if (clase.getUsuarios() != null) {
+            ocupados = (int) clase.getUsuarios().stream().filter(UsuarioXClase::isAprobado).count();
+        }
+        res.setOcupados(ocupados);
         return res;
     }
 
@@ -98,7 +105,7 @@ public class ClaseService {
         }
         Usuario usuario = this.usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         if (this.usuarioXClaseRepository.existsByUsuarioIdAndClaseId(idUsuario, idClase)) {
-            throw new RuntimeException("Ese usuario ya está en la clase");
+            throw new RuntimeException("Ese usuario ya estÃ¡ en la clase");
         } else {
             UsuarioXClase relacion = new UsuarioXClase();
             relacion.setUsuario(usuario);
@@ -106,27 +113,61 @@ public class ClaseService {
             this.usuarioXClaseRepository.save(relacion);
             InvitacionClase invit = new InvitacionClase();
             invit.setUsuarioClase(relacion);
+            invit.setEstado(EstadoInvitacion.PENDIENTE);
+            invit.setFecha(LocalDateTime.now());
             this.invitacionClaseRepository.save(invit);
-            return "Invitación enviada";
+            return "InvitaciÃ³n enviada";
         }
+    }
+
+    public String solicitarUnirse(int idClase) {
+        Usuario solicitante = currentUser();
+        Clase clase = this.claseRepository.findById(idClase).orElseThrow(() -> new RuntimeException("Clase no encontrada"));
+        UsuarioXClase existente = this.usuarioXClaseRepository.findByUsuarioIdAndClaseId(solicitante.getId(), idClase).orElse(null);
+        if (existente != null) {
+            if (existente.isAprobado()) {
+                return "Ya estÃ¡s en la clase";
+            }
+            InvitacionClase invExistente = this.invitacionClaseRepository.findByUsuarioClase_Id(existente.getId()).orElse(null);
+            if (invExistente == null) {
+                InvitacionClase invit = new InvitacionClase();
+                invit.setUsuarioClase(existente);
+                invit.setEstado(EstadoInvitacion.PENDIENTE);
+                invit.setFecha(LocalDateTime.now());
+                this.invitacionClaseRepository.save(invit);
+            }
+            return "Solicitud ya enviada";
+        }
+        UsuarioXClase relacion = new UsuarioXClase();
+        relacion.setUsuario(solicitante);
+        relacion.setClase(clase);
+        this.usuarioXClaseRepository.save(relacion);
+        InvitacionClase invit = new InvitacionClase();
+        invit.setUsuarioClase(relacion);
+            invit.setEstado(EstadoInvitacion.PENDIENTE);
+            invit.setFecha(LocalDateTime.now());
+            this.invitacionClaseRepository.save(invit);
+        return "Solicitud enviada";
     }
 
     public String responderInvitacion(int idInvitacion, boolean aceptar) {
         Usuario usuarioActual = currentUser();
-        InvitacionClase invit = this.invitacionClaseRepository.findById(idInvitacion).orElseThrow(() -> new RuntimeException("Invitación no encontrada"));
-        if (!Objects.equals(invit.getUsuarioClase().getUsuario().getId(), usuarioActual.getId()) && usuarioActual.getRol() != Rol.ADMIN) {
+        InvitacionClase invit = this.invitacionClaseRepository.findById(idInvitacion).orElseThrow(() -> new RuntimeException("InvitaciÃ³n no encontrada"));
+        boolean esDueno = Objects.equals(invit.getUsuarioClase().getUsuario().getId(), usuarioActual.getId());
+        boolean esStaff = usuarioActual.getRol() == Rol.ADMIN || usuarioActual.getRol() == Rol.ENTRENADOR;
+        if (!esDueno && !esStaff) {
             throw new RuntimeException("No puedes responder invitaciones de otros usuarios");
         }
         invit.setEstado(aceptar ? EstadoInvitacion.ACEPTADA : EstadoInvitacion.RECHAZADA);
         this.invitacionClaseRepository.save(invit);
         if (!aceptar) {
             this.usuarioXClaseRepository.delete(invit.getUsuarioClase());
-            return "Invitación rechazada";
+            return "InvitaciÃ³n rechazada";
         } else {
             UsuarioXClase rel = invit.getUsuarioClase();
             rel.setAprobado(true);
             this.usuarioXClaseRepository.save(rel);
-            return "Invitación aceptada";
+            return "InvitaciÃ³n aceptada";
         }
     }
 
@@ -150,13 +191,50 @@ public class ClaseService {
         Usuario solicitante = currentUser();
         assertStaff(solicitante);
         Clase clase = this.claseRepository.findById(idClase).orElseThrow(() -> new RuntimeException("Clase no existe"));
-        if (!Objects.equals(clase.getCreador().getId(), solicitante.getId()) && solicitante.getRol() != Rol.ADMIN) {
-            throw new RuntimeException("Solo el creador o un administrador pueden asignar rutinas");
-        }
+        // Entrenadores y admins pueden asignar rutinas a clases
         Rutina rutina = this.rutinaRepository.findById(idRutina).orElseThrow(() -> new RuntimeException("Rutina no existe"));
         clase.getRutinas().add(rutina);
         this.claseRepository.save(clase);
         return "Rutina asignada correctamente";
+    }
+
+    public com.example.gymweb.dto.Response.RutinaResponse guardarRutinaDeClase(int idClase, int idRutina) {
+        Usuario usuario = currentUser();
+        Clase clase = this.claseRepository.findById(idClase).orElseThrow(() -> new RuntimeException("Clase no existe"));
+        boolean esMiembro = this.usuarioXClaseRepository.existsByUsuarioIdAndClaseId(usuario.getId(), idClase);
+        boolean esStaff = usuario.getRol() == Rol.ADMIN || usuario.getRol() == Rol.ENTRENADOR;
+        if (!esMiembro && !esStaff) {
+            throw new RuntimeException("No puedes guardar rutinas de una clase en la que no estÃ¡s");
+        }
+        boolean asignada = clase.getRutinas().stream().anyMatch(r -> r.getId() == idRutina);
+        if (!asignada) {
+            throw new RuntimeException("La rutina no estÃ¡ asignada a esta clase");
+        }
+        return this.rutinaService.clonarParaUsuario(idRutina, usuario.getId());
+    }
+
+    public List<com.example.gymweb.dto.Response.RutinaResponse> listarRutinasClase(int idClase) {
+        Clase clase = this.claseRepository.findById(idClase).orElseThrow(() -> new RuntimeException("Clase no existe"));
+        return clase.getRutinas().stream().map(this::convertirRutinaAResponse).toList();
+    }
+
+    private com.example.gymweb.dto.Response.RutinaResponse convertirRutinaAResponse(Rutina rutina) {
+        com.example.gymweb.dto.Response.RutinaResponse response = new com.example.gymweb.dto.Response.RutinaResponse();
+        response.setId(rutina.getId());
+        response.setNombre(rutina.getNombre());
+        response.setCreador(rutina.getCreador() != null ? rutina.getCreador().getNombre() : "Sin datos");
+        response.setEsGlobal(rutina.isEsGlobal());
+        if (rutina.getRutinaDetalle() != null) {
+            com.example.gymweb.dto.Response.RutinaDetalleResponse det = new com.example.gymweb.dto.Response.RutinaDetalleResponse();
+            det.setId(rutina.getRutinaDetalle().getId());
+            det.setRutina(rutina.getNombre());
+            det.setDescanso_seg(rutina.getRutinaDetalle().getDescanso_seg());
+            det.setDescripcion(rutina.getRutinaDetalle().getDescripcion());
+            det.setImagen(rutina.getRutinaDetalle().getImagen());
+            det.setEjercicios(new java.util.ArrayList<>());
+            response.setDetalle(det);
+        }
+        return response;
     }
 
     public List<InvitacionResponse> listarInvitaciones(int idClase) {
@@ -168,6 +246,7 @@ public class ClaseService {
             response.setEstado(inv.getEstado().name());
             response.setFecha(inv.getFecha());
             response.setIdUsuario(inv.getUsuarioClase().getUsuario().getId());
+            response.setNombreUsuario(inv.getUsuarioClase().getUsuario().getNombre());
             response.setIdClase(inv.getUsuarioClase().getClase().getId());
             return response;
         }).toList();
@@ -179,7 +258,7 @@ public class ClaseService {
         // Solo miembros o staff pueden enviar mensaje
         boolean esMiembro = this.usuarioXClaseRepository.existsByUsuarioIdAndClaseId(autor.getId(), idClase);
         if (!esMiembro && autor.getRol() == Rol.CLIENTE) {
-            throw new RuntimeException("No puedes enviar mensajes a una clase en la que no estás");
+            throw new RuntimeException("No puedes enviar mensajes a una clase en la que no estÃ¡s");
         }
         MensajeClase mensaje = new MensajeClase();
         mensaje.setClase(clase);
@@ -232,3 +311,7 @@ public class ClaseService {
         return this.convertirAResponse(clase);
     }
 }
+
+
+
+

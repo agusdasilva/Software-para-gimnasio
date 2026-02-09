@@ -3,10 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, throwError } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { environment } from '../../../environments/environment';
+import { RutinaResponse } from '../../core/services/rutina.service';
 
 export type ClaseEstado = 'ABIERTA' | 'LLENA' | 'CANCELADA';
 
 export interface MiembroClase {
+  id?: number;
   nombre: string;
   lastOnline: string;
   rol: 'USER' | 'ENTRENADOR' | 'ADMIN';
@@ -35,6 +37,7 @@ export interface ClaseItem {
   miembros: MiembroClase[];
   solicitudesPendientes: string[];
   mensajes: MensajeClase[];
+  rutinas?: RutinaResponse[];
 }
 
 @Injectable({
@@ -94,6 +97,18 @@ export class ClasesService {
     });
   }
 
+  listarRutinasClase(id: number): Observable<RutinaResponse[]> {
+    return this.http.get<RutinaResponse[]>(`${this.baseUrl}/${id}/rutinas`);
+  }
+
+  agregarRutinaClase(idClase: number, idRutina: number): Observable<string> {
+    return this.http.post(`${this.baseUrl}/${idClase}/rutinas/${idRutina}`, {}, { responseType: 'text' });
+  }
+
+  guardarRutinaClase(idClase: number, idRutina: number): Observable<RutinaResponse> {
+    return this.http.post<RutinaResponse>(`${this.baseUrl}/${idClase}/rutinas/${idRutina}/guardar`, {});
+  }
+
   asignarEntrenadores(id: number, entrenadores: string[]): void {
     if (!this.auth.hasRole(['ADMIN'])) {
       return;
@@ -105,19 +120,17 @@ export class ClasesService {
     }
   }
 
-  registrarIngreso(id: number, esStaff: boolean, nombre?: string, rol?: MiembroClase['rol']): void {
+  registrarIngreso(id: number, esStaff: boolean, nombre?: string, rol?: MiembroClase['rol'], userId?: number): void {
     this.joinedIds.add(id);
     const idx = this.clases.findIndex(c => c.id === id);
     if (idx >= 0) {
       const clase = this.clases[idx];
       const miembroNombre = nombre || 'Usuario';
+      const miembroId = userId;
       const miembroRol = rol || (esStaff ? 'ENTRENADOR' : 'USER');
-      const yaMiembro = clase.miembros.some(m => m.nombre === miembroNombre);
-      const miembros = yaMiembro ? clase.miembros : [...clase.miembros, { nombre: miembroNombre, rol: miembroRol, lastOnline: 'hace 1 min' }];
-      let ocupados = clase.ocupados;
-      if (!esStaff && ocupados < clase.cupo) {
-        ocupados = ocupados + 1;
-      }
+      const yaMiembro = clase.miembros.some(m => (miembroId ? m.id === miembroId : m.nombre === miembroNombre));
+      const miembros = yaMiembro ? clase.miembros : [...clase.miembros, { id: miembroId, nombre: miembroNombre, rol: miembroRol, lastOnline: 'hace 1 min' }];
+      const ocupados = miembros.length;
       this.clases[idx] = { ...clase, miembros, ocupados };
       this.actualizarEstado(id);
       this.emit();
@@ -134,19 +147,30 @@ export class ClasesService {
     }
   }
 
-  aceptarSolicitud(id: number, nombre: string, rol: MiembroClase['rol'] = 'USER'): void {
+  aceptarSolicitud(id: number, nombre: string, rol: MiembroClase['rol'] = 'USER', userId?: number): void {
     const idx = this.clases.findIndex(c => c.id === id);
     if (idx >= 0) {
       const clase = this.clases[idx];
       const solicitudes = clase.solicitudesPendientes.filter(s => s !== nombre);
-      const miembros = clase.miembros.some(m => m.nombre === nombre) ? clase.miembros : [...clase.miembros, { nombre, lastOnline: 'hace 1 min', rol }];
-      const ocupa = rol === 'ADMIN' || rol === 'ENTRENADOR' ? 0 : 1;
-      const nuevoOcupados = Math.min(clase.cupo, clase.ocupados + ocupa);
+      const miembros = clase.miembros.some(m => (userId ? m.id === userId : m.nombre === nombre)) ? clase.miembros : [...clase.miembros, { id: userId, nombre, lastOnline: 'hace 1 min', rol }];
+      const nuevoOcupados = miembros.length;
       this.joinedIds.add(id);
       this.clases[idx] = { ...clase, solicitudesPendientes: solicitudes, miembros, ocupados: nuevoOcupados };
       this.actualizarEstado(id);
       this.emit();
     }
+  }
+
+  solicitarUnirseBackend(idClase: number): Observable<string> {
+    return this.http.post(`${this.baseUrl}/${idClase}/solicitar`, {}, { responseType: 'text' });
+  }
+
+  obtenerInvitaciones(idClase: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${idClase}/invitaciones`);
+  }
+
+  responderInvitacion(idInvitacion: number, aprobar: boolean): Observable<string> {
+    return this.http.post(`${this.baseUrl}/invitacion/${idInvitacion}/responder`, { aprobar }, { responseType: 'text' });
   }
 
   rechazarSolicitud(id: number, nombre: string): void {
@@ -159,14 +183,12 @@ export class ClasesService {
     }
   }
 
-  removerMiembro(id: number, nombre: string): void {
+  removerMiembro(id: number, nombre: string, userId?: number): void {
     const idx = this.clases.findIndex(c => c.id === id);
     if (idx >= 0) {
       const clase = this.clases[idx];
-      const miembro = clase.miembros.find(m => m.nombre === nombre);
-      const miembros = clase.miembros.filter(m => m.nombre !== nombre);
-      const ocupaCupo = miembro ? miembro.rol === 'USER' : true;
-      const ocupados = Math.max(0, clase.ocupados - (ocupaCupo ? 1 : 0));
+      const miembros = clase.miembros.filter(m => userId ? m.id !== userId : m.nombre !== nombre);
+      const ocupados = Math.max(0, miembros.length);
       this.joinedIds.delete(id);
       this.clases[idx] = { ...clase, miembros, ocupados };
       this.actualizarEstado(id);
@@ -187,11 +209,13 @@ export class ClasesService {
     return this.clases.filter(c => this.joinedIds.has(c.id));
   }
 
-  misClasesDelUsuario(nombre: string): ClaseItem[] {
-    if (!nombre) {
+  misClasesDelUsuario(userId: number, nombreFallback?: string): ClaseItem[] {
+    if (!userId && !nombreFallback) {
       return [];
     }
-    return this.clases.filter(c => c.miembros.some(m => m.nombre === nombre));
+    return this.clases.filter(c =>
+      c.miembros.some(m => (userId ? m.id === userId : false) || (nombreFallback ? m.nombre === nombreFallback : false))
+    );
   }
 
   buscarPorId(id: number): ClaseItem | undefined {
@@ -217,12 +241,37 @@ export class ClasesService {
         const list = Array.isArray(data) ? data : [];
         this.clases = list.map(c => this.mapBackendClase(c));
         this.emit();
+        this.clases.forEach(c => this.refrescarMiembros(c.id).subscribe({ next: () => {}, error: () => {} }));
       },
       error: () => {
         // dejamos las clases en memoria si falla el backend
         this.emit();
       }
     });
+  }
+
+  refrescarMiembros(idClase: number): Observable<MiembroClase[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${idClase}/miembros`).pipe(
+      map(miembrosRaw => {
+        const miembros = Array.isArray(miembrosRaw) ? miembrosRaw.map(m => ({
+          id: m.id,
+          nombre: m.nombre || m.email || 'Usuario',
+          lastOnline: 'hace 1 min',
+          rol: (m.rol || 'USER') as MiembroClase['rol']
+        })) : [];
+        const idx = this.clases.findIndex(c => c.id === idClase);
+        if (idx >= 0) {
+          const ocupados = miembros.length;
+          this.clases[idx] = { ...this.clases[idx], miembros, ocupados };
+          this.actualizarEstado(idClase);
+          this.emit();
+        }
+        return miembros;
+      }),
+      catchError(err => {
+        return throwError(() => err);
+      })
+    );
   }
 
   private limpiarClasesFantasma(): void {
@@ -252,7 +301,7 @@ export class ClasesService {
       nivel: 'Inicial',
       duracionMin: 45,
       cupo: raw?.cupo ?? 10,
-      ocupados: 0,
+      ocupados: raw?.ocupados ?? 0,
       horario: 'A coordinar',
       ubicacion: 'A confirmar',
       estado: 'ABIERTA',

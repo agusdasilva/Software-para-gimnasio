@@ -32,9 +32,10 @@ public class InvitacionService {
         InvitacionResponse response = new InvitacionResponse();
         response.setEstado(invitacionClase.getEstado().name());
         response.setIdInvitacion(invitacionClase.getId());
-        response.setIdUsuario(invitacionClase.getId());
+        response.setIdUsuario(invitacionClase.getUsuarioClase().getUsuario().getId());
         response.setFecha(invitacionClase.getFecha());
         response.setIdClase(invitacionClase.getUsuarioClase().getClase().getId());
+        response.setNombreUsuario(invitacionClase.getUsuarioClase().getUsuario().getNombre());
         return response;
     }
 

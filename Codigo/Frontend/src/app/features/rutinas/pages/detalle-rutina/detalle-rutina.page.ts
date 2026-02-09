@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RutinaResponse, RutinaService } from '../../../../core/services/rutina.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-detalle-rutina-page',
@@ -16,7 +17,8 @@ export class DetalleRutinaPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private rutinaService: RutinaService
+    private rutinaService: RutinaService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -45,23 +47,26 @@ export class DetalleRutinaPage implements OnInit {
   }
 
   ejecutar(): void {
-    if (this.rutina?.id) {
+    if (this.rutina?.id && !this.rutina.esGlobal) {
       this.router.navigate(['/rutinas/ejecutar', this.rutina.id]);
     }
   }
 
   editar(): void {
-    if (!this.rutina) {
+    if (!this.rutina || this.rutina.esGlobal) {
       return;
     }
     this.router.navigate(['/rutinas/crear'], { state: { rutinaBase: this.rutina } });
   }
 
   eliminar(): void {
-    if (!this.rutina?.id) return;
+    if (!this.rutina?.id || this.rutina.esGlobal) return;
     this.cargando = true;
     this.rutinaService.eliminarRutina(this.rutina.id).subscribe({
-      next: () => this.router.navigate(['/rutinas'], { state: { mensaje: 'Rutina eliminada' } }),
+      next: () => {
+        this.removerDeGuardadas(this.rutina!.id);
+        this.router.navigate(['/rutinas/mias'], { state: { mensaje: 'Rutina eliminada' } });
+      },
       error: () => {
         this.error = 'No se pudo eliminar la rutina';
         this.cargando = false;
@@ -71,6 +76,27 @@ export class DetalleRutinaPage implements OnInit {
 
   volver(): void {
     this.router.navigate(['/rutinas']);
+  }
+
+  guardar(): void {
+    if (!this.rutina?.id) return;
+    if (this.estaGuardada(this.rutina.id)) return;
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: `/rutinas/detalle/${this.rutina.id}` } });
+      return;
+    }
+    this.cargando = true;
+    this.rutinaService.suscribirRutina(this.rutina.id).subscribe({
+      next: (res) => {
+        this.agregarGuardada(this.rutina!.id, res.id);
+        this.cargando = false;
+        this.router.navigate(['/rutinas/mias'], { state: { mensaje: 'Rutina guardada en tus rutinas' } });
+      },
+      error: () => {
+        this.error = 'No se pudo guardar la rutina';
+        this.cargando = false;
+      }
+    });
   }
 
   get descansoSeg(): number {
@@ -171,5 +197,57 @@ export class DetalleRutinaPage implements OnInit {
         ]
       }
     ];
+  }
+
+  private removerDeGuardadas(idRutina: number): void {
+    const userId = this.authService.currentUser?.id;
+    if (!userId) return;
+    const key = `rutinas-guardadas-${userId}`;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      const entries = new Map<number, number>(JSON.parse(raw) as Array<[number, number]>);
+      if (!entries.size) return;
+      let found = false;
+      for (const [publicId, cloneId] of entries.entries()) {
+        if (cloneId === idRutina) {
+          entries.delete(publicId);
+          found = true;
+          break;
+        }
+      }
+      if (!found) return;
+      localStorage.setItem(key, JSON.stringify(Array.from(entries.entries())));
+    } catch {
+      // ignore
+    }
+  }
+
+  estaGuardada(idRutina: number): boolean {
+    const userId = this.authService.currentUser?.id;
+    if (!userId) return false;
+    const key = `rutinas-guardadas-${userId}`;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return false;
+      const entries = new Map<number, number>(JSON.parse(raw) as Array<[number, number]>);
+      return entries.has(idRutina);
+    } catch {
+      return false;
+    }
+  }
+
+  private agregarGuardada(idPublica: number, idPrivada: number): void {
+    const userId = this.authService.currentUser?.id;
+    if (!userId) return;
+    const key = `rutinas-guardadas-${userId}`;
+    try {
+      const raw = localStorage.getItem(key);
+      const entries = new Map<number, number>(raw ? (JSON.parse(raw) as Array<[number, number]>) : []);
+      entries.set(idPublica, idPrivada);
+      localStorage.setItem(key, JSON.stringify(Array.from(entries.entries())));
+    } catch {
+      // ignore
+    }
   }
 }
