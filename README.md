@@ -162,6 +162,7 @@ GET /api/membresias/activa/{idUsuario}
 
 ✔ Backend terminado
 ✔ Frontend terminado
+✔ BDD terminada
 
 
 ## Licencia
