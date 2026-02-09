@@ -59,6 +59,16 @@ public class RutinaController {
         return ResponseEntity.ok(this.rutinaService.listarTodas());
     }
 
+    @GetMapping("/mias")
+    public ResponseEntity<List<RutinaResponse>> listarMias() {
+        return ResponseEntity.ok(this.rutinaService.listarMias());
+    }
+
+    @GetMapping("/globales")
+    public ResponseEntity<List<RutinaResponse>> listarGlobales() {
+        return ResponseEntity.ok(this.rutinaService.listarGlobales());
+    }
+
     @PutMapping("/{id}/detalle")
     public ResponseEntity<RutinaResponse> modificarDetalle(
             @PathVariable Integer id,
@@ -73,5 +83,10 @@ public class RutinaController {
             @RequestBody ActualizarRutinaRequest request
     ) {
         return ResponseEntity.ok(rutinaService.actualizarRutina(id, request));
+    }
+
+    @PostMapping("/{id}/suscribir")
+    public ResponseEntity<RutinaResponse> suscribirRutina(@PathVariable Integer id) {
+        return ResponseEntity.ok(rutinaService.suscribirRutina(id));
     }
 }

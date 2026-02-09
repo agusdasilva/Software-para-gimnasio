@@ -3,6 +3,7 @@ package com.example.gymweb.Repository;
 
 import com.example.gymweb.model.InvitacionClase;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +12,6 @@ public interface InvitacionClaseRepository extends JpaRepository<InvitacionClase
     List<InvitacionClase> findByUsuarioClase_Usuario_Id(int idUsuario);
 
     List<InvitacionClase> findByUsuarioClase_Clase_Id(int idClase);
+
+    Optional<InvitacionClase> findByUsuarioClase_Id(int idUsuarioClase);
 }

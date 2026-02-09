@@ -17,7 +17,10 @@ import com.example.gymweb.model.Usuario;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +31,14 @@ public class RutinaService {
     private RutinaDetalleRepository rutinaDetalleRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    private Usuario currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) {
+            throw new RuntimeException("No hay usuario autenticado");
+        }
+        return (Usuario) auth.getPrincipal();
+    }
 
     public RutinaResponse crearRutina(RutinaRequest request) {
         Usuario creador = (Usuario)this.usuarioRepository.findById(request.getIdCreador()).orElseThrow(() -> new RuntimeException("Creador no encontrado"));
@@ -109,6 +120,19 @@ public class RutinaService {
         return this.rutinaRepository.findAll().stream().map(this::convertirAResponse).toList();
     }
 
+    public List<RutinaResponse> listarMias() {
+        Usuario usuario = currentUser();
+        return this.rutinaRepository.findByCreadorId(usuario.getId()).stream()
+                .map(this::convertirAResponse)
+                .toList();
+    }
+
+    public List<RutinaResponse> listarGlobales() {
+        return this.rutinaRepository.findByEsGlobalTrue().stream()
+                .map(this::convertirAResponse)
+                .toList();
+    }
+
     public RutinaResponse modificarDetalle(Integer idRutina, ModificarRutinaDetalleRequest request) {
 
         Rutina rutina = rutinaRepository.findById(idRutina)
@@ -164,6 +188,81 @@ public class RutinaService {
         rutinaDetalleRepository.save(detalle);
 
         return convertirAResponse(rutina);
+    }
+
+    public RutinaResponse suscribirRutina(Integer idRutina) {
+        Usuario usuario = currentUser();
+        Rutina original = rutinaRepository.findById(idRutina)
+                .orElseThrow(() -> new RuntimeException("Rutina no encontrada"));
+
+        if (!original.isEsGlobal() && (original.getCreador() == null || !Objects.equals(original.getCreador().getId(), usuario.getId()))) {
+            throw new RuntimeException("No puedes suscribirte a una rutina privada");
+        }
+
+        if (original.getCreador() != null && Objects.equals(original.getCreador().getId(), usuario.getId())) {
+            return convertirAResponse(original);
+        }
+
+        Rutina clon = clonarRutina(original, usuario);
+        return convertirAResponse(clon);
+    }
+
+    public RutinaResponse clonarParaUsuario(int idRutina, int idUsuario) {
+        Usuario usuario = this.usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Rutina original = rutinaRepository.findById(idRutina)
+                .orElseThrow(() -> new RuntimeException("Rutina no encontrada"));
+        Rutina clon = clonarRutina(original, usuario);
+        return convertirAResponse(clon);
+    }
+
+    private Rutina clonarRutina(Rutina original, Usuario nuevoCreador) {
+        Rutina nueva = new Rutina();
+        nueva.setNombre(original.getNombre());
+        nueva.setCreador(nuevoCreador);
+        nueva.setEsGlobal(false);
+        rutinaRepository.save(nueva);
+
+        RutinaDetalle detalleOriginal = original.getRutinaDetalle();
+        if (detalleOriginal == null) {
+            return nueva;
+        }
+
+        RutinaDetalle nuevoDetalle = new RutinaDetalle();
+        nuevoDetalle.setRutina(nueva);
+        nuevoDetalle.setDescripcion(detalleOriginal.getDescripcion());
+        nuevoDetalle.setImagen(detalleOriginal.getImagen());
+        nuevoDetalle.setDescanso_seg(detalleOriginal.getDescanso_seg());
+
+        List<EjercicioDetalle> nuevosEjercicios = new ArrayList<>();
+        if (detalleOriginal.getEjercicios() != null) {
+            for (EjercicioDetalle ej : detalleOriginal.getEjercicios()) {
+                EjercicioDetalle nuevoEj = new EjercicioDetalle();
+                nuevoEj.setRutinaDetalle(nuevoDetalle);
+                nuevoEj.setEjercicio(ej.getEjercicio());
+                nuevoEj.setOrden(ej.getOrden());
+
+                List<Serie> nuevasSeries = new ArrayList<>();
+                if (ej.getSeries() != null) {
+                    for (Serie s : ej.getSeries()) {
+                        Serie ns = new Serie();
+                        ns.setEjercicioDetalle(nuevoEj);
+                        ns.setCarga(s.getCarga());
+                        ns.setRepeticiones(s.getRepeticiones());
+                        ns.setOrden(s.getOrden());
+                        nuevasSeries.add(ns);
+                    }
+                }
+                nuevoEj.setSeries(nuevasSeries);
+                nuevosEjercicios.add(nuevoEj);
+            }
+        }
+
+        nuevoDetalle.setEjercicios(nuevosEjercicios);
+        rutinaDetalleRepository.save(nuevoDetalle);
+        nueva.setRutinaDetalle(nuevoDetalle);
+        rutinaRepository.save(nueva);
+        return nueva;
     }
 
     private List<com.example.gymweb.dto.Response.EjercicioDetalleResponse> mapEjercicios(RutinaDetalle detalle) {

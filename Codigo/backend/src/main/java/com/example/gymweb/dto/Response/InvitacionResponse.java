@@ -8,16 +8,18 @@ public class InvitacionResponse {
     private LocalDateTime fecha;
     private int IdUsuario;
     private int IdClase;
+    private String nombreUsuario;
 
     public InvitacionResponse() {
     }
 
-    public InvitacionResponse(int idInvitacion, String estado, LocalDateTime fecha, int idUsuario, int idClase) {
+    public InvitacionResponse(int idInvitacion, String estado, LocalDateTime fecha, int idUsuario, int idClase, String nombreUsuario) {
         this.idInvitacion = idInvitacion;
         this.estado = estado;
         this.fecha = fecha;
         this.IdUsuario = idUsuario;
         this.IdClase = idClase;
+        this.nombreUsuario = nombreUsuario;
     }
 
     public int getIdInvitacion() {
@@ -58,5 +60,13 @@ public class InvitacionResponse {
 
     public void setIdClase(int idClase) {
         this.IdClase = idClase;
+    }
+
+    public String getNombreUsuario() {
+        return this.nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
     }
 }

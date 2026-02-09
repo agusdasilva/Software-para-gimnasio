@@ -8,9 +8,12 @@
     </div>
     <div class="acciones">
       <button class="btn ghost" type="button" (click)="volver()">Volver</button>
-      <button class="btn" type="button" (click)="editar()" [disabled]="!rutina">Editar rutina</button>
-      <button class="btn ghost" type="button" (click)="eliminar()" [disabled]="!rutina">Eliminar</button>
-      <button class="btn primary" type="button" (click)="ejecutar()" [disabled]="!rutina?.id">Iniciar entrenamiento</button>
+      <button class="btn ghost" *ngIf="rutina?.esGlobal" type="button" (click)="guardar()" [disabled]="!rutina || estaGuardada(rutina.id)">
+        {{ rutina && estaGuardada(rutina.id) ? 'Guardada' : 'Guardar' }}
+      </button>
+      <button class="btn" *ngIf="rutina && !rutina.esGlobal" type="button" (click)="editar()">Editar rutina</button>
+      <button class="btn ghost" *ngIf="rutina && !rutina.esGlobal" type="button" (click)="eliminar()">Eliminar</button>
+      <button class="btn primary" *ngIf="rutina && !rutina.esGlobal" type="button" (click)="ejecutar()">Iniciar entrenamiento</button>
     </div>
   </header>
 
@@ -38,15 +41,15 @@
         <p class="kicker">Ejercicios</p>
         <h3>Contenido de la rutina</h3>
       </div>
-      <span class="muted">{{ ejercicios.length }} ejercicios - Usa las flechas para reordenar</span>
+      <span class="muted">{{ ejercicios.length }} ejercicios<span *ngIf="rutina && !rutina.esGlobal"> - Usa las flechas para reordenar</span></span>
     </header>
 
     <div class="ejercicio" *ngFor="let ej of ejercicios; let i = index">
       <div class="ejercicio__info">
         <div class="orden-badges">
           <span class="pill">#{{ i + 1 }}</span>
-          <button class="btn ghost tiny" type="button" (click)="moverEjercicio(i, 'up')" [disabled]="i === 0">Subir</button>
-          <button class="btn ghost tiny" type="button" (click)="moverEjercicio(i, 'down')" [disabled]="i === ejercicios.length - 1">Bajar</button>
+          <button class="btn ghost tiny" *ngIf="rutina && !rutina.esGlobal" type="button" (click)="moverEjercicio(i, 'up')" [disabled]="i === 0">Subir</button>
+          <button class="btn ghost tiny" *ngIf="rutina && !rutina.esGlobal" type="button" (click)="moverEjercicio(i, 'down')" [disabled]="i === ejercicios.length - 1">Bajar</button>
         </div>
         <div>
           <p class="ejercicio__nombre">{{ ej.ejercicio }}</p>

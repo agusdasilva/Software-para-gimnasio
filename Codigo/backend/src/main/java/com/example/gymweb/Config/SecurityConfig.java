@@ -48,7 +48,9 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.PUT, "/api/planes/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE, "/api/planes/**").hasRole("ADMIN")
                             // Clases y rutinas
-                            .requestMatchers(HttpMethod.POST, "/api/clases/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.POST, "/api/clases/*/rutinas/*/guardar").authenticated()
+                            .requestMatchers(HttpMethod.POST, "/api/clases/*/solicitar").authenticated()
+                            .requestMatchers(HttpMethod.POST, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
                             .requestMatchers(HttpMethod.PUT, "/api/clases/**").hasAnyRole("ADMIN", "ENTRENADOR")
                             .requestMatchers(HttpMethod.DELETE, "/api/clases/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.POST, "/api/rutina/**").authenticated()

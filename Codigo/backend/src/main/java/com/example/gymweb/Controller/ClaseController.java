@@ -58,6 +58,19 @@ public class ClaseController {
         return ResponseEntity.ok(this.claseService.agregarRutina(idClase, idRutina));
     }
 
+    @GetMapping({"/{idClase}/rutinas"})
+    public ResponseEntity<List<com.example.gymweb.dto.Response.RutinaResponse>> listarRutinas(@PathVariable int idClase) {
+        return ResponseEntity.ok(this.claseService.listarRutinasClase(idClase));
+    }
+
+    @PostMapping({"/{idClase}/rutinas/{idRutina}/guardar"})
+    public ResponseEntity<com.example.gymweb.dto.Response.RutinaResponse> guardarRutina(
+            @PathVariable int idClase,
+            @PathVariable int idRutina
+    ) {
+        return ResponseEntity.ok(this.claseService.guardarRutinaDeClase(idClase, idRutina));
+    }
+
     @GetMapping({"/{idClase}/invitaciones"})
     public ResponseEntity<List<InvitacionResponse>> invitaciones(@PathVariable int idClase) {
         return ResponseEntity.ok(this.claseService.listarInvitaciones(idClase));
@@ -66,6 +79,11 @@ public class ClaseController {
     @PostMapping({"/{idClase}/invitar"})
     public ResponseEntity<String> invitar(@PathVariable int idClase, @RequestBody InvitacionRequest request) {
         return ResponseEntity.ok(this.claseService.invitarUsuario(idClase, request.getIdUsuario()));
+    }
+
+    @PostMapping({"/{idClase}/solicitar"})
+    public ResponseEntity<String> solicitar(@PathVariable int idClase) {
+        return ResponseEntity.ok(this.claseService.solicitarUnirse(idClase));
     }
 
     @PostMapping({"/invitacion/{idInv}/responder"})

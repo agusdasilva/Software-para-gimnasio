@@ -73,6 +73,14 @@ export class RutinaService {
     return this.http.get<RutinaResponse[]>(this.baseUrl);
   }
 
+  listarMias(): Observable<RutinaResponse[]> {
+    return this.http.get<RutinaResponse[]>(`${this.baseUrl}/mias`);
+  }
+
+  listarGlobales(): Observable<RutinaResponse[]> {
+    return this.http.get<RutinaResponse[]>(`${this.baseUrl}/globales`);
+  }
+
   buscarPorId(id: number): Observable<RutinaResponse> {
     return this.http.get<RutinaResponse>(`${this.baseUrl}/id/${id}`);
   }
@@ -95,6 +103,10 @@ export class RutinaService {
 
   eliminarRutina(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  suscribirRutina(id: number): Observable<RutinaResponse> {
+    return this.http.post<RutinaResponse>(`${this.baseUrl}/${id}/suscribir`, {});
   }
 
   getCurrentUserId(): number {

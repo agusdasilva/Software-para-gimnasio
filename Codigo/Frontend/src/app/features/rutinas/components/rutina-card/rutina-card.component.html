@@ -35,29 +35,44 @@
     </div>
   </div>
 
-  <section class="bloques">
-    <div class="bloque" *ngFor="let bloque of rutina.bloques">
-      <div>
-        <p class="bloque-nombre">{{ bloque.nombre }}</p>
-        <p class="bloque-detalle">{{ bloque.detalle }}</p>
-      </div>
-      <span class="foco">{{ bloque.foco }}</span>
+  <div class="quick-strip">
+    <div>
+      <p class="label">Próxima sesión</p>
+      <p class="value small">{{ rutina.proximaSesion }}</p>
     </div>
-  </section>
+    <div>
+      <p class="label">Estado</p>
+      <p class="value small">{{ estadoLabel(rutina.estado) }}</p>
+    </div>
+    <div>
+      <p class="label">Actualizada</p>
+      <p class="value small">{{ rutina.actualizado }}</p>
+    </div>
+  </div>
 
-  <div class="progreso">
+  <div class="ejercicios-lista" *ngIf="rutina.bloques?.length">
+    <p class="label">Ejercicios</p>
+    <ul>
+      <li *ngFor="let bloque of (rutina.bloques | slice:0:5)">{{ bloque.nombre }}</li>
+      <li class="muted" *ngIf="rutina.bloques.length > 5">+{{ rutina.bloques.length - 5 }} más</li>
+    </ul>
+  </div>
+
+  <div class="progreso" *ngIf="mostrarProgreso">
     <div class="bar">
       <div class="fill" [style.width.%]="rutina.avance"></div>
     </div>
-    <p class="muted">{{ rutina.avance }}% completada - Proxima: {{ rutina.proximaSesion }}</p>
+    <p class="muted">Avance {{ rutina.avance }}% - Próxima: {{ rutina.proximaSesion }}</p>
     <p class="muted">Actualizada {{ rutina.actualizado }}</p>
   </div>
 
   <footer class="card-actions">
     <button class="btn ghost" type="button" (click)="onVerDetalle(); $event.stopPropagation()">Ver detalle</button>
-    <button class="btn primary" type="button" (click)="onArrancar(); $event.stopPropagation()">Iniciar hoy</button>
-    <button class="btn ghost" *ngIf="mostrarGuardar" type="button" (click)="onGuardar($event)">
+    <button class="btn primary" *ngIf="mostrarEjecutar" type="button" (click)="onArrancar(); $event.stopPropagation()">Iniciar hoy</button>
+    <button class="btn ghost" *ngIf="mostrarGuardar" type="button" (click)="onGuardar($event)" [disabled]="guardada">
       {{ guardada ? 'Guardada' : 'Guardar' }}
     </button>
   </footer>
 </article>
+
+

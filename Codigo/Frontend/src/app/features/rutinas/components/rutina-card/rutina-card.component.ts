@@ -37,6 +37,8 @@ export class RutinaCardComponent {
   @Input() rutina!: RutinaResumen;
   @Input() mostrarGuardar = false;
   @Input() guardada = false;
+  @Input() mostrarEjecutar = true;
+  @Input() mostrarProgreso = true;
   @Output() ver = new EventEmitter<number>();
   @Output() arrancar = new EventEmitter<number>();
   @Output() guardar = new EventEmitter<void>();

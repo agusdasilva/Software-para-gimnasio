@@ -3,7 +3,7 @@
     <p class="kicker">{{ modo === 'publicas' ? 'Rutinas públicas' : 'Mis rutinas' }}</p>
     <h1 *ngIf="modo === 'publicas'">Explora y guarda plantillas</h1>
     <h1 *ngIf="modo === 'mias'">Tus rutinas privadas y guardadas</h1>
-    <p class="lede" *ngIf="modo === 'publicas'">Guarda lo que te guste y úsalo de base.</p>
+    <p class="lede" *ngIf="modo === 'publicas'">Guarda lo que te guste y úsalo como base personal.</p>
     <p class="lede" *ngIf="modo === 'mias'">Solo tú ves tus privadas; las guardadas se muestran aquí.</p>
     <div class="hero-actions">
       <button class="btn primary" type="button" *ngIf="puedeCrear()" (click)="crearNueva()">Crear rutina</button>
@@ -59,13 +59,15 @@
 </section>
 
 <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
-<p class="mensaje" *ngIf="cargando">Cargando rutinas guardadas...</p>
+<p class="mensaje" *ngIf="cargando">Cargando rutinas...</p>
 
 <section class="rutinas-grid" *ngIf="filtradas.length; else emptyState">
   <app-rutina-card
     *ngFor="let rutina of filtradas"
     [rutina]="rutina"
     [mostrarGuardar]="modo === 'publicas'"
+    [mostrarEjecutar]="modo !== 'publicas'"
+    [mostrarProgreso]="modo !== 'publicas'"
     [guardada]="estaGuardada(rutina.id)"
     (guardar)="toggleGuardar(rutina)"
     (ver)="verRutina($event)"
@@ -79,3 +81,4 @@
     <button class="btn ghost" type="button" (click)="resetFiltros()">Ver todas</button>
   </div>
 </ng-template>
+

@@ -4,7 +4,7 @@
     <h1>Arma ejercicios y series sin bloques</h1>
     <p class="lede">Edita cada serie por ejercicio y agrega varios a la vez desde el catalogo.</p>
     <div class="hero-actions">
-      <a class="btn ghost" routerLink="/rutinas">Volver a listadas</a>
+      <a class="btn ghost" routerLink="/rutinas/mias">Volver a mis rutinas</a>
       <button class="btn primary" type="button" (click)="guardar()" [disabled]="cargando">Guardar rutina</button>
     </div>
   </div>
@@ -48,9 +48,9 @@
       Imagen (URL)
       <input type="text" name="imagen" placeholder="https://..." [(ngModel)]="rutina.imagen">
     </label>
-    <label class="checkbox-label">
+    <label class="checkbox-label" *ngIf="!esCliente">
       Disponible como plantilla pública
-      <input type="checkbox" name="esGlobal" [(ngModel)]="rutina.esGlobal" [disabled]="esCliente || forceGlobal">
+      <input type="checkbox" name="esGlobal" [(ngModel)]="rutina.esGlobal" [disabled]="forceGlobal">
     </label>
     <p class="muted" *ngIf="esCliente" style="margin:0 0 8px 0;">Como cliente, tus rutinas son privadas.</p>
     <p class="muted" *ngIf="forceGlobal" style="margin:0 0 8px 0;">Esta rutina se publicará para todos.</p>
@@ -148,7 +148,7 @@
   </section>
 
   <div class="form-actions">
-    <button class="btn ghost" type="button" routerLink="/rutinas">Cancelar</button>
+    <button class="btn ghost" type="button" routerLink="/rutinas/mias">Cancelar</button>
     <button class="btn primary" type="submit" [disabled]="cargando">Guardar</button>
   </div>
 
