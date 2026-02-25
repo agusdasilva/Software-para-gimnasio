@@ -62,6 +62,11 @@ const routes: Routes = [
         path: 'perfil',
         loadChildren: () =>
           import('./features/perfil/perfil.module').then(m => m.PerfilModule)
+      },
+      {
+        path: 'aptos',
+        loadChildren: () =>
+          import('./features/aptos/aptos.module').then(m => m.AptosModule)
       }
     ]
   },

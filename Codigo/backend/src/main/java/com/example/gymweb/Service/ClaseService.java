@@ -1,4 +1,4 @@
-﻿package com.example.gymweb.Service;
+package com.example.gymweb.Service;
 
 import com.example.gymweb.Repository.ClaseRepository;
 import com.example.gymweb.Repository.InvitacionClaseRepository;

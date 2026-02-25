@@ -6,19 +6,20 @@
   color: var(--color-header-text);
   position: relative;
   z-index: 10;
-  padding: 12px 2px;
+  padding: 12px 12px;
   border-bottom: 2px solid #e53935;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
 .header-shell {
   width: 100%;
-  max-width: 1320px;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   position: relative;
+  padding: 0 10px;
 }
 
 .logo-panel {
@@ -63,11 +64,18 @@
 
 .nav {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   flex: 1 1 auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
-  padding: 10px 14px;
+  padding: 10px 6px 10px 0;
+  overflow-x: visible;
+  justify-content: flex-start;
+  margin-right: 20px; /* separa la tarjeta de perfil */
+}
+
+.primary-nav {
+  white-space: nowrap;
 }
 
 .primary-nav a {
@@ -175,7 +183,8 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   min-width: max-content;
-  margin-left: auto;
+  margin-left: 16px;
+  flex-shrink: 0;
 }
 
 .notif-wrapper {

@@ -35,13 +35,16 @@ public class SecurityConfig {
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/planes/**").permitAll()
-                            // Confirmación de pago: validamos token de webhook en el controlador
+                        // Confirmacion de pago: validamos token de webhook en el controlador
                             .requestMatchers(HttpMethod.POST, "/api/pagos/mercadopago/confirmar").permitAll()
                             // Administración general
                             .requestMatchers(HttpMethod.POST, "/api/usuarios/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.PATCH, "/api/usuarios/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
-                            // Perfil y obtención de usuario: cualquier autenticado, control de dueño/rol en controlador
+                        // Aptos medicos
+                            .requestMatchers("/api/aptos/pendientes", "/api/aptos/aprobados", "/api/aptos/*/aprobar", "/api/aptos/*/rechazar", "/api/aptos/*/cancelar").hasRole("ADMIN")
+                            .requestMatchers("/api/aptos/**").authenticated()
+                        // Perfil y obtencion de usuario: cualquier autenticado, control de dueno/rol en controlador
                             .requestMatchers(HttpMethod.GET, "/api/usuarios/**").authenticated()
                             .requestMatchers(HttpMethod.PUT, "/api/usuarios/*/perfil").authenticated()
                             .requestMatchers(HttpMethod.POST, "/api/planes/**").hasRole("ADMIN")

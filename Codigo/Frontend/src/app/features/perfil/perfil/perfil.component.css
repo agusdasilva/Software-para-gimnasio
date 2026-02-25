@@ -263,6 +263,16 @@ body.theme-light .contact {
   cursor: not-allowed;
 }
 
+.mini-msg {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 90%;
+}
+
+body.theme-light .mini-msg {
+  color: #222;
+}
+
 body.theme-light .ig-card {
   background: #f8f8f8;
 }

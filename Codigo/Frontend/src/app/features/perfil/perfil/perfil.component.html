@@ -36,11 +36,14 @@
     </div>
 
     <div class="ig-grid" *ngIf="!viewOnly">
-      <button class="ig-card disabled">
+      <button class="ig-card" *ngIf="!isAdmin()" (click)="goToApto()">
         <div class="ig-card__overlay">
-          <p class="eyebrow">Pagos</p>
-          <h3>Metodo de pago (proximamente)</h3>
+          <p class="eyebrow">Apto médico</p>
+          <h3>{{ medicalFileName ? medicalFileName : 'Sube tu apto en PDF' }}</h3>
           <span class="arrow">></span>
+          <small class="mini-msg" *ngIf="medicalFileName">
+            Su apto médico será revisado en las próximas 48 horas, le notificaremos la resolución.
+          </small>
         </div>
       </button>
 
@@ -52,10 +55,10 @@
         </div>
       </button>
 
-      <button class="ig-card disabled">
+      <button class="ig-card" (click)="goToSettings()">
         <div class="ig-card__overlay">
           <p class="eyebrow">Ajustes</p>
-          <h3>Mas opciones pronto</h3>
+          <h3>Preferencias y ayuda</h3>
           <span class="arrow">></span>
         </div>
       </button>

@@ -1,0 +1,56 @@
+<section class="aptos-admin">
+  <div class="panel">
+    <header class="head">
+      <div>
+        <p class="eyebrow">Aptos médicos</p>
+        <h1>Solicitudes y vigentes</h1>
+      </div>
+      <button class="ghost" type="button" (click)="refresh()">Actualizar</button>
+    </header>
+
+    <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+
+    <div class="columns">
+      <div class="col">
+        <h3>Pendientes</h3>
+        <div *ngIf="!pendientes.length" class="empty">Sin solicitudes pendientes.</div>
+        <div *ngFor="let a of pendientes" class="card">
+          <div class="row">
+            <div>
+              <p class="strong">{{ a.usuarioNombre }}</p>
+              <p class="muted">{{ a.usuarioEmail }}</p>
+            </div>
+            <span class="pill pending">{{ a.estado }}</span>
+          </div>
+          <p class="file">{{ a.nombreArchivo }}</p>
+          <div class="row">
+            <label>Vence:
+              <input type="date" [(ngModel)]="fechas[a.id]" />
+            </label>
+            <div class="actions">
+              <button class="ghost" type="button" (click)="rechazar(a)">Rechazar</button>
+              <button class="primary" type="button" (click)="aprobar(a)">Aprobar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <h3>Aprobados vigentes</h3>
+        <div *ngIf="!aprobados.length" class="empty">No hay aptos activos.</div>
+        <div *ngFor="let a of aprobados" class="card">
+          <div class="row">
+            <div>
+              <p class="strong">{{ a.usuarioNombre }}</p>
+              <p class="muted">{{ a.usuarioEmail }}</p>
+            </div>
+            <span class="pill approved">{{ a.estado }}</span>
+          </div>
+          <p class="file">{{ a.nombreArchivo }}</p>
+          <p class="muted">Vence: {{ a.fechaVencimiento | date:'mediumDate' }}</p>
+          <button class="ghost danger" type="button" (click)="cancelar(a)">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
