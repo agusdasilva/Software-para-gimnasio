@@ -1,0 +1,139 @@
+.apto {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.apto-card {
+  width: 100%;
+  max-width: 700px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 1.8rem;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.theme-light .apto-card {
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+body.theme-light .eyebrow {
+  color: #555;
+}
+
+.upload-block {
+  margin-top: 1.2rem;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.upload input {
+  display: none;
+}
+
+.upload .label {
+  display: inline-block;
+  padding: 0.7rem 1.1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.status {
+  flex: 1;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+body.theme-light .status {
+  color: #222;
+}
+
+.primary {
+  margin-top: 1rem;
+  padding: 0.75rem 1.2rem;
+  border: none;
+  border-radius: 12px;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ghost {
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.result {
+  margin-top: 1.2rem;
+  padding: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+body.theme-light .result {
+  background: #f7f7f7;
+}
+
+.file-name {
+  margin: 0.2rem 0 0;
+  font-weight: 700;
+}
+
+.hint {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+body.theme-light .hint {
+  color: #444;
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255, 26, 26, 0.12), rgba(255, 26, 26, 0));
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .apto {
+    padding: 1rem;
+  }
+
+  .head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

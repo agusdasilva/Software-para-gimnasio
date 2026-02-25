@@ -1,0 +1,38 @@
+<section class="apto">
+  <div class="apto-card">
+    <header class="head">
+      <div>
+        <p class="eyebrow">Apto médico</p>
+        <h1>Subí tu certificado en PDF</h1>
+        <p class="subtitle">Necesitamos validar tu apto para habilitar el acceso al gimnasio.</p>
+      </div>
+      <button class="ghost" type="button" (click)="goBack()">Volver</button>
+    </header>
+
+    <div class="upload-block">
+      <label class="upload">
+        <input type="file" accept="application/pdf" (change)="onFileChange($event)">
+        <span class="label">Elegir PDF</span>
+      </label>
+      <div class="status">
+        <p *ngIf="statusMessage; else ready">{{ statusMessage }}</p>
+        <ng-template #ready>
+          <p *ngIf="selectedFile">Listo para enviar: {{ selectedFile.name }}</p>
+          <p *ngIf="!selectedFile">Selecciona un archivo para continuar.</p>
+        </ng-template>
+      </div>
+    </div>
+
+    <button class="primary" type="button" (click)="send()">Enviar</button>
+
+    <div class="result" *ngIf="storedFileName">
+      <p class="eyebrow">Archivo cargado</p>
+      <p class="file-name">{{ storedFileName }}</p>
+      <p class="hint" *ngIf="storedUploadedAt">Subido: {{ storedUploadedAt | date:'medium' }}</p>
+    </div>
+
+    <div class="message" *ngIf="submitMessage">
+      {{ submitMessage }}
+    </div>
+  </div>
+</section>

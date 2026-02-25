@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService, UsuarioResponse } from '../../../core/auth/auth.service';
+import { AuthService, UsuarioResponse, UserRole } from '../../../core/auth/auth.service';
+import { AptosService, Apto } from '../../../core/services/aptos.service';
 
 @Component({
   selector: 'app-perfil',
@@ -18,11 +19,19 @@ export class PerfilComponent implements OnInit {
   phone = '';
   joinedAt = '';
   viewOnly = false;
+  medicalFileName = '';
+  medicalUploadedAt = '';
 
-  constructor(private authService: AuthService, private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private aptosService: AptosService
+  ) {}
 
   ngOnInit(): void {
     this.loadProfile();
+    this.loadMedicalProof();
   }
 
   goToEdit(): void {
@@ -34,6 +43,25 @@ export class PerfilComponent implements OnInit {
 
   goToMembresias(): void {
     this.router.navigate(['/membresias']);
+  }
+
+  goToSettings(): void {
+    if (this.viewOnly) {
+      return;
+    }
+    this.router.navigate(['/perfil/ajustes']);
+  }
+
+  goToApto(): void {
+    if (this.viewOnly) {
+      return;
+    }
+    this.router.navigate(['/perfil/apto-medico']);
+  }
+
+  isAdmin(): boolean {
+    const roles = this.authService.currentUser?.roles || [];
+    return roles.includes('ADMIN' as UserRole);
   }
 
   avatarFallback(): string {
@@ -55,6 +83,25 @@ export class PerfilComponent implements OnInit {
     this.authService.getProfile().subscribe(user => {
       this.fillProfile(user);
       this.viewOnly = false;
+    });
+  }
+
+  private loadMedicalProof(): void {
+    this.aptosService.misAptos().subscribe({
+      next: (aptos: Apto[]) => {
+        const first = aptos[0];
+        if (!first) {
+          this.medicalFileName = '';
+          this.medicalUploadedAt = '';
+          return;
+        }
+        this.medicalFileName = first.nombreArchivo || '';
+        this.medicalUploadedAt = first.fechaSubida || '';
+      },
+      error: () => {
+        this.medicalFileName = '';
+        this.medicalUploadedAt = '';
+      }
     });
   }
 

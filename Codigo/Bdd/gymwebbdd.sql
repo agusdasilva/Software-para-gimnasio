@@ -213,6 +213,21 @@ CREATE TABLE serie (
 );
 
 -------------------------------------------------------
+-- APTO MÉDICO
+-------------------------------------------------------
+CREATE TABLE apto_medico (
+  id_apto INT NOT NULL AUTO_INCREMENT,
+  usuario_id INT NOT NULL,
+  nombre_archivo VARCHAR(255),
+  estado VARCHAR(20) NOT NULL,
+  fecha_subida DATETIME DEFAULT CURRENT_TIMESTAMP,
+  fecha_vencimiento DATE NULL,
+  archivo LONGBLOB,
+  PRIMARY KEY (id_apto),
+  FOREIGN KEY (usuario_id) REFERENCES usuario(id_usuario)
+);
+
+-------------------------------------------------------
 -- CONFIGURACIÓN DE DASHBOARD
 -------------------------------------------------------
 CREATE TABLE config_dashboard (

@@ -1,0 +1,87 @@
+<section class="ajustes">
+  <div class="settings-card">
+    <header class="settings-header">
+      <div>
+        <p class="eyebrow">Preferencias</p>
+        <h1>Ajustes de tu cuenta</h1>
+        <p class="subtitle">Personaliza la experiencia, controla pagos y accede a ayuda rápida.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="tile">
+        <div class="tile-head">
+          <div>
+            <p class="eyebrow">Apariencia</p>
+            <h3>Modo oscuro</h3>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [checked]="isDarkTheme" (change)="toggleTheme($event)" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p class="tile-desc">Cambia entre claro y oscuro. Se guarda en este dispositivo.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-head">
+          <div>
+            <p class="eyebrow">Pagos</p>
+            <h3>Pago automático</h3>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [checked]="autoPayEnabled" (change)="toggleAutoPay($event)" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p class="tile-desc">Actívalo para renovar tu plan sin recordatorios. Podrás desactivarlo cuando quieras.</p>
+      </div>
+
+      <div class="tile wide">
+        <div class="tile-head">
+          <div>
+            <p class="eyebrow">Preguntas frecuentes</p>
+            <h3>Respuestas rápidas</h3>
+          </div>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item" *ngFor="let f of faqItems" [class.open]="f.open">
+            <button type="button" class="faq-q" (click)="toggleFaq(f)">
+              <span>{{ f.q }}</span>
+              <span class="arrow">{{ f.open ? '−' : '+' }}</span>
+            </button>
+            <div class="faq-a" *ngIf="f.open">{{ f.a }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tile">
+        <p class="eyebrow">Acerca del gym</p>
+        <h3>Quiénes somos</h3>
+        <p class="tile-desc">{{ aboutText }}</p>
+      </div>
+
+      <div class="tile">
+        <p class="eyebrow">Legales</p>
+        <h3>Condiciones y privacidad</h3>
+        <p class="tile-desc">{{ legalText }}</p>
+      </div>
+
+      <div class="tile">
+        <p class="eyebrow">Soporte</p>
+        <h3>¿Necesitas ayuda?</h3>
+        <p class="tile-desc">Escríbenos a <strong>{{ supportEmail }}</strong> o haz clic para abrir tu correo.</p>
+        <button class="btn ghost" type="button" (click)="openSupport()">Contactar soporte</button>
+      </div>
+    </div>
+
+    <div class="logout-row">
+      <div>
+        <p class="eyebrow">Cuenta</p>
+        <h3>Cerrar sesión</h3>
+        <p class="tile-desc">Salir en este dispositivo. Podrás volver a ingresar con tu correo y contraseña.</p>
+      </div>
+      <button class="btn danger" type="button" (click)="logout()">Salir</button>
+    </div>
+  </div>
+</section>
