@@ -14,9 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
-
+import java.util.HashMap;
 @Service
 public class MercadoPagoService {
 
@@ -31,12 +30,8 @@ public class MercadoPagoService {
     @Value("${mercadopago.notification-url:http://localhost:8080/api/pagos/mercadopago/confirmar}")
     private String notificationUrl;
 
-    private static final Map<String, PlanInfo> PLANES = new HashMap<>();
-    static {
-        PLANES.put("dia", new PlanInfo("Plan por dia", new BigDecimal("10"), "DIARIO"));
-        PLANES.put("mensual-3", new PlanInfo("Plan mensual - 3 dias", new BigDecimal("80"), "MENSUAL"));
-        PLANES.put("mensual-full", new PlanInfo("Plan mensual - Full", new BigDecimal("120"), "MENSUAL"));
-    }
+    @Value("${mercadopago.auto-return:approved}")
+    private String autoReturn;
 
     public MercadoPagoService(PlanRepository planRepository) {
         this.planRepository = planRepository;
@@ -64,7 +59,10 @@ public class MercadoPagoService {
         Map<String, Object> payload = new HashMap<>();
         payload.put("items", java.util.List.of(item));
         payload.put("back_urls", backUrls);
-        // No usamos auto_return porque exige back_urls https; en local es http y falla
+        // Enviamos auto_return solo cuando back_urls es https (requerido por MP)
+        if (backUrl != null && backUrl.toLowerCase().startsWith("https://") && autoReturn != null && !autoReturn.isBlank()) {
+            payload.put("auto_return", autoReturn);
+        }
         payload.put("external_reference", "user-" + usuario.getId() + "-plan-" + planCode);
         payload.put("payer", Map.of("email", usuario.getEmail()));
         payload.put("notification_url", notificationUrl);
@@ -159,6 +157,69 @@ public class MercadoPagoService {
     }
 
     /**
+     * Devuelve el payment id mas reciente para un usuario, buscando por prefijo user-{id}-plan-*
+     */
+    public Long buscarPagoMasRecientePorUsuario(int userId) {
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new RuntimeException("Falta configurar mercadopago.access-token");
+        }
+        RestTemplate restTemplate = restTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        String prefix = "user-" + userId + "-plan-";
+        // Intento 1: filtro por prefijo en external_reference
+        Map<?, ?> response = restTemplate.exchange(
+                "https://api.mercadopago.com/v1/payments/search?external_reference=" + prefix + "&sort=date_created&criteria=desc&limit=3",
+                org.springframework.http.HttpMethod.GET,
+                request,
+                Map.class
+        ).getBody();
+        Long found = extraerPrimerPaymentId(response);
+        if (found != null) return found;
+
+        // Intento 2: sin filtro, tomar el último pago cuyo external_reference contenga user-{id}
+        Map<?, ?> responseAll = restTemplate.exchange(
+                "https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&limit=10",
+                org.springframework.http.HttpMethod.GET,
+                request,
+                Map.class
+        ).getBody();
+        if (responseAll == null) return null;
+        Object resultsAll = responseAll.get("results");
+        if (resultsAll instanceof java.util.List<?> list) {
+            for (Object o : list) {
+                if (o instanceof Map<?, ?> map) {
+                    Object ext = map.get("external_reference");
+                    if (ext != null && ext.toString().contains("user-" + userId)) {
+                        Object idObj = map.get("id");
+                        if (idObj != null) {
+                            try {
+                                return Long.parseLong(idObj.toString());
+                            } catch (NumberFormatException ignored) { }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private Long extraerPrimerPaymentId(Map<?, ?> response) {
+        if (response == null) return null;
+        Object results = response.get("results");
+        if (results instanceof java.util.List<?> list && !list.isEmpty()) {
+            Object first = list.get(0);
+            if (first instanceof Map<?, ?> map && map.get("id") != null) {
+                try {
+                    return Long.parseLong(map.get("id").toString());
+                } catch (NumberFormatException ignored) { }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Obtiene el primer payment id asociado a una merchant_order enviada por webhook.
      * Devuelve null si no hay pagos asociados.
      */
@@ -193,17 +254,13 @@ public class MercadoPagoService {
     }
 
     private PlanInfo obtenerPlanInfo(String planCode) {
-        PlanInfo plan = PLANES.get(planCode);
-        if (plan != null) {
-            return plan;
+        if (planCode == null || !planCode.matches("\\d+")) {
+            throw new RuntimeException("Plan invalido: se requiere ID numerico");
         }
-        if (planCode != null && planCode.matches("\\d+")) {
-            int idPlan = Integer.parseInt(planCode);
-            Plan p = this.planRepository.findById(idPlan)
-                    .orElseThrow(() -> new RuntimeException("Plan invalido"));
-            return new PlanInfo(p.getNombre(), p.getPrecio(), p.getPeriodo());
-        }
-        throw new RuntimeException("Plan invalido");
+        int idPlan = Integer.parseInt(planCode);
+        Plan p = this.planRepository.findById(idPlan)
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado: " + idPlan));
+        return new PlanInfo(p.getNombre(), p.getPrecio(), p.getPeriodo());
     }
 
     private record PlanInfo(String nombre, BigDecimal precio, String periodo) {}

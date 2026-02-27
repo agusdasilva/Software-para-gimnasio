@@ -18,7 +18,6 @@ import com.example.gymweb.model.Estado;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,46 +120,17 @@ public class PagoService {
             this.usuarioRepository.save(usuario);
         }
 
-        Plan plan = null;
-        PlanInfo planInfo = null;
-        if (planCode != null && planCode.matches("\\d+")) {
-            int idPlan = Integer.parseInt(planCode);
-            plan = this.planRepository.findById(idPlan).orElse(null);
-        }
-        if (plan == null) {
-            planInfo = PLANES.get(planCode);
-        }
-        if (plan == null && planInfo == null) {
-            planInfo = PLANES.get("mensual-full");
-        }
-        if (plan == null && planInfo != null) {
-            final PlanInfo infoPlan = planInfo;
-            plan = this.planRepository.findByNombreIgnoreCase(infoPlan.nombre())
-                    .orElseGet(() -> {
-                        Plan p = new Plan();
-                        p.setNombre(infoPlan.nombre());
-                        p.setPrecio(infoPlan.precio());
-                        p.setPeriodo(infoPlan.periodo());
-                        return this.planRepository.save(p);
-                    });
-        }
-        if (plan == null) {
-            throw new RuntimeException("Plan no encontrado");
-        }
-        if (planInfo != null) {
-            boolean actualizar = false;
-            if (plan.getPeriodo() == null || !plan.getPeriodo().equalsIgnoreCase(planInfo.periodo())) {
-                plan.setPeriodo(planInfo.periodo());
-                actualizar = true;
+        if (planCode == null || !planCode.matches("\\d+")) {
+            // Intentar resolver por nombre (soportar referencias antiguas tipo "mensual-full")
+            Plan planByName = resolverPlanPorNombre(planCode);
+            if (planByName == null) {
+                throw new RuntimeException("Plan invalido en referencia externa");
             }
-            if (plan.getPrecio() == null) {
-                plan.setPrecio(planInfo.precio());
-                actualizar = true;
-            }
-            if (actualizar) {
-                plan = this.planRepository.save(plan);
-            }
+            planCode = String.valueOf(planByName.getId());
         }
+        int idPlan = Integer.parseInt(planCode);
+        Plan plan = this.planRepository.findById(idPlan)
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado: " + idPlan));
 
         // Buscar membresia vigente o ultima y extender segun plan elegido
         Membresia membresia = this.membresiaRepository.findFirstByUsuarioIdOrderByFechaFinDesc(userId)
@@ -184,9 +154,6 @@ public class PagoService {
         java.math.BigDecimal monto = info.getTransactionAmount();
         if (monto == null) {
             monto = plan.getPrecio();
-            if (monto == null && planInfo != null) {
-                monto = planInfo.precio();
-            }
         }
         pago.setMonto(monto);
         pago.setComprobante_url("mercadopago:" + paymentId);
@@ -202,21 +169,36 @@ public class PagoService {
      * Se usa como fallback si el frontend no logro confirmar o el webhook no llego.
      */
     public MembresiaResponse reconciliarPagoPorUsuarioYPlan(int userId, String planCode) {
+        if (planCode == null || !planCode.matches("\\d+")) {
+            log.warn("Plan code invalido para reconciliar: {}", planCode);
+            return null;
+        }
         String extRef = "user-" + userId + "-plan-" + planCode;
         Long paymentId = this.mercadoPagoService.buscarPagoPorExternalReference(extRef);
         if (paymentId == null) {
-            log.warn("No se encontro pago en MP con external_reference {}", extRef);
-            return null;
+            // Fallback: buscar el pago mas reciente del usuario (por si el plan code difiere o hubo cambios)
+            paymentId = this.mercadoPagoService.buscarPagoMasRecientePorUsuario(userId);
+            if (paymentId == null) {
+                log.warn("No se encontro pago en MP con external_reference {} ni por prefijo user-{}-plan-*", extRef, userId);
+                return null;
+            }
+            log.info("Fallback reconciliar: usando pago {} mas reciente para usuario {}", paymentId, userId);
+        } else {
+            log.info("Reconciliando pago {} para usuario {} plan {}", paymentId, userId, planCode);
         }
-        log.info("Reconciliando pago {} para usuario {} plan {}", paymentId, userId, planCode);
         return this.procesarPagoMercadoPago(paymentId);
     }
 
-    private record PlanInfo(String nombre, java.math.BigDecimal precio, String periodo) {}
-
-    private static final Map<String, PlanInfo> PLANES = Map.of(
-            "dia", new PlanInfo("Plan por dia", new java.math.BigDecimal("10"), "DIARIO"),
-            "mensual-3", new PlanInfo("Plan mensual - 3 dias", new java.math.BigDecimal("80"), "MENSUAL"),
-            "mensual-full", new PlanInfo("Plan mensual - Full", new java.math.BigDecimal("120"), "MENSUAL")
-    );
+    private Plan resolverPlanPorNombre(String planCode) {
+        if (planCode == null || planCode.isBlank()) return null;
+        String normalized = planCode.toLowerCase().replace('-', ' ').trim();
+        return this.planRepository.findAll()
+                .stream()
+                .filter(p -> {
+                    String nombre = (p.getNombre() == null) ? "" : p.getNombre().toLowerCase();
+                    return nombre.contains(normalized);
+                })
+                .findFirst()
+                .orElse(null);
+    }
 }
