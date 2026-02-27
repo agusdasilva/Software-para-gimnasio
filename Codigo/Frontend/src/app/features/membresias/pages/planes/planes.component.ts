@@ -23,7 +23,6 @@ export class PlanesComponent implements OnInit, OnDestroy {
   planesError = '';
   planesMessage = '';
   private selectedPlanId: number | null = null;
-  private selectedPlanName: string | null = null;
   private readonly storageKey = 'last_plan_selected';
   private membershipLoaded = false;
   @ViewChild('planesTrack', { static: false }) planesTrack?: ElementRef<HTMLDivElement>;
@@ -96,14 +95,18 @@ export class PlanesComponent implements OnInit, OnDestroy {
 
   choosePlan(plan: Plan): void {
     if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login'], { queryParams: { plan: plan.id ?? plan.nombre, returnUrl: '/membresias' } });
+      this.router.navigate(['/login'], { queryParams: { plan: plan.id ?? '', returnUrl: '/membresias' } });
+      return;
+    }
+
+    if (!plan.id) {
+      this.error = 'El plan seleccionado no tiene ID, no se puede iniciar el pago.';
       return;
     }
 
     this.loading = true;
-    this.loadingPlan = plan.id ? plan.id.toString() : plan.nombre;
-    this.selectedPlanId = plan.id ?? null;
-    this.selectedPlanName = plan.nombre;
+    this.loadingPlan = plan.id.toString();
+    this.selectedPlanId = plan.id;
     this.storeSelectedPlan();
     this.error = '';
     this.pagoService.crearPreferencia(this.loadingPlan).subscribe({
@@ -141,8 +144,8 @@ export class PlanesComponent implements OnInit, OnDestroy {
   }
 
   isLoading(plan: Plan): boolean {
-    const id = plan.id ? plan.id.toString() : plan.nombre;
-    return this.loadingPlan === id;
+    const id = plan.id ? plan.id.toString() : '';
+    return !!id && this.loadingPlan === id;
   }
 
   diasRestantes(): number | null {
@@ -283,9 +286,6 @@ export class PlanesComponent implements OnInit, OnDestroy {
     if (!paymentId) {
       return;
     }
-    if (!this.authService.isAuthenticated()) {
-      return;
-    }
     this.loading = true;
     this.error = '';
     this.pagoService.confirmarPago(paymentId).subscribe({
@@ -297,7 +297,7 @@ export class PlanesComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.error = 'No se pudo confirmar el pago. Intentando reconciliar...';
         this.restoreSelectedPlan();
-        const planCode = this.selectedPlanId ? this.selectedPlanId.toString() : (this.selectedPlanName || this.loadingPlan || '');
+        const planCode = this.selectedPlanId ? this.selectedPlanId.toString() : '';
         if (planCode) {
           this.pagoService.reconciliar(planCode).subscribe({
             next: (res) => {
@@ -373,10 +373,7 @@ export class PlanesComponent implements OnInit, OnDestroy {
   }
 
   private storeSelectedPlan(): void {
-    const payload = {
-      id: this.selectedPlanId,
-      name: this.selectedPlanName
-    };
+    const payload = { id: this.selectedPlanId };
     localStorage.setItem(this.storageKey, JSON.stringify(payload));
   }
 
@@ -386,10 +383,8 @@ export class PlanesComponent implements OnInit, OnDestroy {
     try {
       const data = JSON.parse(raw);
       this.selectedPlanId = data?.id ?? null;
-      this.selectedPlanName = data?.name ?? null;
     } catch {
       this.selectedPlanId = null;
-      this.selectedPlanName = null;
     }
   }
 
@@ -410,7 +405,7 @@ export class PlanesComponent implements OnInit, OnDestroy {
     this.membresiaService.crear(this.selectedPlanId).subscribe({
       next: (m) => {
         this.membresia = this.filtrarMembresia(m);
-        this.success = `Membresia "${this.selectedPlanName || ''}" activada.`;
+        this.success = `Membresia activada.`;
         this.clearStoredPlan();
         this.irADetalleSiCliente();
       },
@@ -436,7 +431,7 @@ export class PlanesComponent implements OnInit, OnDestroy {
     }
     // Si MP no devolvió la membresía, reintentamos conciliando contra MercadoPago
     this.restoreSelectedPlan();
-    const planCode = this.selectedPlanId ? this.selectedPlanId.toString() : (this.selectedPlanName || this.loadingPlan || '');
+    const planCode = this.selectedPlanId ? this.selectedPlanId.toString() : '';
     if (!planCode) {
       this.crearMembresiaLocal();
       return;
