@@ -46,18 +46,18 @@
 }
 
 .chip.nivel {
-  background: rgba(76, 175, 80, 0.1);
-  color: #8bc34a;
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .chip.nivel.avanzado {
-  background: rgba(229, 57, 53, 0.1);
-  color: #ef5350;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
 }
 
 .chip.nivel.principiante {
-  background: rgba(66, 165, 245, 0.12);
-  color: #90caf9;
+  background: var(--color-info-soft);
+  color: var(--color-info);
 }
 
 .estado {
@@ -71,11 +71,11 @@
 }
 
 .estado.borrador {
-  color: #ffc107;
+  color: var(--color-warning);
 }
 
 .estado.pausada {
-  color: #ef5350;
+  color: var(--color-danger);
 }
 
 .tags {
@@ -198,8 +198,8 @@
   align-self: center;
   padding: 6px 10px;
   border-radius: 10px;
-  background: linear-gradient(120deg, #ff8a80, #e53935);
-  color: #1f1f1f;
+  background: var(--gradient-accent-strong);
+  color: var(--color-ink-strong);
   font-weight: 800;
 }
 
@@ -219,7 +219,7 @@
 
 .fill {
   height: 100%;
-  background: linear-gradient(120deg, #ff1a1a, #ff6b6b);
+  background: var(--gradient-accent);
   border-radius: 999px;
 }
 

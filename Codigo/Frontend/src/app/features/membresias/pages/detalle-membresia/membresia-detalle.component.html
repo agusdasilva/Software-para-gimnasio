@@ -1,0 +1,51 @@
+<section class="membresia-detalle" *ngIf="!loading; else loadingTpl">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Membresía</p>
+      <h1>Estado de tu plan</h1>
+      <p class="muted">Revisa vigencia, mejora o solicita cancelación.</p>
+    </div>
+    <button class="ghost" type="button" (click)="mejorar()" [disabled]="!puedeMejorar">Mejorar plan</button>
+  </header>
+
+  <div class="card" *ngIf="membresia; else sinMembresia">
+    <div class="card-head">
+      <div>
+        <p class="eyebrow">Plan activo</p>
+        <h2>{{ membresia?.nombrePlan }}</h2>
+      </div>
+      <span class="pill">{{ membresia?.estado }}</span>
+    </div>
+
+    <div class="grid">
+      <div>
+        <p class="label">Vigencia</p>
+        <p class="value">{{ membresia?.fechaInicio | date:'mediumDate' }} → {{ membresia?.fechaFin | date:'mediumDate' }}</p>
+      </div>
+      <div>
+        <p class="label">Días restantes</p>
+        <p class="value">{{ diasRestantes !== null ? diasRestantes : '—' }}</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn danger" type="button" (click)="cancelar()" [disabled]="!puedeCancelar">Cancelar membresía</button>
+      <button class="btn" type="button" (click)="mejorar()" [disabled]="!puedeMejorar">Mejorar / cambiar plan</button>
+    </div>
+
+    <p class="feedback success" *ngIf="cancelMessage">{{ cancelMessage }}</p>
+  </div>
+
+  <ng-template #sinMembresia>
+    <div class="card empty">
+      <p>No tienes una membresía activa.</p>
+      <button class="btn" type="button" (click)="mejorar()">Ver planes</button>
+    </div>
+  </ng-template>
+
+  <p class="feedback error" *ngIf="error">{{ error }}</p>
+</section>
+
+<ng-template #loadingTpl>
+  <p class="muted">Cargando membresía...</p>
+</ng-template>

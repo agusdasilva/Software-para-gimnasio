@@ -29,6 +29,7 @@ export class AjustesComponent implements OnInit {
   aboutText = 'Somos un equipo que combina entrenamiento de fuerza, clases grupales y planes personalizados. Queremos que tengas todo en un solo lugar.';
   legalText = 'Al usar la app aceptas nuestros términos, la política de privacidad y las reglas del gimnasio. Consulta recepción para la versión firmada.';
   supportEmail = 'soporte@gym.com';
+  supportPhone = '5492236689337';
 
   constructor(
     private themeService: ThemeService,
@@ -59,8 +60,9 @@ export class AjustesComponent implements OnInit {
   }
 
   openSupport(): void {
-    const url = `mailto:${this.supportEmail}?subject=Ayuda%20Gym&body=Contanos%20qué%20necesitas%20resolver`;
-    window.location.href = url;
+    const message = encodeURIComponent('Hola, necesito ayuda con mi cuenta.');
+    const url = `https://wa.me/${this.supportPhone}?text=${message}`;
+    window.open(url, '_blank');
   }
 
   logout(): void {

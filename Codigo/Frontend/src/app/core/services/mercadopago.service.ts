@@ -13,13 +13,13 @@ export interface MercadoPagoPreferenceResponse {
 })
 export class MercadoPagoService {
 
-  private baseUrl = `${environment.apiBaseUrl}/mercadopago`;
+  private baseUrl = `${environment.apiBaseUrl}/pagos/mercadopago`;
 
   constructor(private http: HttpClient) {}
 
   createPreference(planCode: string): Observable<MercadoPagoPreferenceResponse> {
-    return this.http.post<MercadoPagoPreferenceResponse>(`${this.baseUrl}/preferencias`, {
-      planCode
+    return this.http.post<MercadoPagoPreferenceResponse>(`${this.baseUrl}/preferencia`, null, {
+      params: { plan: planCode }
     });
   }
 }

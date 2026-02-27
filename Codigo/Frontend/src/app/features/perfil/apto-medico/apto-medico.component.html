@@ -9,30 +9,43 @@
       <button class="ghost" type="button" (click)="goBack()">Volver</button>
     </header>
 
-    <div class="upload-block">
+    <div class="status-banner" *ngIf="submitMessage" [class.success]="isApproved" [class.error]="isRejected">
+      <span class="icon">{{ isApproved ? '✓' : isRejected ? '✕' : '⌛' }}</span>
+      <div>
+        <p class="banner-text">{{ submitMessage }}</p>
+        <p class="banner-sub" *ngIf="apto?.fechaVencimiento && isApproved">Vigente hasta {{ apto?.fechaVencimiento | date:'mediumDate' }}</p>
+      </div>
+    </div>
+
+    <div class="upload-block" [class.disabled]="!canUpload">
       <label class="upload">
-        <input type="file" accept="application/pdf" (change)="onFileChange($event)">
-        <span class="label">Elegir PDF</span>
+        <input type="file" accept="application/pdf" (change)="onFileChange($event)" [disabled]="!canUpload">
+        <span class="label">{{ canUpload ? 'Elegir PDF' : 'En revisión' }}</span>
       </label>
       <div class="status">
         <p *ngIf="statusMessage; else ready">{{ statusMessage }}</p>
         <ng-template #ready>
           <p *ngIf="selectedFile">Listo para enviar: {{ selectedFile.name }}</p>
-          <p *ngIf="!selectedFile">Selecciona un archivo para continuar.</p>
+          <p *ngIf="!selectedFile && canUpload">Selecciona un archivo para continuar.</p>
+          <p *ngIf="!canUpload">Espera la resolución o cancela la solicitud.</p>
         </ng-template>
       </div>
     </div>
 
-    <button class="primary" type="button" (click)="send()">Enviar</button>
-
-    <div class="result" *ngIf="storedFileName">
-      <p class="eyebrow">Archivo cargado</p>
-      <p class="file-name">{{ storedFileName }}</p>
-      <p class="hint" *ngIf="storedUploadedAt">Subido: {{ storedUploadedAt | date:'medium' }}</p>
+    <div class="actions-row">
+      <button class="primary" type="button" (click)="send()" [disabled]="!selectedFile || sending || !canUpload">
+        {{ sending ? 'Enviando...' : 'Enviar' }}
+      </button>
+      <button class="ghost" type="button" *ngIf="isPending" (click)="cancel()" [disabled]="loading">Cancelar solicitud</button>
+      <button class="ghost" type="button" *ngIf="showRenew" (click)="renew()" [disabled]="!canUpload">Renovar apto</button>
     </div>
 
-    <div class="message" *ngIf="submitMessage">
-      {{ submitMessage }}
+    <div class="result" *ngIf="apto">
+      <p class="eyebrow">Archivo cargado</p>
+      <p class="file-name">{{ apto.nombreArchivo }}</p>
+      <p class="hint" *ngIf="apto.fechaSubida">Subido: {{ apto.fechaSubida | date:'medium' }}</p>
+      <p class="hint" *ngIf="apto.fechaVencimiento && isApproved">Vence: {{ apto.fechaVencimiento | date:'mediumDate' }}</p>
+      <p class="hint" *ngIf="apto.estado">Estado: {{ apto.estado | titlecase }}</p>
     </div>
   </div>
 </section>

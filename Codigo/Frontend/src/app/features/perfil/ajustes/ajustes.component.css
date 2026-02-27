@@ -20,12 +20,12 @@
 
 .settings-header .subtitle {
   margin: 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-muted);
 }
 
 body.theme-light .settings-card {
-  background: #ffffff;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  background: var(--color-bg-alt);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
 .eyebrow {
@@ -33,11 +33,11 @@ body.theme-light .settings-card {
   font-size: 0.8rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 body.theme-light .eyebrow {
-  color: #555;
+  color: var(--color-text-muted);
 }
 
 .grid {
@@ -74,11 +74,11 @@ body.theme-light .eyebrow {
 
 .tile-desc {
   margin: 0;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--color-text-soft);
 }
 
 body.theme-light .tile-desc {
-  color: #333;
+  color: var(--color-text-muted);
 }
 
 .switch {
@@ -98,7 +98,7 @@ body.theme-light .tile-desc {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background-color: #777;
+  background-color: var(--color-border);
   transition: 0.2s;
   border-radius: 30px;
 }
@@ -110,7 +110,7 @@ body.theme-light .tile-desc {
   width: 22px;
   left: 3px;
   bottom: 3px;
-  background-color: white;
+  background-color: var(--color-control-knob);
   transition: 0.2s;
   border-radius: 50%;
 }
@@ -154,11 +154,11 @@ body.theme-light .tile-desc {
 
 .faq-a {
   padding: 0 0.9rem 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-soft);
 }
 
 body.theme-light .faq-a {
-  color: #333;
+  color: var(--color-text-muted);
 }
 
 .logout-row {
@@ -170,7 +170,7 @@ body.theme-light .faq-a {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: linear-gradient(90deg, rgba(255, 26, 26, 0.06), rgba(255, 26, 26, 0));
+  background: linear-gradient(90deg, rgba(216, 116, 60, 0.12), rgba(216, 116, 60, 0));
 }
 
 .btn {
@@ -187,9 +187,15 @@ body.theme-light .faq-a {
   color: var(--color-accent);
 }
 
+.support-btn:hover {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-on-accent);
+}
+
 .btn.danger {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
 }
 
 @media (max-width: 720px) {

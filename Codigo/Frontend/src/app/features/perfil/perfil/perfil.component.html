@@ -21,7 +21,7 @@
         <div class="meta-chips">
           <span class="chip strong" *ngIf="roles?.length">Rol: {{ roles[0] }}</span>
           <span class="chip subtle" *ngIf="status">Estado: {{ status }}</span>
-          <span class="chip subtle" *ngIf="joinedAt">Alta: {{ joinedAt | date:'mediumDate' }}</span>
+          <span class="chip subtle" *ngIf="joinedAtDisplay">Alta: {{ joinedAtDisplay }}</span>
         </div>
 
         <div class="bio-block">
@@ -62,6 +62,27 @@
           <span class="arrow">></span>
         </div>
       </button>
+    </div>
+
+    <div class="apto-summary" *ngIf="aptoId || medicalEstado">
+      <div class="apto-card">
+        <div class="apto-head">
+          <div>
+            <p class="eyebrow">Apto médico</p>
+            <h3>{{ medicalEstado || 'Sin apto' }}</h3>
+          </div>
+          <button class="btn ghost" *ngIf="(isAdmin() || !viewOnly) && aptoId" (click)="cancelarApto()" [disabled]="aptoLoading">Cancelar apto</button>
+        </div>
+        <div *ngIf="aptoId; else noApto">
+          <p class="muted">Archivo: {{ medicalFileName || 'N/D' }}</p>
+          <p class="muted" *ngIf="medicalUploadedAt">Subido: {{ medicalUploadedAt }}</p>
+          <p class="muted" *ngIf="medicalVence">Vence: {{ medicalVence }}</p>
+          <p class="muted" *ngIf="aptoMessage">{{ aptoMessage }}</p>
+        </div>
+        <ng-template #noApto>
+          <p class="muted">No se encontró un apto para este usuario.</p>
+        </ng-template>
+      </div>
     </div>
   </div>
 </section>

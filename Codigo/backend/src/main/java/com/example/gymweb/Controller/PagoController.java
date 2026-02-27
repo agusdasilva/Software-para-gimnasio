@@ -66,9 +66,14 @@ public class PagoController {
     }
 
     @PostMapping({"/mercadopago/confirmar"})
-    public ResponseEntity<MembresiaResponse> confirmarPago(@RequestParam Long paymentId,
+    public ResponseEntity<MembresiaResponse> confirmarPago(@RequestParam(name = "paymentId", required = false) Long paymentId,
+                                                           @RequestParam(name = "collection_id", required = false) Long collectionId,
+                                                           @RequestParam(name = "id", required = false) Long paymentIdAlias,
+                                                           @RequestParam(name = "topic", required = false) String topic,
                                                            @RequestParam(name = "token", required = false) String token,
                                                            @org.springframework.web.bind.annotation.RequestHeader(name = "X-Webhook-Token", required = false) String headerToken) {
+        org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PagoController.class);
+        log.info("Confirmar pago request paymentId={} collection_id={} id={} topic={}", paymentId, collectionId, paymentIdAlias, topic);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean tieneSesion = auth != null && auth.getPrincipal() instanceof Usuario;
 
@@ -80,6 +85,32 @@ public class PagoController {
                 }
             }
         }
-        return ResponseEntity.ok(this.pagoService.procesarPagoMercadoPago(paymentId));
+        Long effectiveId = paymentId != null ? paymentId : (collectionId != null ? collectionId : paymentIdAlias);
+        // Webhook de merchant_order: hay que traducir a payment id
+        if (effectiveId == null && topic != null && topic.equalsIgnoreCase("merchant_order")) {
+            Long found = this.mercadoPagoService.obtenerPaymentIdDesdeMerchantOrder(paymentIdAlias);
+            if (found != null) {
+                effectiveId = found;
+            }
+        }
+        if (effectiveId == null) {
+            log.warn("No se recibio payment id valido en confirmacion");
+            return ResponseEntity.badRequest().build();
+        }
+        log.info("Confirmando pago con id efectivo {}", effectiveId);
+        return ResponseEntity.ok(this.pagoService.procesarPagoMercadoPago(effectiveId));
+    }
+
+    @GetMapping({"/mercadopago/reconciliar"})
+    public ResponseEntity<MembresiaResponse> reconciliar(@RequestParam String plan) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof Usuario usuario)) {
+            return ResponseEntity.status(401).build();
+        }
+        MembresiaResponse res = this.pagoService.reconciliarPagoPorUsuarioYPlan(usuario.getId(), plan);
+        if (res == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(res);
     }
 }

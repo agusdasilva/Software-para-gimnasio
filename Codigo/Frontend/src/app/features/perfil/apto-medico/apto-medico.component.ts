@@ -11,10 +11,11 @@ import { AuthService } from '../../../core/auth/auth.service';
 export class AptoMedicoComponent implements OnInit {
 
   selectedFile?: File;
-  storedFileName = '';
-  storedUploadedAt = '';
+  apto: Apto | null = null;
   statusMessage = '';
   submitMessage = '';
+  loading = false;
+  sending = false;
 
   constructor(
     private router: Router,
@@ -31,6 +32,11 @@ export class AptoMedicoComponent implements OnInit {
   }
 
   onFileChange(event: Event): void {
+    if (this.isPending) {
+      this.statusMessage = 'Ya enviaste un apto. Cancélalo para subir otro.';
+      this.selectedFile = undefined;
+      return;
+    }
     const file = (event.target as HTMLInputElement | null)?.files?.[0];
     if (!file) return;
     if (file.type !== 'application/pdf') {
@@ -43,10 +49,15 @@ export class AptoMedicoComponent implements OnInit {
   }
 
   send(): void {
+    if (this.isPending) {
+      this.statusMessage = 'Tu apto está en revisión. Cancélalo si necesitas reemplazarlo.';
+      return;
+    }
     if (!this.selectedFile) {
       this.statusMessage = 'Primero selecciona un PDF.';
       return;
     }
+    this.sending = true;
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
@@ -55,17 +66,37 @@ export class AptoMedicoComponent implements OnInit {
         base64
       }).subscribe({
         next: (apto) => {
-          this.storedFileName = apto.nombreArchivo;
-          this.storedUploadedAt = apto.fechaSubida;
-          this.submitMessage = 'Su apto médico será revisado en las próximas 48 horas, le notificaremos la resolución.';
-          this.statusMessage = '';
+          this.apto = apto;
+          this.selectedFile = undefined;
+          this.updateMessages();
         },
         error: () => {
           this.statusMessage = 'No se pudo subir el apto. Intenta nuevamente.';
-        }
+        },
+        complete: () => this.sending = false
       });
     };
     reader.readAsDataURL(this.selectedFile);
+  }
+
+  cancel(): void {
+    if (!this.apto?.id || !this.isPending) return;
+    this.loading = true;
+    this.aptosService.cancelar(this.apto.id).subscribe({
+      next: () => {
+        this.apto = null;
+        this.submitMessage = '';
+        this.statusMessage = 'Solicitud cancelada. Sube un nuevo PDF cuando quieras.';
+      },
+      error: () => this.statusMessage = 'No se pudo cancelar. Intenta de nuevo.',
+      complete: () => this.loading = false
+    });
+  }
+
+  renew(): void {
+    // permite subir un nuevo PDF sin borrar el actual; se reemplazará al ser aprobado por el admin
+    this.statusMessage = 'Selecciona un PDF para renovar tu apto.';
+    this.submitMessage = this.submitMessage; // mantiene mensaje vigente
   }
 
   goBack(): void {
@@ -75,16 +106,53 @@ export class AptoMedicoComponent implements OnInit {
   private loadStored(): void {
     this.aptosService.misAptos().subscribe({
       next: (aptos: Apto[]) => {
-        const first = aptos[0];
-        if (first) {
-          this.storedFileName = first.nombreArchivo;
-          this.storedUploadedAt = first.fechaSubida;
-          this.submitMessage = 'Su apto médico será revisado en las próximas 48 horas, le notificaremos la resolución.';
-        }
+        this.apto = aptos && aptos.length ? aptos[0] : null;
+        this.updateMessages();
       },
       error: () => {
-        // ignore
+        this.apto = null;
       }
     });
+  }
+
+  get isPending(): boolean {
+    return (this.apto?.estado || '').toUpperCase() === 'PENDIENTE';
+  }
+
+  get isApproved(): boolean {
+    return (this.apto?.estado || '').toUpperCase() === 'APROBADO';
+  }
+
+  get isRejected(): boolean {
+    return (this.apto?.estado || '').toUpperCase() === 'RECHAZADO';
+  }
+
+  get canUpload(): boolean {
+    return !this.isPending;
+  }
+
+  get showRenew(): boolean {
+    return this.isApproved;
+  }
+
+  private updateMessages(): void {
+    if (!this.apto) {
+      this.submitMessage = '';
+      return;
+    }
+    const estado = (this.apto.estado || '').toUpperCase();
+    if (estado === 'APROBADO') {
+      const vence = this.apto.fechaVencimiento ? new Date(this.apto.fechaVencimiento).toLocaleDateString() : '';
+      this.submitMessage = `Su apto médico fue aprobado. Gracias por la espera. ${vence ? 'Vigente hasta ' + vence : ''}`;
+      this.statusMessage = '';
+    } else if (estado === 'RECHAZADO') {
+      this.submitMessage = 'Su apto médico fue desaprobado, contacte con soporte para más información. Gracias por la espera.';
+      this.statusMessage = '';
+    } else if (estado === 'PENDIENTE') {
+      this.submitMessage = 'Su apto médico será revisado en las próximas 48 horas, le notificaremos la resolución.';
+      this.statusMessage = '';
+    } else {
+      this.submitMessage = '';
+    }
   }
 }

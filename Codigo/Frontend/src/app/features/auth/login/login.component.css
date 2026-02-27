@@ -87,7 +87,7 @@
 
 .auth-error {
   margin-top: 10px;
-  color: #ff6b6b;
+  color: var(--color-accent);
   font-weight: 700;
   text-align: center;
 }

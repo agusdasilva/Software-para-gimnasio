@@ -11,68 +11,83 @@
   background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
   border-radius: 14px;
-  padding: 10px;
+  padding: 14px;
 }
 
-.member-summary {
+.hero-head {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 0px;
 }
 
-.member-logo {
-  min-width: 58px;
-  height: 58px;
+.status-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.status-card {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.status-icon {
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   display: grid;
   place-items: center;
-  padding: 0 12px;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--color-border);
-  font-weight: 800;
-  letter-spacing: 0.5px;
+  background: var(--color-accent-soft);
   color: var(--color-accent);
-  font-size: 16px;
-  white-space: nowrap;
+  font-weight: 800;
 }
 
-.member-info {
+.status-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.member-name {
+.status-title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
 }
 
-.member-status {
+.status-title.ok {
+  color: var(--color-success);
+}
+
+.status-title.warn {
+  color: var(--color-warning);
+}
+
+.status-sub {
   margin: 0;
-  font-size: 15px;
-  font-weight: 700;
+  color: var(--color-text-muted);
 }
 
-.member-status.active {
-  color: #6ae98f;
-}
-
-.member-status.inactive {
-  color: #e57373;
-}
-
-.member-plan {
-  margin: 0;
-  font-size: 15px;
-  opacity: 0.85;
-}
-
-.member-plan span {
-  font-weight: 700;
-  margin-right: 6px;
+.status-arrow {
+  font-size: 22px;
+  color: var(--color-text-soft);
 }
 
 .kicker {
@@ -255,13 +270,13 @@
 }
 
 .feedback.success {
-  color: #1b5e20;
+  color: var(--color-success);
   margin-top: 8px;
   font-weight: 700;
 }
 
 .feedback.error {
-  color: #c62828;
+  color: var(--color-danger);
   margin-top: 8px;
   font-weight: 700;
 }

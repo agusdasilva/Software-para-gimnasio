@@ -1,16 +1,31 @@
 <section class="dashboard">
   <div class="dashboard__hero">
-    <div>
-      <div class="member-summary">
-        <div class="member-logo">Gimnasio</div>
-        <div class="member-info">
-          <p class="member-name">{{ displayName }}</p>
-          <p class="member-status" [class.active]="isMemberActive" [class.inactive]="!isMemberActive">
-            {{ isMemberActive ? 'Activo✓' : 'Inactivo✕' }}
-          </p>
-          <p class="member-plan"><span>Plan</span> {{ planName }}</p>
-        </div>
+    <div class="hero-head">
+      <div>
+        <p class="kicker">Resumen</p>
+        <h1>{{ displayName }}</h1>
+        <p class="muted">Accesos y requisitos</p>
       </div>
+    </div>
+    <div class="status-grid">
+      <button class="status-card" type="button" (click)="goToMembresias()">
+        <div class="status-icon">M</div>
+        <div class="status-body">
+          <p class="eyebrow">Membresía</p>
+          <p class="status-title" [class.ok]="isMemberActive" [class.warn]="!isMemberActive">{{ membreStatusText }}</p>
+          <p class="status-sub">{{ membreDetail }}</p>
+        </div>
+        <span class="status-arrow">›</span>
+      </button>
+      <button class="status-card" type="button" (click)="goToApto()">
+        <div class="status-icon">A</div>
+        <div class="status-body">
+          <p class="eyebrow">Apto médico</p>
+          <p class="status-title" [class.ok]="apto?.estado === 'APROBADO'" [class.warn]="apto?.estado !== 'APROBADO'">{{ aptoStatusText }}</p>
+          <p class="status-sub">{{ aptoDetail }}</p>
+        </div>
+        <span class="status-arrow">›</span>
+      </button>
     </div>
   </div>
 

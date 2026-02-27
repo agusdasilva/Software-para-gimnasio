@@ -7,7 +7,7 @@
   position: relative;
   z-index: 10;
   padding: 12px 12px;
-  border-bottom: 2px solid #e53935;
+  border-bottom: 2px solid var(--color-accent);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
@@ -216,13 +216,13 @@
   position: absolute;
   top: -6px;
   right: -6px;
-  background: #e53935;
-  color: #fff;
+  background: var(--color-danger);
+  color: var(--color-text);
   font-size: 11px;
   padding: 2px 6px;
   border-radius: 999px;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
+  box-shadow: 0 4px 10px var(--color-danger-soft);
 }
 
 .notif-panel {
@@ -279,11 +279,11 @@
 }
 
 .pref-item .tick {
-  color: #6ae98f;
+  color: var(--color-success);
 }
 
 .pref-item .cross {
-  color: #e57373;
+  color: var(--color-danger);
 }
 
 .tick-btn {
@@ -307,10 +307,10 @@
 }
 
 .tick-btn.cleared {
-  background: rgba(76, 175, 80, 0.16);
-  border-color: #4caf50;
-  color: #c8f7cd;
-  box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.35);
+  background: var(--color-success-soft);
+  border-color: var(--color-success);
+  color: var(--color-success);
+  box-shadow: 0 0 0 1px var(--color-success-soft);
 }
 
 .mini-hint {
@@ -327,8 +327,8 @@
 }
 
 .notif-item.unread {
-  border-color: rgba(229, 57, 53, 0.45);
-  background: rgba(229, 57, 53, 0.08);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
 }
 
 .notif-title {
@@ -374,19 +374,19 @@
 }
 
 .action-link.vip-link {
-  border: 2px solid #f5c542;
-  background: linear-gradient(120deg, #ffd65a, #f5c542);
-  color: #1f1f1f;
+  border: 2px solid var(--color-warning);
+  background: var(--gradient-warning);
+  color: var(--color-ink-strong);
   padding: 8px 14px;
   font-weight: 800;
-  box-shadow: 0 4px 14px rgba(245, 197, 66, 0.25);
+  box-shadow: 0 4px 14px var(--color-warning-soft);
 }
 
 .action-link.vip-link:hover {
-  color: #1f1f1f;
-  background: linear-gradient(120deg, #ffe58f, #f5c542);
+  color: var(--color-ink-strong);
+  background: var(--gradient-warning);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(245, 197, 66, 0.35);
+  box-shadow: 0 6px 18px var(--color-warning-soft);
 }
 
 .username {
@@ -462,7 +462,7 @@
   .mobile-notif {
     display: flex;
     order: 1;
-    margin-left: 8px;
+    margin-left: auto;
   }
 
   .actions-panel .notif-wrapper {
@@ -470,8 +470,7 @@
   }
 
   .logo-panel {
-    order: 2;
-    margin-left: auto;
+    display: none;
   }
 
   .mobile-menu-btn {

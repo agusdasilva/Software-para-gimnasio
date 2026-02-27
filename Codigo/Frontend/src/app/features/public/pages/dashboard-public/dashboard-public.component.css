@@ -7,7 +7,7 @@
   position: relative;
   height: calc(100vh - 110px - 50px);
   overflow: hidden;
-  border-bottom: 2px solid #e53935;
+  border-bottom: 2px solid var(--color-accent);
 }
 
 .slide {
@@ -34,7 +34,7 @@
   top: 50%;
   left: 10%;
   transform: translateY(-50%);
-  color: #fff;
+  color: var(--color-text);
   max-width: 480px;
   z-index: 2;
 }
@@ -114,14 +114,14 @@
   max-width: 1100px;
   margin: 40px auto 60px;
   padding: 1px;
-  background: #f2f2f2;
+  background: var(--color-bg-alt);
   border-radius: 12px;
 }
 
 .location-card {
-  background: rgb(7, 7, 7);
-  color: #ffffff;
-  border: 1px solid #444444;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   padding: 18px;
@@ -129,26 +129,26 @@
 
 .location-title {
   margin: 0 0 6px;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .location-address {
   margin: 0 0 10px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .muted {
   margin: 4px 0 0;
   opacity: 0.8;
-  color: #e0e0e0;
+  color: var(--color-text-muted);
 }
 
 .map-embed {
   margin-top: 12px;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #444444;
+  border: 1px solid var(--color-border);
   position: relative;
   aspect-ratio: 1 / 1;
   max-width: 450px;
@@ -164,8 +164,8 @@
   right: 10px;
   bottom: 8px;
   font-size: 12px;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.5);
+  color: var(--color-text);
+  background: var(--color-overlay-dark);
   padding: 4px 8px;
   border-radius: 8px;
   text-decoration: none;
@@ -193,7 +193,7 @@
 
 .google-link {
   text-decoration: none;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .score {
@@ -202,12 +202,12 @@
 }
 
 .star {
-  color: #f5d742;
+  color: var(--color-warning);
   font-size: 20px;
 }
 
 .star.half {
-  color: #f5d742aa;
+  color: var(--color-warning-soft);
 }
 
 .small {
@@ -268,7 +268,7 @@
   padding: 8px 10px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--color-bg);
 }
 
 .schedule-item.closed .hour {
@@ -299,7 +299,7 @@
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--color-overlay-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -324,7 +324,7 @@
   top: 50%;
   transform: translateY(-50%);
   background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  color: var(--color-text);
   border: none;
   padding: 10px 14px;
   border-radius: 50%;
@@ -344,7 +344,7 @@
   top: -40px;
   right: 0;
   background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  color: var(--color-text);
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
@@ -356,8 +356,8 @@
   padding: 30px 0 40px;
   background: rgb(7, 7, 7);
   color: inherit;
-  border-top: 1px solid #ffffff;
-  border-bottom: 1px solid #ffffff;
+  border-top: 1px solid var(--color-text);
+  border-bottom: 1px solid var(--color-text);
 }
 
 .reviews-header {
@@ -408,8 +408,8 @@
 }
 
 .review-card {
-  background: #000000;
-  border: 1px solid #e0e0e0;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
@@ -440,11 +440,11 @@
 }
 
 .score-star {
-  color: #f5d742;
+  color: var(--color-warning);
 }
 
 .score-star.half {
-  color: #f5d742aa;
+  color: var(--color-warning-soft);
 }
 
 .time-ago {

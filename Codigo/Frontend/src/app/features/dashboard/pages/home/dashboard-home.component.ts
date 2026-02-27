@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService, UsuarioResponse } from '../../../../core/auth/auth.service';
 import { HorarioService, HorarioDia } from '../../../../core/services/horario.service';
 import { DashboardConfigService, DashboardConfig } from '../../../../core/services/dashboard-config.service';
+import { MembresiaService, MembresiaResponse } from '../../../../core/services/membresia.service';
+import { AptosService, Apto } from '../../../../core/services/aptos.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -27,17 +30,24 @@ export class DashboardHomeComponent implements OnInit {
   recordatoriosString = '';
   readonly diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
   userProfile: UsuarioResponse | null = null;
+  membresia: MembresiaResponse | null = null;
+  apto: Apto | null = null;
 
   constructor(
     private horarioService: HorarioService,
     private authService: AuthService,
-    private dashboardConfigService: DashboardConfigService
+    private dashboardConfigService: DashboardConfigService,
+    private membresiaService: MembresiaService,
+    private aptosService: AptosService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.cargarHorario();
     this.cargarContenido();
     this.cargarPerfil();
+    this.cargarMembresia();
+    this.cargarApto();
   }
 
   get isAdmin(): boolean {
@@ -49,6 +59,9 @@ export class DashboardHomeComponent implements OnInit {
   }
 
   get isMemberActive(): boolean {
+    if (this.membresia?.estado?.toUpperCase() === 'ACTIVA' || this.membresia?.estado?.toUpperCase() === 'ACTIVO') {
+      return true;
+    }
     const profile = this.userProfile;
     if (!profile) {
       return false;
@@ -68,6 +81,47 @@ export class DashboardHomeComponent implements OnInit {
       return 'Sin plan';
     }
     return this.userProfile?.nombrePlan || 'Sin plan';
+  }
+
+  get membreStatusText(): string {
+    if (this.authService.currentUser?.rol !== 'CLIENTE') return 'Gestiona tus membresías';
+    return this.isMemberActive ? 'Membresía activa' : 'Sin membresía';
+  }
+
+  get membreDetail(): string {
+    if (this.authService.currentUser?.rol !== 'CLIENTE') return 'Administra planes, precios y asignaciones.';
+    if (!this.membresia) return 'Gestiona tu plan en Membresías.';
+    const dias = this.diasRestantesMembresia();
+    if (dias === null) {
+      return `Plan ${this.membresia.nombrePlan}`;
+    }
+    const pref = dias > 0 ? `Restan ${dias} días` : 'Vence hoy';
+    return `${pref} (fin ${new Date(this.membresia.fechaFin).toLocaleDateString()})`;
+  }
+
+  get aptoStatusText(): string {
+    if (this.authService.currentUser?.rol === 'ADMIN') return 'Gestionar aptos médicos';
+    const estado = (this.apto?.estado || 'PENDIENTE').toUpperCase();
+    switch (estado) {
+      case 'APROBADO': return 'Apto médico aprobado';
+      case 'RECHAZADO': return 'Apto médico rechazado';
+      case 'CANCELADO': return 'Apto cancelado';
+      default: return 'Apto médico pendiente';
+    }
+  }
+
+  get aptoDetail(): string {
+    if (this.authService.currentUser?.rol === 'ADMIN') return 'Aprueba, rechaza o asigna vencimientos.';
+    if (!this.apto) return 'Sube tu certificado para habilitar el ingreso.';
+    if (this.apto.estado === 'APROBADO' && this.apto.fechaVencimiento) {
+      const dias = this.diasHasta(this.apto.fechaVencimiento);
+      const pref = dias > 0 ? `Vence en ${dias} días` : 'Vence hoy';
+      return `${pref} (${new Date(this.apto.fechaVencimiento).toLocaleDateString()})`;
+    }
+    if (this.apto.estado === 'RECHAZADO') {
+      return 'Vuelve a subir tu certificado.';
+    }
+    return 'En revisión.';
   }
 
   cargarHorario(): void {
@@ -127,6 +181,22 @@ export class DashboardHomeComponent implements OnInit {
       error: () => {
         this.userProfile = null;
       }
+    });
+  }
+
+  private cargarMembresia(): void {
+    if (!this.authService.isAuthenticated()) return;
+    this.membresiaService.getMembresiaActual().subscribe({
+      next: m => this.membresia = m && m.estado?.toUpperCase() === 'ACTIVA' ? m : null,
+      error: () => this.membresia = null
+    });
+  }
+
+  private cargarApto(): void {
+    if (!this.authService.isAuthenticated()) return;
+    this.aptosService.misAptos().subscribe({
+      next: aptos => this.apto = aptos && aptos.length ? aptos[0] : null,
+      error: () => this.apto = null
     });
   }
 
@@ -212,6 +282,26 @@ export class DashboardHomeComponent implements OnInit {
 
   private normalizarDia(nombre: string): string {
     return (nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  private diasRestantesMembresia(): number | null {
+    if (!this.membresia?.fechaFin) return null;
+    return this.diasHasta(this.membresia.fechaFin);
+  }
+
+  private diasHasta(fecha: string): number {
+    const fin = new Date(fecha).getTime();
+    const diff = fin - Date.now();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  }
+
+  goToMembresias(): void {
+    const rol = this.authService.currentUser?.rol;
+    this.router.navigate([rol === 'CLIENTE' ? '/membresias/detalle' : '/membresias']);
+  }
+
+  goToApto(): void {
+    this.router.navigate(['/perfil/apto-medico']);
   }
 
 }

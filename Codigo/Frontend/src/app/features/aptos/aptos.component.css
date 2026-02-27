@@ -10,7 +10,7 @@
 }
 
 body.theme-light .panel {
-  background: #ffffff;
+  background: var(--color-bg-alt);
 }
 
 .head {
@@ -40,7 +40,7 @@ body.theme-light .panel {
 }
 
 body.theme-light .card {
-  background: #f8f8f8;
+  background: var(--color-bg);
 }
 
 .row {
@@ -57,11 +57,11 @@ body.theme-light .card {
 
 .muted {
   margin: 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-muted);
 }
 
 body.theme-light .muted {
-  color: #444;
+  color: var(--color-text-muted);
 }
 
 .pill {
@@ -72,13 +72,13 @@ body.theme-light .muted {
 }
 
 .pending {
-  background: rgba(255, 193, 7, 0.18);
-  color: #f9a825;
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
 }
 
 .approved {
-  background: rgba(46, 204, 113, 0.18);
-  color: #2ecc71;
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .file {
@@ -110,8 +110,8 @@ body.theme-light .muted {
 }
 
 .danger {
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
 .empty {
@@ -120,7 +120,7 @@ body.theme-light .muted {
 }
 
 .error {
-  color: #ff6b6b;
+  color: var(--color-danger);
   margin-top: 0.6rem;
 }
 

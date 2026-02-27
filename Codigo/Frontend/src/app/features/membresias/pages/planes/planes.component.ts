@@ -24,6 +24,8 @@ export class PlanesComponent implements OnInit, OnDestroy {
   planesMessage = '';
   private selectedPlanId: number | null = null;
   private selectedPlanName: string | null = null;
+  private readonly storageKey = 'last_plan_selected';
+  private membershipLoaded = false;
   @ViewChild('planesTrack', { static: false }) planesTrack?: ElementRef<HTMLDivElement>;
   editandoPlanId: number | null = null;
   planDraft: Plan = this.nuevoPlan();
@@ -46,14 +48,18 @@ export class PlanesComponent implements OnInit, OnDestroy {
       this.loading = true;
       this.membresiaService.getMembresiaActual().subscribe({
         next: (m) => {
-          this.membresia = m;
+          this.membresia = this.filtrarMembresia(m);
           this.loading = false;
           this.error = '';
+          this.membershipLoaded = true;
+          this.ensureMembresiaFromStored();
         },
         error: () => {
           this.loading = false;
           this.membresia = null;
           this.error = '';
+          this.membershipLoaded = true;
+          this.ensureMembresiaFromStored();
         }
       });
     }
@@ -98,6 +104,7 @@ export class PlanesComponent implements OnInit, OnDestroy {
     this.loadingPlan = plan.id ? plan.id.toString() : plan.nombre;
     this.selectedPlanId = plan.id ?? null;
     this.selectedPlanName = plan.nombre;
+    this.storeSelectedPlan();
     this.error = '';
     this.pagoService.crearPreferencia(this.loadingPlan).subscribe({
       next: (pref) => {
@@ -168,10 +175,15 @@ export class PlanesComponent implements OnInit, OnDestroy {
     if (!this.editandoPlanId) {
       return;
     }
-    this.planesLoading = true;
     this.planesMessage = '';
     this.planesError = '';
     const payload: Plan = { ...this.planDraft, id: this.editandoPlanId, precio: Number(this.planDraft.precio || 0) };
+    const validation = this.validarPlan(payload);
+    if (validation) {
+      this.planesError = validation;
+      return;
+    }
+    this.planesLoading = true;
     this.planService.actualizar(payload).subscribe({
       next: () => {
         this.planesMessage = 'Plan actualizado.';
@@ -188,10 +200,15 @@ export class PlanesComponent implements OnInit, OnDestroy {
   }
 
   crearPlan(): void {
-    this.planesLoading = true;
     this.planesMessage = '';
     this.planesError = '';
     const payload: Plan = { ...this.nuevoPlanDraft, precio: Number(this.nuevoPlanDraft.precio || 0) };
+    const validation = this.validarPlan(payload);
+    if (validation) {
+      this.planesError = validation;
+      return;
+    }
+    this.planesLoading = true;
     this.planService.crear(payload).subscribe({
       next: () => {
         this.planesMessage = 'Plan creado.';
@@ -247,10 +264,23 @@ export class PlanesComponent implements OnInit, OnDestroy {
     }
   }
 
+  private validarPlan(plan: Plan): string | null {
+    const nombre = (plan.nombre || '').trim();
+    if (!nombre) {
+      return 'La descripción es obligatoria.';
+    }
+    const precio = Number(plan.precio || 0);
+    if (isNaN(precio) || precio <= 0) {
+      return 'El precio debe ser mayor a 0.';
+    }
+    return null;
+  }
+
   private checkPaymentReturn(): void {
-    const paymentId = this.route.snapshot.queryParamMap.get('payment_id');
-    const status = this.route.snapshot.queryParamMap.get('status');
-    if (!paymentId || !status) {
+    const paymentId = this.route.snapshot.queryParamMap.get('payment_id')
+      || this.route.snapshot.queryParamMap.get('collection_id')
+      || this.route.snapshot.queryParamMap.get('id');
+    if (!paymentId) {
       return;
     }
     if (!this.authService.isAuthenticated()) {
@@ -259,21 +289,26 @@ export class PlanesComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = '';
     this.pagoService.confirmarPago(paymentId).subscribe({
-      next: () => {
+      next: (membresia) => {
         this.success = 'Pago confirmado y membresia renovada.';
-        this.loading = false;
-        this.membresiaService.getMembresiaActual().subscribe((m) => this.membresia = m);
-        // Refuerzo: si el backend no creo la membresia, intentamos crearla con el plan seleccionado
-        if (!this.membresia && this.selectedPlanId) {
-          this.membresiaService.crear(this.selectedPlanId).subscribe({
-            next: m => this.membresia = m,
-            error: () => {}
-          });
-        }
+        this.handlePagoConfirmado(membresia);
       },
       error: () => {
         this.loading = false;
-        this.error = 'No se pudo confirmar el pago. Si el cargo fue realizado, contacta soporte.';
+        this.error = 'No se pudo confirmar el pago. Intentando reconciliar...';
+        this.restoreSelectedPlan();
+        const planCode = this.selectedPlanId ? this.selectedPlanId.toString() : (this.selectedPlanName || this.loadingPlan || '');
+        if (planCode) {
+          this.pagoService.reconciliar(planCode).subscribe({
+            next: (res) => {
+              this.success = 'Pago reconciliado y membresia activada.';
+              this.handlePagoConfirmado(res);
+            },
+            error: () => {
+              this.error = 'No se pudo confirmar el pago. Si el cargo fue realizado, contacta soporte.';
+            }
+          });
+        }
       }
     });
   }
@@ -301,25 +336,19 @@ export class PlanesComponent implements OnInit, OnDestroy {
         }
 
         const url = new URL(popup.location.href);
-        const paymentId = url.searchParams.get('payment_id');
-        const status = url.searchParams.get('status');
-        if (paymentId && status) {
+        const paymentId = url.searchParams.get('payment_id')
+          || url.searchParams.get('collection_id')
+          || url.searchParams.get('id');
+        if (paymentId) {
           window.clearInterval(this.paymentPoll!);
           this.paymentPoll = null;
           popup.close();
           this.loading = true;
           this.error = '';
           this.pagoService.confirmarPago(paymentId).subscribe({
-            next: () => {
+            next: (membresia) => {
               this.success = 'Pago confirmado y membresia renovada.';
-              this.membresiaService.getMembresiaActual().subscribe((m) => this.membresia = m);
-              if (!this.membresia && this.selectedPlanId) {
-                this.membresiaService.crear(this.selectedPlanId).subscribe({
-                  next: mem => this.membresia = mem,
-                  error: () => {}
-                });
-              }
-              this.loading = false;
+              this.handlePagoConfirmado(membresia);
             },
             error: () => {
               this.loading = false;
@@ -333,7 +362,45 @@ export class PlanesComponent implements OnInit, OnDestroy {
     }, 800);
   }
 
+  private ensureMembresiaFromStored(): void {
+    if (!this.membershipLoaded) return;
+    if (this.membresia) return;
+    if (!this.authService.isAuthenticated()) return;
+    this.restoreSelectedPlan();
+    if (this.selectedPlanId) {
+      this.crearMembresiaLocal();
+    }
+  }
+
+  private storeSelectedPlan(): void {
+    const payload = {
+      id: this.selectedPlanId,
+      name: this.selectedPlanName
+    };
+    localStorage.setItem(this.storageKey, JSON.stringify(payload));
+  }
+
+  private restoreSelectedPlan(): void {
+    const raw = localStorage.getItem(this.storageKey);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      this.selectedPlanId = data?.id ?? null;
+      this.selectedPlanName = data?.name ?? null;
+    } catch {
+      this.selectedPlanId = null;
+      this.selectedPlanName = null;
+    }
+  }
+
+  private clearStoredPlan(): void {
+    localStorage.removeItem(this.storageKey);
+  }
+
   private crearMembresiaLocal(): void {
+    if (!this.selectedPlanId) {
+      this.restoreSelectedPlan();
+    }
     if (!this.selectedPlanId) {
       this.error = 'No se pudo detectar el plan seleccionado.';
       return;
@@ -342,8 +409,10 @@ export class PlanesComponent implements OnInit, OnDestroy {
     this.error = '';
     this.membresiaService.crear(this.selectedPlanId).subscribe({
       next: (m) => {
-        this.membresia = m;
+        this.membresia = this.filtrarMembresia(m);
         this.success = `Membresia "${this.selectedPlanName || ''}" activada.`;
+        this.clearStoredPlan();
+        this.irADetalleSiCliente();
       },
       error: () => {
         this.error = 'No se pudo crear la membresia en el servidor.';
@@ -353,6 +422,55 @@ export class PlanesComponent implements OnInit, OnDestroy {
         this.loadingPlan = null;
       }
     });
+  }
+
+  private handlePagoConfirmado(membresia: MembresiaResponse | null): void {
+    const filtrada = this.filtrarMembresia(membresia);
+    if (filtrada) {
+      this.membresia = filtrada;
+      this.clearStoredPlan();
+      this.loading = false;
+      this.loadingPlan = null;
+      this.irADetalleSiCliente();
+      return;
+    }
+    // Si MP no devolvió la membresía, reintentamos conciliando contra MercadoPago
+    this.restoreSelectedPlan();
+    const planCode = this.selectedPlanId ? this.selectedPlanId.toString() : (this.selectedPlanName || this.loadingPlan || '');
+    if (!planCode) {
+      this.crearMembresiaLocal();
+      return;
+    }
+    this.pagoService.reconciliar(planCode).subscribe({
+      next: (res) => {
+        const ok = this.filtrarMembresia(res);
+        if (ok) {
+          this.membresia = ok;
+          this.clearStoredPlan();
+          this.irADetalleSiCliente();
+        } else {
+          this.crearMembresiaLocal();
+        }
+      },
+      error: () => this.crearMembresiaLocal()
+    });
+  }
+
+  private irADetalleSiCliente(): void {
+    if (this.authService.hasRole(['CLIENTE'])) {
+      this.router.navigate(['/membresias/detalle']);
+    }
+  }
+
+  private filtrarMembresia(m: MembresiaResponse | null): MembresiaResponse | null {
+    if (!m) return null;
+    const estado = (m.estado || '').toUpperCase();
+    if (estado !== 'ACTIVA') return null;
+    if (m.fechaFin) {
+      const fin = new Date(m.fechaFin).getTime();
+      if (fin <= Date.now()) return null;
+    }
+    return m;
   }
 
   private definirDestacado(): void {

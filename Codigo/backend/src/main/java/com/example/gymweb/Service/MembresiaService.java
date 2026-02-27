@@ -69,6 +69,11 @@ public class MembresiaService {
             this.membresiaRepository.save(m);
         }
 
+        // Solo consideramos ACTIVA como membresía vigente; el resto se trata como sin membresía
+        if (!EstadoMembresia.ACTIVA.equals(m.getEstado())) {
+            return null;
+        }
+
         return this.convertirAResponse(m);
     }
 
