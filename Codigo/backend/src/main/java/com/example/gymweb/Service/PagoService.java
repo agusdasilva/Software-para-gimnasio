@@ -23,9 +23,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class PagoService {
+    private static final Logger log = LoggerFactory.getLogger(PagoService.class);
     @Autowired
     private PagoRepository pagoRepository;
     @Autowired
@@ -88,8 +91,11 @@ public class PagoService {
     }
 
     public MembresiaResponse procesarPagoMercadoPago(Long paymentId) {
+        log.info("Procesando pago MercadoPago paymentId={}", paymentId);
         MercadoPagoPaymentInfo info = this.mercadoPagoService.obtenerPago(paymentId);
-        if (!"approved".equalsIgnoreCase(info.getStatus())) {
+        log.info("Estado MP status={} externalRef={} amount={}", info.getStatus(), info.getExternalReference(), info.getTransactionAmount());
+        String status = info.getStatus() != null ? info.getStatus().toLowerCase() : "";
+        if (!(status.equals("approved") || status.equals("authorized") || status.equals("in_process"))) {
             throw new RuntimeException("Pago no aprobado");
         }
 
@@ -169,6 +175,8 @@ public class PagoService {
         membresia.setFechaFin(this.membresiaService.calcularFechaFin(plan, inicio));
         membresia.setEstado(EstadoMembresia.ACTIVA);
         this.membresiaRepository.save(membresia);
+        log.info("Membresia {} activada para usuario {} plan {} desde {} hasta {}",
+                membresia.getId(), usuario.getId(), plan.getId(), membresia.getFechaInicio(), membresia.getFechaFin());
 
         // Registrar pago
         Pago pago = new Pago();
@@ -187,6 +195,21 @@ public class PagoService {
         this.pagoRepository.save(pago);
 
         return this.membresiaService.obtenerMembresiaActualPorUsuario(userId);
+    }
+
+    /**
+     * Reintenta activar la membresía buscando el ultimo pago por external_reference.
+     * Se usa como fallback si el frontend no logro confirmar o el webhook no llego.
+     */
+    public MembresiaResponse reconciliarPagoPorUsuarioYPlan(int userId, String planCode) {
+        String extRef = "user-" + userId + "-plan-" + planCode;
+        Long paymentId = this.mercadoPagoService.buscarPagoPorExternalReference(extRef);
+        if (paymentId == null) {
+            log.warn("No se encontro pago en MP con external_reference {}", extRef);
+            return null;
+        }
+        log.info("Reconciliando pago {} para usuario {} plan {}", paymentId, userId, planCode);
+        return this.procesarPagoMercadoPago(paymentId);
     }
 
     private record PlanInfo(String nombre, java.math.BigDecimal precio, String periodo) {}

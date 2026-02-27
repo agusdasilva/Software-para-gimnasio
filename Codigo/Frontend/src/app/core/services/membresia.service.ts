@@ -42,4 +42,18 @@ export class MembresiaService {
       idPlan
     });
   }
+
+  /**
+   * Cambia el estado de una membresía existente.
+   * Estados disponibles en el backend: PENDIENTE, ACTIVA, VENCIDA.
+   */
+  cambiarEstado(idMembresia: number, estado: 'PENDIENTE' | 'ACTIVA' | 'VENCIDA'): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${idMembresia}/estado`, null, {
+      params: { estado }
+    });
+  }
+
+  cancelar(idMembresia: number): Observable<void> {
+    return this.cambiarEstado(idMembresia, 'VENCIDA');
+  }
 }

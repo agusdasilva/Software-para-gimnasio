@@ -37,6 +37,8 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/planes/**").permitAll()
                         // Confirmacion de pago: validamos token de webhook en el controlador
                             .requestMatchers(HttpMethod.POST, "/api/pagos/mercadopago/confirmar").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/pagos/mercadopago/confirmar").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/pagos/mercadopago/reconciliar").authenticated()
                             // Administración general
                             .requestMatchers(HttpMethod.POST, "/api/usuarios/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.PATCH, "/api/usuarios/**").hasRole("ADMIN")

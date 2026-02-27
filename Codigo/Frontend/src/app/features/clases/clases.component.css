@@ -86,7 +86,7 @@
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--color-border);
-  background: #0f0f0f;
+  background: var(--color-bg);
   color: var(--color-text);
 }
 
@@ -139,7 +139,7 @@
   padding: 12px 14px;
   border-radius: 10px;
   border: 1px solid var(--color-border);
-  background: #0f0f0f;
+  background: var(--color-bg);
   color: var(--color-text);
 }
 
@@ -160,7 +160,7 @@
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--color-border);
-  background: #0f0f0f;
+  background: var(--color-bg);
   color: var(--color-text);
 }
 
@@ -285,18 +285,18 @@
 }
 
 .chip.nivel {
-  background: rgba(76, 175, 80, 0.1);
-  color: #8bc34a;
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .chip.nivel.avanzado {
-  background: rgba(229, 57, 53, 0.1);
-  color: #ef5350;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
 }
 
 .chip.nivel.inicial {
-  background: rgba(66, 165, 245, 0.12);
-  color: #90caf9;
+  background: var(--color-info-soft);
+  color: var(--color-info);
 }
 
 .chip.estado {
@@ -305,11 +305,11 @@
 }
 
 .chip.estado.llena {
-  color: #ffc107;
+  color: var(--color-warning);
 }
 
 .chip.estado.cancelada {
-  color: #ef5350;
+  color: var(--color-danger);
 }
 
 .entrenador {
@@ -364,10 +364,10 @@
 .tag {
   padding: 8px 12px;
   border-radius: 12px;
-  background: linear-gradient(120deg, #ff8a80, #e53935);
-  color: #1f1f1f;
+  background: var(--gradient-accent-strong);
+  color: var(--color-on-accent);
   font-weight: 800;
-  box-shadow: 0 6px 18px rgba(229, 57, 53, 0.25);
+  box-shadow: 0 6px 18px var(--color-accent-soft);
 }
 
 .card-actions {
@@ -389,11 +389,11 @@
 
 .btn.primary {
   background: var(--color-accent);
-  color: var(--color-header-bg);
+  color: var(--color-on-accent);
 }
 
 .btn.ghost {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: var(--color-border);
   color: var(--color-text);
 }
 
@@ -416,7 +416,7 @@
 .detalle-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--color-overlay-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -474,7 +474,7 @@
 }
 
 .feedback.success {
-  color: #8bc34a;
+  color: var(--color-success);
   margin-top: 10px;
   font-weight: 800;
 }

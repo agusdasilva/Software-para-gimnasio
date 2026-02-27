@@ -13,20 +13,20 @@
     </div>
     <ng-template #noMembresia>
       <div class="status__content">
-        <div>
+        <div *ngIf="authService.currentUser?.rol === 'CLIENTE'; else emptySpacer">
           <p class="eyebrow">Sin membresia activa</p>
-          <p class="muted">Elige un plan y activa tu proximo mes.</p>
+          <p class="muted">Elige tu plan</p>
+          <p class="muted">Flexibilidad para tu rutina: paga por dia o sumate a un plan mensual con beneficios extra.</p>
         </div>
+        <ng-template #emptySpacer>
+          <p class="muted">Consulta y gestiona los planes disponibles.</p>
+        </ng-template>
       </div>
     </ng-template>
     <p class="error" *ngIf="error">{{ error }}</p>
   </div>
 
-  <div class="planes__header">
-    <h1>Elige tu plan</h1>
-    <p>Flexibilidad para tu rutina: paga por dia o sumate a un plan mensual con beneficios extra.</p>
-    <div class="error" *ngIf="error">{{ error }}</div>
-  </div>
+  <div class="planes__header"></div>
 
   <div class="planes-carousel" *ngIf="planes?.length; else sinPlanes">
     <button class="carousel-btn left" type="button" (click)="scrollPlans(-1)">&#10094;</button>
@@ -46,7 +46,6 @@
         </ul>
         <div class="plan-meta">
           <span>{{ periodoLabel(plan.periodo) }}</span>
-          <span>Sin permanencia</span>
         </div>
         <button (click)="choosePlan(plan)" [disabled]="isLoading(plan)">
           {{ isLoading(plan) ? 'Abriendo pago...' : 'Elegir plan' }}
@@ -104,7 +103,7 @@
             </label>
           </div>
           <div class="admin-plan-card__actions">
-            <button class="btn" (click)="guardarPlan()" [disabled]="planesLoading">Guardar</button>
+            <button class="btn" (click)="guardarPlan()" [disabled]="planesLoading || !planDraft.nombre.trim() || !planDraft.precio || planDraft.precio <= 0">Guardar</button>
             <button class="btn ghost" (click)="cancelarEdicionPlan()">Cancelar</button>
           </div>
         </ng-template>
@@ -130,7 +129,7 @@
         </label>
       </div>
       <div class="admin-plan-card__actions">
-        <button class="btn" (click)="crearPlan()" [disabled]="planesLoading">Agregar</button>
+        <button class="btn" (click)="crearPlan()" [disabled]="planesLoading || !nuevoPlanDraft.nombre.trim() || !nuevoPlanDraft.precio || nuevoPlanDraft.precio <= 0">Agregar</button>
         <button class="btn ghost" (click)="limpiarNuevoPlan()">Limpiar</button>
       </div>
     </div>

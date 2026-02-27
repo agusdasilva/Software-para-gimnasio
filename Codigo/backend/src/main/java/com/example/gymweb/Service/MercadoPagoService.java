@@ -28,6 +28,9 @@ public class MercadoPagoService {
     @Value("${mercadopago.back-url:http://localhost:4200/membresias}")
     private String backUrl;
 
+    @Value("${mercadopago.notification-url:http://localhost:8080/api/pagos/mercadopago/confirmar}")
+    private String notificationUrl;
+
     private static final Map<String, PlanInfo> PLANES = new HashMap<>();
     static {
         PLANES.put("dia", new PlanInfo("Plan por dia", new BigDecimal("10"), "DIARIO"));
@@ -64,6 +67,7 @@ public class MercadoPagoService {
         // No usamos auto_return porque exige back_urls https; en local es http y falla
         payload.put("external_reference", "user-" + usuario.getId() + "-plan-" + planCode);
         payload.put("payer", Map.of("email", usuario.getEmail()));
+        payload.put("notification_url", notificationUrl);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -78,7 +82,12 @@ public class MercadoPagoService {
 
         MercadoPagoPreferenceResponse res = new MercadoPagoPreferenceResponse();
         res.setPreferenceId(response.get("id").toString());
-        res.setInitPoint(response.get("init_point").toString());
+        Object sandboxInit = response.get("sandbox_init_point");
+        if (sandboxInit != null && !sandboxInit.toString().isBlank()) {
+            res.setInitPoint(sandboxInit.toString());
+        } else {
+            res.setInitPoint(response.get("init_point").toString());
+        }
         return res;
     }
 
@@ -113,6 +122,74 @@ public class MercadoPagoService {
             info.setTransactionAmount(new BigDecimal(amount.toString()));
         }
         return info;
+    }
+
+    /**
+     * Busca el pago mas reciente con una external_reference exacta.
+     * Retorna el payment id o null si no se encuentra.
+     */
+    public Long buscarPagoPorExternalReference(String externalReference) {
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new RuntimeException("Falta configurar mercadopago.access-token");
+        }
+        RestTemplate restTemplate = restTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        Map<?, ?> response = restTemplate.exchange(
+                "https://api.mercadopago.com/v1/payments/search?external_reference=" + externalReference + "&sort=date_created&criteria=desc&limit=1",
+                org.springframework.http.HttpMethod.GET,
+                request,
+                Map.class
+        ).getBody();
+        if (response == null) {
+            return null;
+        }
+        Object results = response.get("results");
+        if (results instanceof java.util.List<?> list && !list.isEmpty()) {
+            Object first = list.get(0);
+            if (first instanceof Map<?, ?> map && map.get("id") != null) {
+                try {
+                    return Long.parseLong(map.get("id").toString());
+                } catch (NumberFormatException ignored) { }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Obtiene el primer payment id asociado a una merchant_order enviada por webhook.
+     * Devuelve null si no hay pagos asociados.
+     */
+    public Long obtenerPaymentIdDesdeMerchantOrder(Long merchantOrderId) {
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new RuntimeException("Falta configurar mercadopago.access-token");
+        }
+        RestTemplate restTemplate = restTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        Map<?, ?> response = restTemplate.exchange(
+                "https://api.mercadopago.com/merchant_orders/" + merchantOrderId,
+                org.springframework.http.HttpMethod.GET,
+                request,
+                Map.class
+        ).getBody();
+        if (response == null) {
+            return null;
+        }
+        Object payments = response.get("payments");
+        if (payments instanceof java.util.List<?> list && !list.isEmpty()) {
+            Object first = list.get(0);
+            if (first instanceof Map<?, ?> map && map.get("id") != null) {
+                try {
+                    return Long.parseLong(map.get("id").toString());
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return null;
     }
 
     private PlanInfo obtenerPlanInfo(String planCode) {

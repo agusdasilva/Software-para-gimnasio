@@ -50,7 +50,7 @@
 
 .error {
   margin: 8px 0 0;
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .planes__header {
@@ -87,7 +87,7 @@
   height: 34px;
   border-radius: 50%;
   border: 1px solid var(--color-border);
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--color-overlay-dark);
   color: var(--color-text);
   cursor: pointer;
   z-index: 2;
@@ -163,7 +163,7 @@
   border-radius: 8px;
   border: 2px solid var(--color-accent);
   background: transparent;
-  color: #ffffff;
+  color: var(--color-on-accent);
   font-weight: 700;
   cursor: pointer;
   transition: 0.2s ease;
@@ -172,19 +172,19 @@
 .plan-card button:hover,
 .plan-card button:focus-visible,
 .plan-card button:active {
-  border-color: #26a84a;
-  background: #26a84a;
-  color: #ffffff;
+  border-color: var(--color-success);
+  background: var(--color-success);
+  color: var(--color-on-accent);
 }
 
 .plan-card--destacado {
-  border-color: #f5c542;
-  box-shadow: 0 10px 28px rgba(245, 197, 66, 0.25);
-  background: #1a1a1a;
+  border-color: var(--color-warning);
+  box-shadow: 0 10px 28px var(--color-warning-soft);
+  background: var(--color-bg);
 }
 
 .plan-card--destacado .plan-card__price {
-  color: #f5c542;
+  color: var(--color-warning);
 }
 
 .plan-card__top {
@@ -204,15 +204,15 @@
 }
 
 .pill-soft {
-  background: rgba(255, 26, 26, 0.12);
+  background: var(--color-accent-soft);
   color: var(--color-accent);
-  border-color: rgba(255, 26, 26, 0.4);
+  border-color: var(--color-accent);
 }
 
 .pill-gold {
-  background: rgba(245, 197, 66, 0.2);
-  color: #f5c542;
-  border-color: rgba(245, 197, 66, 0.5);
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
 }
 
 .period {
@@ -293,7 +293,7 @@
 }
 
 .admin-plan-card__actions .danger {
-  color: #c62828;
+  color: var(--color-danger);
 }
 
 .plan-form {
@@ -314,18 +314,18 @@
 .plan-form select {
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   font-size: 14px;
 }
 
 .feedback.success {
-  color: #1b5e20;
+  color: var(--color-success);
   margin-top: 10px;
   font-weight: 700;
 }
 
 .feedback.error {
-  color: #c62828;
+  color: var(--color-danger);
   margin-top: 10px;
   font-weight: 700;
 }

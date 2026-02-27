@@ -25,9 +25,9 @@ export class AptosComponent implements OnInit {
     this.errorMsg = '';
     this.aptosService.pendientes().subscribe({
       next: res => {
-        this.pendientes = res;
+        this.pendientes = (res || []).slice(0, 5);
         const defaultDate = this.defaultExpiry();
-        res.forEach(a => {
+        this.pendientes.forEach(a => {
           if (!this.fechas[a.id]) {
             this.fechas[a.id] = defaultDate;
           }
@@ -36,7 +36,7 @@ export class AptosComponent implements OnInit {
       error: () => this.errorMsg = 'No se pudieron cargar las solicitudes'
     });
     this.aptosService.aprobados().subscribe({
-      next: res => this.aprobados = res,
+      next: res => this.aprobados = (res || []).slice(0, 5),
       error: () => this.errorMsg = 'No se pudieron cargar los aptos aprobados',
       complete: () => this.loading = false
     });

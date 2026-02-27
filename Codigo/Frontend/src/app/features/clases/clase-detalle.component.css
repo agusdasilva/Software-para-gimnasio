@@ -80,10 +80,10 @@
 .sol-actions .btn.primary,
 .detalle-actions .btn.primary,
 .mensaje-form .btn.primary {
-  background: linear-gradient(135deg, #ff6a00, #ee0979);
+  background: var(--gradient-accent-strong);
   border-color: transparent;
-  color: #1a1a1a;
-  box-shadow: 0 10px 24px rgba(238, 9, 121, 0.3);
+  color: var(--color-on-accent);
+  box-shadow: 0 10px 24px var(--color-accent-soft);
   border-radius: 999px;
   padding-inline: 16px;
   font-weight: 800;
@@ -93,7 +93,7 @@
 .detalle-actions .btn.primary:hover,
 .mensaje-form .btn.primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 26px rgba(238, 9, 121, 0.35);
+  box-shadow: 0 12px 26px var(--color-accent-soft);
 }
 
 .mensajes {
@@ -126,10 +126,10 @@
 }
 
 .btn.primary.minimal {
-  background: linear-gradient(135deg, #ff6a00, #ee0979);
+  background: var(--gradient-accent-strong);
   border-color: transparent;
-  color: #1a1a1a;
-  box-shadow: 0 10px 24px rgba(238, 9, 121, 0.3);
+  color: var(--color-on-accent);
+  box-shadow: 0 10px 24px var(--color-accent-soft);
 }
 
 .rutinas-clase {
